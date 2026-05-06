@@ -1,0 +1,14 @@
+[package]
+name        = "sezar-core"
+version     = { workspace = true }
+edition     = { workspace = true }
+rust-version = { workspace = true }
+license     = { workspace = true }
+description = "Sezar shared event schema + posture rollup library"
+
+[dependencies]
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+chrono      = { workspace = true }
+thiserror   = { workspace = true }
+uuid        = { workspace = true }

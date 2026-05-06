@@ -1,0 +1,23 @@
+[package]
+name        = "sezar-server"
+version     = { workspace = true }
+edition     = { workspace = true }
+rust-version = { workspace = true }
+license     = { workspace = true }
+description = "Sezar collector + REST API + dashboard backend"
+
+[[bin]]
+name = "sezar-server"
+path = "src/main.rs"
+
+[dependencies]
+sezar-core         = { workspace = true }
+serde              = { workspace = true }
+serde_json         = { workspace = true }
+tokio              = { workspace = true }
+axum               = { workspace = true }
+tower              = { workspace = true }
+tracing            = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow             = { workspace = true }
+chrono             = { workspace = true }

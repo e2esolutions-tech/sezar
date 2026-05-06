@@ -1,0 +1,14 @@
+[package]
+name        = "sezar-id"
+version     = { workspace = true }
+edition     = { workspace = true }
+rust-version = { workspace = true }
+license     = { workspace = true }
+description = "Sezar HSM/KMS/smart-card inventory (V4 — stub for now)"
+
+[lib]
+name = "sezar_id"
+path = "src/lib.rs"
+
+[dependencies]
+sezar-core = { workspace = true }

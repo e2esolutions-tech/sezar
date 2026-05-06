@@ -1,0 +1,14 @@
+[package]
+name        = "sezar-cert"
+version     = { workspace = true }
+edition     = { workspace = true }
+rust-version = { workspace = true }
+license     = { workspace = true }
+description = "Sezar certificate inventory module (V2 — stub for now)"
+
+[lib]
+name = "sezar_cert"
+path = "src/lib.rs"
+
+[dependencies]
+sezar-core = { workspace = true }

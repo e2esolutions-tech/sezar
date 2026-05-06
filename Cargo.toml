@@ -1,0 +1,35 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/sezar-core",
+    "crates/sezar-server",
+    "crates/sezar-net",
+    "crates/sezar-cert",
+    "crates/sezar-chain",
+    "crates/sezar-id",
+]
+
+[workspace.package]
+version       = "0.1.0-dev"
+edition       = "2021"
+rust-version  = "1.78"
+authors       = ["e2e Solutions <info@e2esolutions.tech>"]
+license       = "MIT"
+repository    = "https://github.com/e2esolutions-tech/sezar"
+homepage      = "https://github.com/e2esolutions-tech/sezar"
+
+[workspace.dependencies]
+serde       = { version = "1", features = ["derive"] }
+serde_json  = "1"
+tokio       = { version = "1", features = ["full"] }
+anyhow      = "1"
+thiserror   = "1"
+tracing     = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+chrono      = { version = "0.4", features = ["serde"] }
+uuid        = { version = "1", features = ["serde", "v4"] }
+axum        = "0.7"
+tower       = "0.5"
+
+# Workspace-internal
+sezar-core  = { path = "crates/sezar-core" }

@@ -1,0 +1,23 @@
+target/
+Cargo.lock
+*.swp
+*.swo
+.vscode/
+.idea/
+.DS_Store
+
+# Local dev artefacts
+data/
+*.sqlite
+*.db
+.env
+.env.*
+!.env.example
+
+# UI
+web/node_modules/
+web/dist/
+web/.vite/
+
+# Rust
+**/*.rs.bk

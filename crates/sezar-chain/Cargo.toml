@@ -1,0 +1,14 @@
+[package]
+name        = "sezar-chain"
+version     = { workspace = true }
+edition     = { workspace = true }
+rust-version = { workspace = true }
+license     = { workspace = true }
+description = "Sezar blockchain crypto monitor (V3 — stub for now)"
+
+[lib]
+name = "sezar_chain"
+path = "src/lib.rs"
+
+[dependencies]
+sezar-core = { workspace = true }
