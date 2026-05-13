@@ -361,17 +361,21 @@ it for action.](figures/q-trajectory.pdf){#fig:trajectory width=85%}
 
 # 4. Sezar: A Reference Implementation
 
-We have implemented the three-axis model in Sezar, an open-
-source Rust workspace [@sezar-event-schema; @sezar-rollup]
-released under MIT.
+We have implemented the three-axis model in Sezar, an
+open-source Rust workspace released under MIT. The schema
+specification ([`docs/crypto-event-schema.md`](docs/crypto-event-schema.md))
+and the posture-rollup formula
+([`docs/posture-rollup.md`](docs/posture-rollup.md)) live next
+to the code; the rest of this section sketches the parts that
+matter for the magazine reader.
 
 ## 4.1 One Schema, Many Agents
 
 Sezar's architectural invariant is that every agent — from an
 eBPF TLS sniffer to a public-blockchain key tracker — emits
-the same event shape, `crypto_inventory_event`. The previously
-published v1 schema [@sezar-event-schema] is extended additively
-(v1.1) with two new top-level blocks:
+the same event shape, `crypto_inventory_event`. The published
+v1 schema is extended additively (v1.1) with two new top-level
+blocks:
 
 ```json
 {

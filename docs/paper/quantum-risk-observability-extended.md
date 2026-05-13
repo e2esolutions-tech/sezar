@@ -507,8 +507,9 @@ quantum-trivial (a deprecated or known-broken algorithm) and 1
 corresponds to a primitive that is quantum-resistant under the
 standard NIST hardness assumptions.
 
-Following the existing Sezar V1 rollup [@sezar-rollup], we
-classify each primitive into one of five categories:
+Following the existing Sezar V1 rollup (defined in
+`docs/posture-rollup.md` in the Sezar repository), we classify
+each primitive into one of five categories:
 
 | Category     | $a$ value | Examples |
 |--------------|-----------|----------|
@@ -637,11 +638,12 @@ links.
 
 # 6. Event Schema Extensions
 
-We extend the Sezar `crypto_inventory_event v1` schema
-(documented in [@sezar-event-schema]) with additive,
-non-breaking fields. Existing consumers that ignore unknown
-top-level fields continue to function; consumers that opt in to
-v1.1 gain access to channel-protection and agility observables.
+We extend the Sezar `crypto_inventory_event v1` schema (defined
+in `docs/crypto-event-schema.md` in the Sezar repository) with
+additive, non-breaking fields. Existing consumers that ignore
+unknown top-level fields continue to function; consumers that
+opt in to v1.1 gain access to channel-protection and agility
+observables.
 
 ## 6.1 New Top-Level Fields
 
@@ -890,8 +892,9 @@ We discuss limitations of static-only agility scoring in §9.
 
 ## 7.4 sezar-core Unified Rollup
 
-The rollup engine extends the V1 implementation [@sezar-rollup]
-with the deadline-adjusted three-axis formula of §5.4. The
+The rollup engine extends the V1 implementation (see
+`docs/posture-rollup.md` in the Sezar repository) with the
+deadline-adjusted three-axis formula of §5.4. The
 implementation remains a pure function with no I/O; the operator
 configures $D$, $H$, and asset-class weights via the dashboard,
 and the engine recomputes on every event ingest. Fuzz testing
@@ -1114,8 +1117,10 @@ spanning HTTP, mail, database, message broker, and VPN
 categories: nginx, Apache httpd, HAProxy, Envoy, Caddy, Traefik,
 OpenSSH server, Postfix, Dovecot, Exim, PostgreSQL, MySQL, Redis,
 MongoDB, RabbitMQ, Kafka, OpenVPN, strongSwan, Wireguard,
-PowerDNS, BIND, Unbound, CoreDNS, and others. The full list
-appears in [@sezar-corpus-v1].
+PowerDNS, BIND, Unbound, CoreDNS, and others. The full list,
+with hand-graded ground-truth levels and reviewer notes, ships
+as `crates/sezar-agility/corpus/oss-50-v1.csv` in the Sezar
+repository.
 
 For each project we:
 
