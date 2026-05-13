@@ -1,0 +1,220 @@
+/* Sezar paper — print-ready stylesheet for WeasyPrint.
+ *
+ * Targets the magazine-article voice: serif body, two-column on
+ * letter paper at 10.5pt, sans-serif headings, modest figure
+ * captions, IEEE-ish citation lists.
+ */
+
+@page {
+  size: letter;
+  margin: 0.75in 0.6in 0.85in 0.6in;
+  @bottom-center {
+    content: "Three Axes of Quantum Risk — Özer & Aydoş (E2E Solutions / Hacettepe Univ.)";
+    font-family: serif;
+    font-size: 8pt;
+    color: #444;
+  }
+  @bottom-right {
+    content: counter(page);
+    font-family: serif;
+    font-size: 9pt;
+    color: #444;
+  }
+}
+
+body {
+  font-family: "Source Serif Pro", "Charter", "Georgia", serif;
+  font-size: 10pt;
+  line-height: 1.36;
+  color: #111;
+  hyphens: auto;
+  text-align: justify;
+  /* Magazine layout: the whole body is a 2-column flow. The title
+   * block, abstract, callout sidebar, and wide figures escape via
+   * column-span: all. */
+  columns: 2;
+  column-gap: 0.32in;
+  column-rule: 0.4pt solid #cfcfcf;
+}
+
+/* Pandoc's standalone HTML wraps the title metadata in
+ * <header id="title-block-header">. Promote that, plus abstract /
+ * callout sidebar / wide figures, to span the full page. */
+header#title-block-header,
+.abstract,
+blockquote,
+figure.span-all,
+section.span-all {
+  column-span: all;
+  break-inside: avoid;
+}
+
+header#title-block-header h1.title {
+  font-family: "Source Sans Pro", "Inter", "Helvetica", sans-serif;
+  font-size: 22pt;
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0 0 0.10in 0;
+  color: #0f172a;
+}
+header#title-block-header p.subtitle {
+  font-family: "Source Sans Pro", "Inter", "Helvetica", sans-serif;
+  font-size: 13pt;
+  font-weight: 400;
+  font-style: italic;
+  color: #475569;
+  margin: 0 0 0.14in 0;
+}
+header#title-block-header .author {
+  font-family: "Source Sans Pro", "Inter", "Helvetica", sans-serif;
+  font-size: 11pt;
+  margin: 0 0 0.02in 0;
+  color: #1f2937;
+}
+header#title-block-header .date {
+  font-family: "Source Sans Pro", "Inter", "Helvetica", sans-serif;
+  font-size: 9.5pt;
+  margin: 0.05in 0 0 0;
+  color: #475569;
+}
+
+.abstract {
+  background: #f6f7f9;
+  border-left: 3pt solid #1A73E8;
+  padding: 0.18in 0.22in;
+  margin: 0.22in 0 0.28in 0;
+  font-size: 10pt;
+  line-height: 1.4;
+}
+.abstract::before {
+  content: "ABSTRACT";
+  display: block;
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #1A73E8;
+  margin-bottom: 0.05in;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Source Sans Pro", "Inter", "Helvetica", sans-serif;
+  color: #0f172a;
+  break-after: avoid;
+}
+h1 {
+  font-size: 13pt;
+  margin: 0.16in 0 0.06in 0;
+}
+h2 {
+  font-size: 11.5pt;
+  margin: 0.12in 0 0.04in 0;
+}
+h3 {
+  font-size: 10.5pt;
+  font-style: italic;
+  font-weight: 600;
+  margin: 0.08in 0 0.03in 0;
+}
+
+p {
+  margin: 0 0 0.07in 0;
+  orphans: 2;
+  widows: 2;
+}
+
+/* Inline code */
+code {
+  font-family: "JetBrains Mono", "Fira Mono", "ui-monospace", monospace;
+  font-size: 9pt;
+  background: #f1f3f5;
+  padding: 0.01in 0.03in;
+  border-radius: 2pt;
+}
+
+pre {
+  font-family: "JetBrains Mono", "Fira Mono", monospace;
+  font-size: 8.5pt;
+  background: #f8fafc;
+  border: 0.4pt solid #cbd5e1;
+  padding: 0.08in 0.12in;
+  border-radius: 3pt;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+ul, ol {
+  margin: 0 0 0.08in 0.18in;
+  padding-left: 0.05in;
+}
+li {
+  margin: 0 0 0.02in 0;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.08in 0 0.1in 0;
+  font-size: 9pt;
+  break-inside: avoid;
+}
+table th, table td {
+  border: 0.3pt solid #cbd5e1;
+  padding: 0.04in 0.06in;
+  text-align: left;
+  vertical-align: top;
+}
+table th {
+  background: #f1f5f9;
+  font-weight: 700;
+}
+
+/* Figures: every figure spans both columns in the magazine layout
+ * so plots are legible. Captions hug the figure on the left. */
+figure {
+  margin: 0.1in 0;
+  break-inside: avoid;
+  text-align: center;
+  column-span: all;
+}
+figure img {
+  max-width: 100%;
+  height: auto;
+}
+figcaption {
+  font-size: 8.5pt;
+  font-style: italic;
+  color: #334155;
+  text-align: left;
+  margin-top: 0.04in;
+}
+
+blockquote {
+  font-style: normal;
+  background: #fffbeb;
+  border-left: 3pt solid #f59e0b;
+  padding: 0.12in 0.16in;
+  margin: 0.15in 0;
+  font-size: 9.5pt;
+  line-height: 1.4;
+  color: #1e293b;
+}
+
+/* Bibliography rendered by pandoc citeproc */
+.references {
+  font-size: 9pt;
+  line-height: 1.3;
+}
+.references h1 {
+  font-size: 12pt;
+}
+.references .csl-entry {
+  margin-bottom: 0.04in;
+  text-indent: -0.18in;
+  padding-left: 0.18in;
+  break-inside: avoid;
+}
+
+/* Hide raw URL strings on screen; they remain in the print bibliography */
+a { color: inherit; text-decoration: none; }
+.references a { color: #1e40af; text-decoration: underline; }
