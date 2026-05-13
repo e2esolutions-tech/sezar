@@ -7,7 +7,7 @@ author:
     role: "Chief Information Officer"
     email: "info@e2esolutions.tech"
     orcid: "[to be provided]"
-  - name: "Murat Aydoş"
+  - name: "Murat Aydos"
     affiliation: "Hacettepe University"
     role: "Associate Professor"
     orcid: "[to be provided]"
@@ -728,7 +728,7 @@ critical-sector clients. His operational work informs the
 Sezar reference implementation. Contact:
 <info@e2esolutions.tech>. ORCID: [to be provided].
 
-**Murat Aydoş** is Associate Professor at Hacettepe
+**Murat Aydos** is Associate Professor at Hacettepe
 University, working on applied cryptography, network security,
 and post-quantum migration strategy. His research has informed
 this paper's threat-model framing and crypto-agility scoring

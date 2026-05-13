@@ -77,7 +77,7 @@ src = open(path).read()
 # Replace the author block: greedy until next top-level key.
 new_author = """author:
   - "Aleaddin Özer (CIO, E2E Solutions)"
-  - "Murat Aydoş (Assoc. Prof., Hacettepe University)"
+  - "Murat Aydos (Assoc. Prof., Hacettepe University)"
 """
 src = re.sub(
     r"^author:\n(?:[ -].*\n)+",

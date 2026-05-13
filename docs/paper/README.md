@@ -10,7 +10,7 @@ Working draft of the Sezar reference paper plus its build pipeline.
 ## Authors
 
 - **Aleaddin Özer**, Chief Information Officer, E2E Solutions. <info@e2esolutions.tech>. ORCID: [pending].
-- **Murat Aydoş**, Associate Professor, Hacettepe University. ORCID: [pending].
+- **Murat Aydos**, Associate Professor, Hacettepe University. ORCID: [pending].
 
 ## Files
 
