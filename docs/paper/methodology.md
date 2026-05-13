@@ -361,6 +361,35 @@ CSV and the Tranco list snapshot in an academic archive
 
 ---
 
+## Phase 2 — Live Observation
+
+Beyond the active-probe path used by Study 1, `sezar-net` also
+ships a *passive* observation path so an operator can watch their
+own outbound TLS without scanning. Two phases:
+
+- **Phase 2.0 — pcap-file replay** (default build). `sezar-net live
+  --pcap <file>` reads a `.pcap` or `.pcapng` capture (e.g. from
+  `tcpdump -w port-443.pcap port 443`), parses Ethernet / IPv4 /
+  TCP, looks for TLS record-layer handshake messages, and emits one
+  `crypto_inventory_event` per ClientHello / ServerHello. Pure-Rust,
+  no system dependencies, no privileges required — the
+  integration test in `crates/sezar-net/tests/live_pcap.rs`
+  synthesises a tiny ClientHello pcap end-to-end as a sanity check.
+- **Phase 2.1 — live-interface capture** (feature-gated). A
+  kernel-side TC classifier (`crates/sezar-net-ebpf/`, written
+  against `aya-ebpf` 0.1) attaches to a network interface's
+  ingress hook, captures TLS handshake bytes into a ring buffer,
+  and a userspace loader (`crates/sezar-net/src/live_iface.rs`,
+  behind the `live-interface` feature) consumes them and produces
+  the same events as the pcap path. Build requires a nightly
+  toolchain, `bpf-linker`, and the `bpfel-unknown-none` target;
+  runtime requires `CAP_BPF` + `CAP_NET_ADMIN`. The skeleton is
+  committed but full attach-and-consume validation is deferred to
+  the next milestone — Phase 2.0 covers all paper-cited
+  reproductions today.
+
+---
+
 ## What This Plan Deliberately Excludes
 
 - **No vendor partnerships required.** We have considered and
