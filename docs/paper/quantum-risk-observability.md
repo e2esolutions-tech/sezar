@@ -1,6 +1,6 @@
 ---
 title: "Three Axes of Quantum Risk: Why \"PQ-Ready\" Is Not Enough"
-subtitle: "Toward Unified Observability for Post-Quantum Cryptography, Quantum Key Distribution, and Crypto-Agility"
+subtitle: "Unified Observability for Post-Quantum Cryptography, Quantum Key Distribution, and Crypto-Agility"
 author:
   - name: "Aleaddin Özer"
     affiliation: "E2E Solutions"
@@ -18,12 +18,12 @@ keywords:
   - post-quantum cryptography
   - quantum key distribution
   - crypto-agility
-  - cryptographic observability
+  - quantum-risk observability
   - NIST PQC migration
 abstract: |
   Operators preparing for the post-quantum transition face three
   independent questions that today's discovery tooling answers
-  separately, if at all: which primitives are quantum-resistant,
+  separately, if at all. Which primitives are quantum-resistant,
   which channels are additionally protected by quantum-secure key
   delivery, and how agile is each asset under migration pressure?
   We argue that quantum-risk posture is a three-axis problem, not
@@ -32,12 +32,16 @@ abstract: |
   combine them with the operator's deadline horizon into a single
   quantum-risk score $q(\text{asset}, t)$ whose agility weight
   shrinks as the deadline approaches. We extend an open event
-  schema with the additional axes and release a reference
-  implementation (Sezar) spanning eBPF-based wire observation, an
-  ETSI GS QKD 014 collector with a reusable KME emulator, and a
-  static crypto-agility scanner. Practitioners can reproduce our
-  evaluation with no QKD hardware, no commercial scanner, and a
-  single Linux host.
+  schema with the new axes and release a reference implementation,
+  Sezar: eBPF-based wire observation, an ETSI GS QKD 014 collector
+  and reusable KME emulator, and a static crypto-agility scanner.
+  Across three reproducible studies we measure 57% PQ-KEM adoption
+  in a 30-host sample of well-known Web properties, validate
+  channel-state classification on every induced transition (13/13)
+  in a KME emulator, and reach 91% agreement with hand-graded
+  ground truth on an 11-project agility corpus. Practitioners can
+  reproduce our evaluation with no QKD hardware, no commercial
+  scanner, and a single Linux host.
 ---
 
 # 1. PQ-Ready Is the Wrong Question
@@ -68,8 +72,8 @@ Today's discovery tools assign both terminators the same label:
 the same deadline. From any meaningful operational standpoint
 their *real* exposure could not be more different: Terminator A
 is one configuration line away from compliance, while Terminator
-B requires a multi-quarter capital program. Reporting them
-identically is reporting them wrong.
+B requires a multi-quarter capital program. A dashboard that
+reports them identically is operationally misleading.
 
 A parallel mismatch arises with Quantum Key Distribution (QKD)
 [@bb84; @etsi-qkd-014]. A growing minority of high-assurance
@@ -82,14 +86,15 @@ are unchanged; the *channel* through which session keys reach
 the endpoint is different. Discovery tools that look only at
 ciphersuites cannot see the difference.
 
-Standards-body discourse [@nsa-qkd-position; @anssi-qkd] frames
-QKD and PQC as alternatives — and that framing is reasonable
-when the question is "where should I invest." From an
-*observability* standpoint the framing collapses too soon. PQC
-and QKD are complementary signals: an asset using ECDSA-P256
-over a QKD-protected link is in a different posture than an
-asset using ECDSA-P256 over an unprotected link, even though
-their algorithms are identical.
+Standards-body guidance [@nsa-qkd-position; @anssi-qkd] is
+skeptical of QKD as a substitute for PQC at present — and that
+position is reasonable when the question is "where should I
+invest." From an *observability* standpoint the dichotomy elides
+a distinction operators need: PQC and QKD are complementary
+signals on the *same* asset. An asset using ECDSA-P256 over a
+QKD-protected link is in a different posture than an asset
+using ECDSA-P256 over an unprotected link, even though their
+algorithms are identical.
 
 ## 1.1 What Existing Tooling Does, and Does Not Do
 
@@ -113,7 +118,8 @@ has been a recurring talking point since RFC 7696 [@rfc7696]
 and is repeatedly named in PQ-migration documents as a
 precondition — yet, to our knowledge, no widely deployed
 inventory tool surfaces it as a first-class telemetry field. The
-result is a three-bodied literature on one-bodied dashboards.
+result is a three-stranded literature feeding single-axis
+dashboards.
 
 This article argues that quantum-risk observability requires
 three axes, not one:
@@ -143,8 +149,9 @@ ML-KEM-* and ML-DSA-* / SLH-DSA-* primitives score 1.0, hybrid
 constructions (e.g., `X25519+ML-KEM-768`) score 0.9, classical
 primitives at standard parameter sizes score 0.3, deprecated
 primitives (SHA-1, RSA-1024, MD5, RC4, 3DES) score 0.0, and
-unknown primitives score 0.4 (mid-low, with a flag to surface
-the gap to operators).
+unknown primitives default to 0.4 with an `unknown_primitive`
+flag, biasing toward operator review rather than silent
+acceptance.
 
 A typical TLS 1.3 session contributes four primitive
 observations: key exchange, signature, AEAD, hash. We weight
@@ -180,16 +187,18 @@ error rate (QBER), key rate, and health. By cooperating with
 the SAE we observe per-session attribution: *which* keys were
 consumed on *which* sessions.
 
-A subtle point: the SAE may *think* it is operating in hybrid
-PSK mode while the underlying KME has degraded into a classical
-fallback. The role of an observability layer is to surface this
-discrepancy. We define $c$ on observed KME state, not on
-SAE-reported intent.
+The SAE may *think* it is operating in hybrid PSK mode while
+the underlying KME has degraded into a classical fallback. The
+role of an observability layer is to surface this discrepancy.
+We define $c$ on observed KME state, not on SAE-reported
+intent.
 
 ## 2.3 Axis G — Migration Agility
 
 Axis $G$ scores the asset's ability to change its primitives.
-We define five ordinal levels:
+Where the crypto-agility literature [@rfc7696] has discussed
+this property qualitatively, we operationalise it as five
+ordinal levels:
 
 | Level          | $g$ | Observable signature |
 |----------------|-----|----------------------|
@@ -262,7 +271,10 @@ and a date eighteen months before the NSA CNSA 2.0 browser /
 server class deadline ($t_2$ = 2029-07-01). All four assets
 share the same target deadline $D=$ 2030-01-01 and horizon
 $H=5$ years. At $t_1$ the deadline tension is $\tau_1 = 0.27$;
-at $t_2$ it is $\tau_2 = 0.90$.
+at $t_2$ it is $\tau_2 = 0.90$. Renormalizing the weights so
+$\alpha + \beta + \gamma$ sums to one (per §3), at $t_1$ this
+gives $\alpha' = 0.544$, $\beta' = 0.218$, $\gamma' = 0.238$;
+at $t_2$, $\alpha' = 0.685$, $\beta' = 0.274$, $\gamma' = 0.041$.
 
 The four assets:
 
@@ -311,12 +323,11 @@ agility weight shrinks and $q_\beta$ slightly declines while
 $q_\alpha$ rises — the priority queue tightens. The dashboard
 keeps β visible regardless via the `BLOCKED` flag, which marks
 it as requiring a vendor or hardware program independently of
-the priority signal. Third, asset δ — algorithmically
-identical to α but protected by a QKD-PSK channel — is the
-lowest-priority asset in the example throughout: QKD's
-contribution partially compensates for classical primitives,
-which matches the deployment rationale for QKD on
-high-assurance links.
+the priority signal. Third, asset δ — algorithmically identical
+to α but protected by a QKD-PSK channel — is the lowest-priority
+asset in the example throughout. QKD's contribution partially
+compensates for classical primitives, which matches the
+deployment rationale for QKD on high-assurance links.
 
 The same observables produce different scores at different
 $t$ because the score is *prioritization-adjusted*, not
@@ -324,6 +335,11 @@ asset-intrinsic. An operator using the score has a clear
 quarterly action list: focus on γ and `BLOCKED`-flagged β
 first, then α as its grace period erodes, and treat δ as a
 deferred maintenance item rather than a migration target.
+
+Producing those numbers operationally requires a pipeline that
+observes all three axes uniformly. The rest of the paper
+describes Sezar, which provides exactly that, and the empirical
+work the pipeline supports.
 
 ![**Figure 1.** The three-axis quantum-risk space. Each
 cryptographic asset occupies a point in $(A, C, G)$; colour
@@ -335,10 +351,11 @@ The shaded region near the $A=0, G=0$ corner is the
 ![**Figure 2.** Trajectory of $q(t)$ for the four worked-example
 assets from 2026 to the deadline at 2030-01-01, holding
 observables fixed. The legacy-pinned asset (γ) climbs steepest;
-the modern-agile asset (α) enters the must-migrate band as
-its agility weight erodes. The locked-but-modern asset (β)
-remains high throughout — the `BLOCKED` flag, not the
-prioritization score, is what surfaces it for action.](figures/q-trajectory.pdf){#fig:trajectory width=85%}
+the modern-agile asset (α) rises across the $q > 0.6$
+must-migrate threshold as its agility weight erodes. The
+locked-but-modern asset (β) remains high throughout — the
+`BLOCKED` flag, not the prioritization score, is what surfaces
+it for action.](figures/q-trajectory.pdf){#fig:trajectory width=85%}
 
 ---
 
@@ -399,10 +416,9 @@ Five agents populate the schema:
 - **sezar-agility.** A static scanner over source repositories
   or installed packages, driven by a published Semgrep
   ruleset. Produces `agility` blocks attached to assets.
-- **sezar-cert** (V2) and **sezar-chain** / **sezar-id** (V3,
-  V4) extend coverage to certificate inventories, on-chain
-  signing keys, and HSM/KMS hardware. The same schema, the
-  same rollup library, no per-agent special cases.
+- **sezar-cert**, **sezar-chain**, **sezar-id** (V2–V4) extend
+  coverage on the same schema to certificate inventories,
+  on-chain signing keys, and HSM/KMS hardware.
 
 ![**Figure 3.** Sezar reference architecture. Five agents
 (`sezar-net`, `sezar-qkd`, `sezar-agility`, plus `sezar-cert`
@@ -415,11 +431,10 @@ priority-sorted action list.](figures/sezar-architecture.pdf){#fig:arch width=90
 
 ## 4.3 ETSI 014 KME Emulator: The Practitioner Artifact
 
-Hardware QKD is expensive and rare. The reproducibility
-problem this creates would be fatal to an empirical paper if
-left unaddressed, so we built a faithful implementation of the
-ETSI GS QKD 014 v1.1.1 Key Delivery API backed by a synthetic
-key generator. The emulator:
+Because hardware QKD is rare and expensive, we built a faithful
+implementation of the ETSI GS QKD 014 v1.1.1 Key Delivery API
+backed by a synthetic key generator (`crates/sezar-qkd/`). The
+emulator:
 
 - Implements `/status`, `/enc_keys`, and `/dec_keys` exactly
   per spec.
@@ -468,12 +483,12 @@ The headline numbers (Figures 4 and 5):
   ChaCha20-Poly1305/SHA-256 = 3/30 (10%). All three are PQ-safe
   on the symmetric side; the AES-128 cohort is Grover-weakened
   relative to AES-256.
-- **Certificate signatures.** ECDSA (P-256 or P-384) on 26/30
-  hosts (87%); RSA-PKCS1-SHA256 / SHA384 on the remainder. No
-  host in the sample presents an ML-DSA or SLH-DSA signature,
-  consistent with the wider observation that production
-  trust-anchor PQ certificates have not yet rolled out
-  [@digicert-pq].
+- **Certificate signatures.** ECDSA-P256 on 18/30 hosts (60%);
+  RSA-PKCS1-SHA256 on 11/30 (37%); one host serves an
+  RSA-PKCS1-SHA384 chain. No host in the sample presents an
+  ML-DSA or SLH-DSA signature, consistent with the wider
+  observation that production trust-anchor PQ certificates have
+  not yet rolled out [@digicert-pq].
 - **PQ key exchange — the headline result.** With the PQ-capable
   probe advertising `X25519MLKEM768`, **17 of 30 hosts (57%)
   negotiated the hybrid PQ group**. The PQ-adopter cohort
@@ -491,25 +506,27 @@ The headline numbers (Figures 4 and 5):
 
 ![**Figure 4.** Study 1 — classical-probe baseline (n=30): negotiated
 TLS 1.3 ciphersuite (left) and leaf certificate signature algorithm
-(right). All 30 hosts negotiate TLS 1.3.](studies/study1/plots/study1-distribution.pdf){#fig:study1 width=95%}
+(right).](studies/study1/plots/study1-distribution.pdf){#fig:study1 width=95%}
 
 ![**Figure 5.** Study 1 — PQ-capable probe (rustls +
 `rustls-post-quantum`). 17 of 30 well-known public hosts (57%)
 negotiate `X25519MLKEM768` when offered; the other 13 fall back
-to classical `x25519` / `secp256r1` / `secp384r1`. The single
-metric the original Python probe could not measure.](studies/study1/plots/study1-pq-kex.pdf){#fig:study1pq width=95%}
+to classical `x25519` / `secp256r1` / `secp384r1`. A metric the
+classical-only probe cannot observe.](studies/study1/plots/study1-pq-kex.pdf){#fig:study1pq width=95%}
 
 The 57% PQ-adoption rate in this curated sample is meaningfully
 higher than open-web averages reported by Cloudflare in 2024
 (≈25–30% across observed handshakes at the edge)
 [@cloudflare-pq-deploy]: the sample skews toward
 Cloudflare-fronted and Google-fronted properties whose edge
-TLS terminators rolled out X25519MLKEM768 early. The sample
-size is too small to draw distributional conclusions about the
-wider Internet; the contribution here is methodological — a
-reusable, ethics-vetted PQ-aware probe (Cargo binary,
-single-host smoke-testable, NDJSON output) that emits directly
-into Sezar's collector. Scaling the host list from 30 to the
+TLS terminators rolled out X25519MLKEM768 early. Several of the
+PQ-adopters share Cloudflare's edge, so the 17 hits represent
+fewer than 17 independent deployments. The sample is too small
+to draw distributional conclusions about the wider Internet;
+the contribution here is methodological — a reusable,
+ethics-vetted PQ-aware probe (Cargo binary, single-host
+smoke-testable, NDJSON output) that emits directly into
+Sezar's collector. Scaling the host list from 30 to the
 Tranco-top-1k changes the runtime, not the methodology.
 
 ## 5.2 Study 2 — Axis C via the KME Emulator (n = 5 scenarios)
@@ -567,15 +584,11 @@ certificate-authority, and time categories, clone each at the
 upstream pinned reference, and run `sezar-agility scan`
 against the source tree. Each project carries a hand-graded
 ground-truth level from the published OSS-50 corpus
-[`crates/sezar-agility/corpus/oss-50-v1.csv`]. The runner is
-[`studies/study3/run.sh`](studies/study3/run.sh).
+([`crates/sezar-agility/corpus/oss-50-v1.csv`](crates/sezar-agility/corpus/oss-50-v1.csv)).
+The runner is [`studies/study3/run.sh`](studies/study3/run.sh).
 
-![**Figure 7.** Study 3 — confusion matrix (n=11 projects).
-The scanner agrees with the hand-graded ground truth on 10/11
-projects (Cohen's $\kappa = 0.62$); the single dissent is
-chrony, where the static-evidence weight is genuinely
-ambiguous between configurable (NTS keys) and pinned (NTP
-authentication symmetric algorithms).](studies/study3/plots/study3-agreement-matrix.pdf){#fig:study3 width=70%}
+![**Figure 7.** Study 3 — confusion matrix (n=11 projects,
+10/11 agreement, Cohen's $\kappa=0.62$).](studies/study3/plots/study3-agreement-matrix.pdf){#fig:study3 width=70%}
 
 **Agreement: 10/11 (91%), Cohen's $\kappa = 0.62$** (substantial
 agreement on the Landis–Koch scale). The confusion matrix in
@@ -590,12 +603,12 @@ Figure 7 shows:
   `configurable` on the basis of NTS configurability; the
   scanner returned `pinned` on the strength of 11 hard-coded
   symmetric-algorithm references in the NTP authentication
-  path. This is the kind of bimodal asset the §7.3.3
-  most-agile-wins policy was designed to absorb, but only
-  when *some* rule emits a `configurable`-level evidence
-  block — chrony's NTS config uses neither OpenSSL nor Go's
-  `crypto/tls`, so no capability rule fired. We mark the case
-  for v2 of the rubric.
+  path. Sezar's aggregation policy takes the most-agile
+  evidence when multiple rules fire, but no capability rule
+  fired on chrony's NTS surface (it uses neither OpenSSL nor
+  Go's `crypto/tls`), so the `configurable` evidence was never
+  generated to compete with the `pinned` matches. We mark the
+  case for v2 of the rubric.
 
 The 10/11 agreement on first-pass with seven rules in the v1
 ruleset is not the final number — it is the *measurement
@@ -606,20 +619,21 @@ first cut, and subsequent reviewers can rerun
 
 ## 5.4 What the Synthesis Demonstrates
 
-For the small intersection of the three studies — open-web
-hosts in Study 1 that also appear in the OSS-50 corpus via
-server-identification heuristics — we ran the unified $q$
-rollup through `sezar-server`'s `/v1/posture` endpoint. With
-default weights and $D =$ 2030-01-01, the synthetic-corpus
-demo run [`scripts/demo.sh`](scripts/demo.sh) yields an
-illustrative `org_q ≈ 0.62` over the seeded asset set,
-ranking the FIPS-locked classical appliance at the top of the
+We exercise the full pipeline with the
+[`scripts/demo.sh`](scripts/demo.sh) one-command runner, which
+boots the emulator + collector + server, seeds three observed
+assets from the bundled zgrab2 fixture (legacy SHA-1/RC4, TLS
+1.2 ECDHE+RSA, TLS 1.3 ECDSA+QKD) plus one synthetic
+FIPS-locked appliance, then queries `sezar-server`'s
+`/v1/posture` endpoint. With default weights and $D =$
+2030-01-01 the seeded mix returns `org_q = 0.62`, ranking the
+legacy and FIPS-locked classical assets at the top of the
 priority queue and the PQ-capable QKD-protected asset at the
 bottom — the expected ordering for the three-axis model. The
-contribution at this scale is not a headline number; it is
-the first published end-to-end pipeline whose every leg
-(scan, collect, rollup, dashboard) is open-source and
-reproducible from a single Linux host.
+contribution at this scale is not a headline number; it is, to
+our knowledge, the first openly published end-to-end pipeline
+of this kind, with every leg (scan, collect, rollup, dashboard)
+open source and reproducible from a single Linux host.
 
 ---
 
@@ -631,7 +645,11 @@ agile through a runtime extension mechanism we did not
 pattern-match. Conversely, a project may appear agile via a
 config field that is in practice never changed. We address
 the first class by reporting per-evidence detail; the second
-class requires operator input.
+class requires operator input. And because the scanner only
+classifies what the ruleset recognises, a ruleset that lags
+behind a fast-moving project will systematically
+under-classify it — the v1 ruleset will need refreshes as new
+crypto APIs and PQ migration paths land in deployed software.
 
 **Channel-protection attribution depends on cooperating SAEs.**
 Sezar observes KME state independently, but linking a specific
@@ -639,7 +657,10 @@ session to a specific consumed key requires the SAE to emit
 the `key_id_observed` field. We open-source patches for
 strongSwan, Wireguard, and a sample TLS endpoint as part of
 the release. Closed-source SAEs may report only at the link
-level.
+level. Sezar also takes the KME's self-reported QBER and key
+rate at face value — there is no independent attestation in
+the V1 schema, so an operator integrating a QKD link must
+trust the vendor's KME for those readings.
 
 **The threat model accepts the standard PQC and QKD security
 arguments.** Compromise of either — a mathematical break of
@@ -663,8 +684,9 @@ signal we expose to compensate for this.
 
 # 7. Outlook
 
-The post-quantum transition is the largest cryptographic
-migration in the history of the Internet. The standards bodies
+The post-quantum transition is one of the largest cryptographic
+migrations in the history of the Internet [@nist-ir8547].
+The standards bodies
 have set the algorithms and the deadlines [@fips203; @fips204;
 @fips205; @nsa-cnsa2; @nist-ir8547]. The remaining work is
 operational: enumerating, classifying, prioritizing, and
@@ -708,8 +730,9 @@ the point.
 >   observables. Each is measurable today with open tooling.
 > - The deadline-adjusted score $q$ is a *prioritization
 >   signal*, not an absolute risk number. Pair it with an
->   orthogonal `BLOCKED` flag for low-agility assets that
->   require vendor or hardware programs.
+>   orthogonal `BLOCKED` flag — raised whenever $G \le 0.20$
+>   (`locked` or `frozen`) — to surface assets that need a
+>   vendor or hardware program regardless of $q$.
 > - QKD belongs in PQC migration observability. The two are
 >   complementary signals on the same asset, not competing
 >   strategies for the same problem.
