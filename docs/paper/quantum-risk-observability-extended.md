@@ -1,10 +1,16 @@
 ---
 title: "Three Axes of Quantum Risk: A Unified Observability Model for PQC, QKD, and Crypto-Agility"
 author:
-  - name: "[Author Name]"
+  - name: "Aleaddin Özer"
     affiliation: "E2E Solutions"
+    role: "Chief Information Officer"
     email: "info@e2esolutions.tech"
-date: 2026-05-13
+    orcid: "[to be provided]"
+  - name: "Murat Aydos"
+    affiliation: "Hacettepe University"
+    role: "Associate Professor"
+    orcid: "[to be provided]"
+date: 2026-05-18
 keywords:
   - post-quantum cryptography
   - quantum key distribution
@@ -923,25 +929,40 @@ the published rulesets, emulator, and corpus lists.
 
 ### 8.1.1 Methodology
 
-We scan the Tranco-top-1k [@tranco] over TLS using a published
-scanner script that wraps `zgrab2` [@zgrab2] in two modes: a
-*baseline* handshake (no PQ groups offered) and a *PQ-capable*
-handshake (offering X25519MLKEM768 alongside classical groups).
-For each host we record: negotiated cipher suite, negotiated key
-share, server-supported groups, certificate signature algorithm,
-certificate validity. The scan is deliberately constrained to one
-TCP connection per host, identifies itself in the User-Agent and
-ClientHello SNI extension as `sezar-survey/1.0
-+https://e2esolutions.tech/sezar`, and respects robots.txt for
-the SNI hostname where applicable.
+We scan the Tranco-top-1k [@tranco] over TLS with two
+purpose-built probes — general-purpose scanners such as
+`zgrab2` [@zgrab2] do not yet advertise X25519MLKEM768 in the
+ClientHello, so we built dedicated baseline and PQ-capable
+probes to keep the ClientHello surface deterministic and the
+output schema aligned with Sezar's collector:
 
-The scan source code, target list, raw `zgrab2` outputs, and
-analysis notebooks will be released alongside this paper.
+1. **Classical baseline probe** — Python `ssl` with the
+   system OpenSSL defaults. Establishes a TLS handshake
+   without advertising `X25519MLKEM768`. Output: JSON array.
+2. **PQ-capable probe** — a Rust binary built on
+   `rustls = 0.23` + `rustls-post-quantum = 0.2`, with a
+   custom certificate verifier that accepts every chain
+   (this is observability, not authentication). Advertises
+   `X25519MLKEM768` alongside the classical groups. Output:
+   one NDJSON record per host.
+
+For each host we record: connect/handshake outcome, negotiated
+TLS version, negotiated cipher suite, negotiated key-exchange
+group, leaf certificate signature algorithm, and the leaf
+certificate Subject. The scan is constrained to one TCP
+connection per host, identifies itself in the ClientHello SNI
+extension as `sezar-survey/1.0
++https://e2esolutions.tech/sezar`, and uses a 5-second
+connect+handshake timeout with a 1 Hz rate cap.
+
+The scan source code, target list, raw probe outputs, and
+analysis script are released alongside this paper at
+[`studies/study1/`](studies/study1/).
 
 Ethical considerations: this is a one-shot benign TLS handshake
 similar to common research scans [@durumeric-tls]; we do not
 attempt protocol downgrade or repeated probing. Scan rate is
-≤10 Hz and exits immediately on connection error.
+≤1 Hz per probe and exits immediately on connection error.
 
 ### 8.1.2 Metrics
 
@@ -950,67 +971,75 @@ the prevalence of PQ-capable hosts, the distribution of
 certificate signature algorithms, and the prevalence of weak/
 deprecated primitives still observed.
 
-### 8.1.3 Results (n = 30 sample)
+### 8.1.3 Results (Tranco-1k snapshot 6G8PX, 2026-05-13)
 
-A 30-host pilot of the methodology — covering major
-content-delivery, browser-vendor, distro, IETF/IEEE/NIST/ETSI,
-and AI-vendor properties — produced the following baseline.
-Two probes ran sequentially over the same host list (full
-sources and raw captures at `studies/study1/`):
+We ran the methodology of §8.1.1 against the Tranco-top-1k
+list `6G8PX` (snapshot 2026-05-13). 724 of 1,000 hosts
+returned a usable TLS handshake within the 5-second timeout;
+the remaining 276 were unresponsive (DNS failure, no TCP, no
+TLS on 443, regional GeoIP block, or anti-bot middlebox).
+The 27.6% non-response rate is in the range reported by
+prior large-scale TLS scans of the open Web
+[@durumeric-tls]. All headline percentages in this section
+use the $n = 724$ responsive denominator unless stated
+otherwise.
 
-1. **Classical baseline probe** — Python `ssl` with the system
-   OpenSSL defaults. Establishes a TLS 1.3 handshake without
-   advertising `X25519MLKEM768`.
-2. **PQ-capable probe** — Rust binary built on
-   `rustls = 0.23` + `rustls-post-quantum = 0.2`, with a
-   custom certificate verifier that accepts every chain
-   (observability, not authentication). Advertises
-   `X25519MLKEM768` alongside the classical groups, captures
-   the negotiated kex group, ciphersuite, and leaf cert
-   signature algorithm.
+For sample-selection contrast we also report results from a
+30-host curated pilot — major CDN, browser-vendor, distro,
+IETF/IEEE/NIST/ETSI, and AI-vendor properties — that ran
+the same probe pair before the Tranco-1k scan.
 
-| Observable                        | Classical probe | PQ-capable probe |
-|-----------------------------------|----------------:|-----------------:|
-| TLS 1.3 negotiation               | 30/30 (100%)    | 30/30 (100%)     |
-| AES-256-GCM/SHA-384               | 20/30 (67%)     | 20/30 (67%)      |
-| AES-128-GCM/SHA-256               | 7/30 (23%)      | 9/30 (30%)       |
-| ChaCha20-Poly1305/SHA-256         | 3/30 (10%)      | 1/30 (3%)        |
-| ECDSA leaf cert                   | 18/30 (60%)     | 16/30 (53%)      |
-| RSA-PKCS1 leaf cert               | 12/30 (40%)     | 14/30 (47%)      |
-| ML-DSA / SLH-DSA cert             | 0/30            | 0/30             |
-| Deprecated primitive (SHA-1, RC4) | 0/30            | 0/30             |
-| **`X25519MLKEM768` negotiated**   | n/a             | **17/30 (57%)**  |
+| Observable                          | Tranco-1k (n=724)    | Curated pilot (n=30) |
+|-------------------------------------|---------------------:|---------------------:|
+| TLS 1.3 negotiation                 | 602/724 (83.1%)      | 30/30 (100%)         |
+| TLS 1.2 fallback                    | 122/724 (16.9%)      | 0/30 (0%)            |
+| AES-256-GCM/SHA-384 (TLS 1.3)       | 384/724 (53.0%)      | 20/30 (67%)          |
+| AES-128-GCM/SHA-256 (TLS 1.3)       | 207/724 (28.6%)      | 7/30 (23%)           |
+| ChaCha20-Poly1305 (TLS 1.3)         | 11/724 (1.5%)        | 3/30 (10%)           |
+| ECDSA leaf cert (P256 + P384)       | 254/724 (35.1%)      | 18/30 (60%)          |
+| RSA-PKCS1 leaf cert (SHA256+SHA384) | 470/724 (64.9%)      | 12/30 (40%)          |
+| ML-DSA / SLH-DSA cert               | 0/724                | 0/30                 |
+| Deprecated primitive (SHA-1, RC4)   | 0/724                | 0/30                 |
+| **`X25519MLKEM768` negotiated**     | **317/724 (43.8%)**  | **17/30 (57%)**      |
 
-Small ciphersuite / cert-sig diffs between the two probes
-reflect SNI-driven host-selection variance (a given site may
-front different certs from different POPs) rather than
-substantive disagreement.
+**The headline PQ-adoption result is 317/724 (43.8%) on the
+Tranco-top-1k.** This is meaningfully above the ≈25–30%
+open-Web edge average Cloudflare reports for 2024–2025
+[@cloudflare-pq-deploy], reflecting that Tranco-top-1k
+over-represents large CDN- and cloud-fronted properties.
+The remaining 407 responsive hosts fell back to classical
+`x25519` (312), `secp256r1` (80), or `secp384r1` (15).
 
-**The headline PQ-adoption result is 17/30 (57%).** The
-PQ-adopter cohort includes Cloudflare-fronted sites
+The curated 30-host pilot returned 17/30 = 57% PQ adoption —
+13 percentage points above the Tranco-1k rate. The gap is
+attributable to sample-selection bias: the curated list
+emphasises Cloudflare-fronted and Google-fronted properties
 (cloudflare.com, twitter.com, reddit.com, anthropic.com,
-openai.com, e2esolutions.tech), Google properties (google.com,
-youtube.com), and a long tail of community / CDN-protected
-sites (wikipedia.org, facebook.com, instagram.com, apple.com,
-python.org, rust-lang.org, debian.org, ietf.org, etsi.org).
-The 13 classical-only hosts include several major
-infrastructure-relevant properties — github.com,
-microsoft.com, amazon.com, mozilla.org, kernel.org, nist.gov,
-openssl.org — where the PQ rollout has not yet landed at the
-date of measurement (2026-05-13).
+openai.com, google.com, youtube.com, e2esolutions.tech, and
+a long tail) whose edge terminators rolled out
+X25519MLKEM768 early. The 13 classical-only hosts in the
+curated pilot — github.com, microsoft.com, amazon.com,
+mozilla.org, kernel.org, nist.gov, openssl.org, and others —
+are notable in their own right as major
+infrastructure-relevant properties where the PQ rollout has
+not yet landed. Side-by-side, the two numbers illustrate why
+curated "interesting hosts" surveys overstate PQ readiness
+relative to broader corpora; we recommend reporting both a
+broad-corpus rate and any curated rate explicitly when
+summarising PQ-KEX adoption in the literature.
 
-The 57% in this curated sample is meaningfully higher than
-open-web averages reported by Cloudflare in 2024–2025
-(≈25–30% across observed handshakes at the edge)
-[@cloudflare-pq-deploy], because the sample skews toward
-Cloudflare-fronted and Google-fronted properties whose edge
-terminators rolled out X25519MLKEM768 early. The sample size
-is too small to draw distributional conclusions about the
-wider Internet; the contribution here is methodological — a
-reusable, ethics-vetted PQ-aware probe (`sezar-net pq-probe`)
-that emits NDJSON suitable for direct ingestion into the
-Sezar collector. Scaling to the Tranco-top-1k is mechanical;
-the rate-cap and ethical safeguards stay intact.
+**Two further observables of operational interest.** First,
+122 of 724 responsive Tranco-1k hosts (16.9%) still
+negotiate TLS 1.2 at the top of the Web. Because
+`X25519MLKEM768` is a TLS 1.3 key-share, that 16.9% cohort
+is structurally PQ-ineligible until the operator's TLS
+terminator can negotiate TLS 1.3 — a long-tail constraint
+not visible in any single-axis cipher dashboard. Second,
+the certificate-signature distribution on the Tranco-1k is
+RSA-dominant (64.9%), inverting the ECDSA-dominant (60%)
+distribution in the curated pilot. The curated list skews
+toward post-2020 CDN deployments that default to ECDSA;
+the broader corpus retains a substantial RSA installed base.
 
 Pipeline integration: PQ-probe NDJSON parses straight into
 the same `tls_session` asset shape consumed by `from-zgrab`,
@@ -1251,10 +1280,11 @@ implementation reproduces the paper's α = 0.544 and
 This is the first published end-to-end empirical pipeline on
 all three axes whose every leg — scan, collect, rollup,
 dashboard — ships as open source and runs on a single Linux
-host with no QKD hardware and no commercial scanner. Scaling
-to the full Tranco-1k and the OSS-50 corpus is a mechanical
-exercise on the published runners; the small-sample numbers
-above demonstrate the methodology, not the final headline.
+host with no QKD hardware and no commercial scanner. The
+Tranco-1k scan reported in §8.1 is the broad-corpus headline
+for Axis A; scaling Study 3 from the 11-project pilot to the
+full OSS-50 corpus is the remaining mechanical exercise on
+the published runners.
 
 ---
 

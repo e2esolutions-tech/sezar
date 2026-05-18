@@ -36,8 +36,8 @@ The paper carries seven figures in the magazine version:
 | 1 | Three-axis cube (matplotlib mpl_toolkits.mplot3d) | `figures/three-axis-cube.{pdf,png}` |
 | 2 | $q(t)$ trajectory (matplotlib) | `figures/q-trajectory.{pdf,png}` |
 | 3 | Sezar reference architecture (matplotlib FancyBboxPatch) | `figures/sezar-architecture.{pdf,png}` |
-| 4 | Study 1 classical-probe distribution | `../../studies/study1/plots/study1-distribution.{pdf,png}` |
-| 5 | Study 1 PQ-capable probe results | `../../studies/study1/plots/study1-pq-kex.{pdf,png}` |
+| 4 | Study 1 classical-probe distribution (Tranco-1k) | `../../studies/study1/plots/study1-tranco-distribution.{pdf,png}` |
+| 5 | Study 1 PQ-capable probe results (Tranco-1k) | `../../studies/study1/plots/study1-tranco-pq-kex.{pdf,png}` |
 | 6 | Study 2 R3 link-health timeline | `../../studies/study2/plots/r3-hard-failure-timeline.{pdf,png}` |
 | 7 | Study 3 agreement confusion matrix | `../../studies/study3/plots/study3-agreement-matrix.{pdf,png}` |
 
@@ -129,12 +129,19 @@ implementation reproduces α and δ to within 0.01.
 
 ## Status
 
-- **Magazine draft v0.3** (2026-05-13). PDF render verified end-to-end.
+- **Magazine draft v0.4** (2026-05-18). PDF render verified end-to-end.
   All seven figures embed correctly. Bibliography renders as IEEE
   numeric [1]–[28] with citeproc + `ieee.csl`. Two-column layout, page
-  footers, page numbers — all working.
-- **Extended draft v0.2** (2026-05-13). Same PDF pipeline; 21 pages
-  with full per-axis results tables.
+  footers, page numbers — all working. Study 1 §5.1 rewritten on the
+  Tranco-top-1k scan (n = 1,000, 724 responsive, 317 PQ = 43.8%);
+  the 30-host curated pilot is retained as a sample-selection
+  contrast.
+- **Extended draft v0.3** (2026-05-18). Same PDF pipeline; §8.1.3
+  rewritten with the Tranco-1k results table and pilot comparison;
+  §8.1.1 methodology updated to describe the actual Python ssl +
+  rustls-pq probe pair (the earlier zgrab2 plan was superseded
+  before the scan ran); frontmatter author block aligned with the
+  magazine version (`Aleaddin Özer` + `Murat Aydos`).
 - **Authors confirmed.** Strings rendered correctly. ORCIDs pending.
 - **References verified.** All 28 entries cross-checked against live
   sources; `microsoft-cryptotracker` previously identified as a
@@ -146,6 +153,7 @@ implementation reproduces α and δ to within 0.01.
 - **Target venue confirmed:** IEEE S&P Magazine. The 14-page WeasyPrint
   render fits roughly 8 pages in the IEEE 2-col submission template.
 - **ORCIDs:** to be added when available.
-- **PQ-capable Study 1 scale-up:** the 30-host pilot reports 17/30
-  (57%) X25519MLKEM768 negotiation; the same probe runs unchanged
-  against the Tranco-top-1k for an Internet-wide estimate.
+- **PQ-capable Study 1 scale-up — resolved (2026-05-13 scan).**
+  Tranco-top-1k (snapshot 6G8PX, 2026-05-13) returns 317/724
+  (43.8%) X25519MLKEM768 adoption on responsive hosts; raw
+  captures and summary JSON in `studies/study1/`.

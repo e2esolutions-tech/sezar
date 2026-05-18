@@ -11,7 +11,7 @@ author:
     affiliation: "Hacettepe University"
     role: "Associate Professor"
     orcid: "[to be provided]"
-date: 2026-05-13
+date: 2026-05-18
 target_venue: "IEEE Security & Privacy Magazine"
 target_length: "8 pages, IEEE two-column format"
 keywords:
@@ -35,11 +35,11 @@ abstract: |
   schema with the new axes and release a reference implementation,
   Sezar: eBPF-based wire observation, an ETSI GS QKD 014 collector
   and reusable KME emulator, and a static crypto-agility scanner.
-  Across three reproducible studies we measure 57% PQ-KEM adoption
-  in a 30-host sample of well-known Web properties, validate
-  channel-state classification on every induced transition (13/13)
-  in a KME emulator, and reach 91% agreement with hand-graded
-  ground truth on an 11-project agility corpus. Practitioners can
+  Across three reproducible studies we measure 43.8% PQ-KEM
+  adoption (317/724 responsive hosts) across the Tranco-top-1k,
+  validate channel-state classification on every induced
+  transition (13/13) in a KME emulator, and reach 91% agreement
+  with hand-graded ground truth on an 11-project agility corpus. Practitioners can
   reproduce our evaluation with no QKD hardware, no commercial
   scanner, and a single Linux host.
 ---
@@ -462,76 +462,98 @@ We characterise the system through three reproducible studies.
 Every script, capture file, and analysis notebook ships under
 `studies/{study1,study2,study3}` in the repository.
 
-## 5.1 Study 1 — Axis A on the Public Web (n = 30)
+## 5.1 Study 1 — Axis A on the Public Web (Tranco-top-1k)
 
-We probe a 30-host sample of well-known public sites — major
-content-delivery, browser-vendor, distro, IETF/IEEE/NIST/ETSI,
-and AI-vendor properties — with a single TLS handshake per host
-(5-second connect+handshake timeout, 1 Hz rate cap). Two
-probes run sequentially over the same host list: a *classical
-baseline probe* (Python `ssl` with system OpenSSL defaults) and
-a *PQ-capable probe* (rustls 0.23 + `rustls-post-quantum`,
-which advertises the `X25519MLKEM768` hybrid group in the
-ClientHello). The probes record the negotiated TLS version,
-ciphersuite, key-exchange group, and the leaf certificate's
-signature algorithm. Full host list, both probe sources, and
-the raw captures live under
+We probe the Tranco-top-1k list [@tranco] (snapshot 6G8PX,
+2026-05-13) over TLS using two sequential probes against the
+same target list: a *classical baseline probe* (Python `ssl`
+with system OpenSSL defaults) and a *PQ-capable probe*
+(rustls 0.23 + `rustls-post-quantum`, which advertises the
+`X25519MLKEM768` hybrid group in the ClientHello). Each probe
+issues a single TLS handshake per host with a 5-second
+connect+handshake timeout and a 1 Hz rate cap; the scanner
+identifies itself in the ClientHello SNI extension as
+`sezar-survey/1.0 +https://e2esolutions.tech/sezar`. The
+probes record the negotiated TLS version, ciphersuite,
+key-exchange group, and the leaf certificate's signature
+algorithm. Full host list, both probe sources, and the raw
+captures live under
 [`studies/study1/`](studies/study1/).
+
+**Effective sample size.** 724 of 1,000 hosts returned a
+usable TLS handshake within the timeout; 276 were
+unresponsive (DNS failure, no TLS on 443, regional GeoIP
+block, or anti-bot middlebox). The 27.6% non-response rate
+is in the range reported by prior large-scale TLS scans of
+the open Web [@durumeric-tls]. All headline percentages
+below use the $n = 724$ responsive denominator.
 
 The headline numbers (Figures 4 and 5):
 
-- **100% TLS 1.3.** Every host (30/30) negotiated TLS 1.3 in
-  both probes.
-- **AEAD distribution (classical probe).** AES-256-GCM/SHA-384 =
-  20/30 (67%); AES-128-GCM/SHA-256 = 7/30 (23%);
-  ChaCha20-Poly1305/SHA-256 = 3/30 (10%). All three are PQ-safe
-  on the symmetric side; the AES-128 cohort is Grover-weakened
-  relative to AES-256.
-- **Certificate signatures.** ECDSA-P256 on 18/30 hosts (60%);
-  RSA-PKCS1-SHA256 on 11/30 (37%); one host serves an
-  RSA-PKCS1-SHA384 chain. No host in the sample presents an
-  ML-DSA or SLH-DSA signature, consistent with the wider
-  observation that production trust-anchor PQ certificates have
-  not yet rolled out [@digicert-pq].
-- **PQ key exchange — the headline result.** With the PQ-capable
-  probe advertising `X25519MLKEM768`, **17 of 30 hosts (57%)
-  negotiated the hybrid PQ group**. The PQ-adopter cohort
-  spans Cloudflare-fronted sites (cloudflare.com, twitter.com,
-  reddit.com, anthropic.com, openai.com), Google properties
-  (google.com, youtube.com), and a long tail of community and
-  CDN-protected sites (wikipedia.org, facebook.com,
-  instagram.com, apple.com, python.org, rust-lang.org,
-  debian.org, ietf.org, etsi.org, e2esolutions.tech). The 13
-  classical-only hosts include several major
-  infrastructure-relevant properties (github.com,
-  microsoft.com, amazon.com, mozilla.org, kernel.org,
-  nist.gov, openssl.org) where the PQ rollout has not yet
-  landed at the date of this measurement (2026-05-13).
+- **TLS 1.3 majority, TLS 1.2 long tail.** 602/724 (83.1%)
+  negotiated TLS 1.3; 122/724 (16.9%) negotiated TLS 1.2.
+  A non-trivial TLS-1.2 fraction persists at the top of the
+  open Web four years after the standards-track default
+  shifted to TLS 1.3 — a constraint for any PQ rollout that
+  presumes TLS 1.3 (the `X25519MLKEM768` hybrid only
+  applies to TLS 1.3 handshakes).
+- **AEAD distribution.** Within the TLS 1.3 cohort,
+  AES-256-GCM/SHA-384 dominates at 384/724 (53.0%);
+  AES-128-GCM/SHA-256 follows at 207/724 (28.6%);
+  ChaCha20-Poly1305/SHA-256 trails at 11/724 (1.5%). All
+  AEAD suites observed are PQ-safe on the symmetric side;
+  the AES-128 cohort is Grover-weakened relative to
+  AES-256. No SHA-1 or RC4 was observed.
+- **Certificate signatures.** RSA-PKCS1-SHA256 on 451/724
+  hosts (62.3%); ECDSA-P256 on 244/724 (33.7%);
+  RSA-PKCS1-SHA384 on 19/724 (2.6%); ECDSA-P384 on 10/724
+  (1.4%). The corpus is **RSA-dominant by leaf-certificate
+  signature**. No host in the sample presents an ML-DSA or
+  SLH-DSA signature, consistent with the wider observation
+  that production trust-anchor PQ certificates have not yet
+  rolled out [@digicert-pq].
+- **PQ key exchange — the headline result.** With the
+  PQ-capable probe advertising `X25519MLKEM768`, **317 of
+  724 responsive hosts (43.8%) negotiated the hybrid PQ
+  group**. The remaining 407 fell back to classical
+  `x25519` (312), `secp256r1` (80), or `secp384r1` (15).
 
-![**Figure 4.** Study 1 — classical-probe baseline (n=30): negotiated
-TLS 1.3 ciphersuite (left) and leaf certificate signature algorithm
-(right).](studies/study1/plots/study1-distribution.pdf){#fig:study1 width=95%}
+![**Figure 4.** Study 1 — classical-probe baseline on the
+Tranco-top-1k (n_ok = 724): negotiated TLS 1.3 ciphersuite
+(left) and leaf certificate signature algorithm
+(right).](studies/study1/plots/study1-tranco-distribution.pdf){#fig:study1 width=95%}
 
 ![**Figure 5.** Study 1 — PQ-capable probe (rustls +
-`rustls-post-quantum`). 17 of 30 well-known public hosts (57%)
-negotiate `X25519MLKEM768` when offered; the other 13 fall back
-to classical `x25519` / `secp256r1` / `secp384r1`. A metric the
-classical-only probe cannot observe.](studies/study1/plots/study1-pq-kex.pdf){#fig:study1pq width=95%}
+`rustls-post-quantum`) against the Tranco-top-1k. 317 of
+724 responsive hosts (43.8%) negotiate `X25519MLKEM768`
+when offered; the remainder fall back to classical `x25519`,
+`secp256r1`, or `secp384r1`. A metric the classical-only
+probe cannot observe.](studies/study1/plots/study1-tranco-pq-kex.pdf){#fig:study1pq width=95%}
 
-The 57% PQ-adoption rate in this curated sample is meaningfully
-higher than open-web averages reported by Cloudflare in 2024
-(≈25–30% across observed handshakes at the edge)
-[@cloudflare-pq-deploy]: the sample skews toward
-Cloudflare-fronted and Google-fronted properties whose edge
-TLS terminators rolled out X25519MLKEM768 early. Several of the
-PQ-adopters share Cloudflare's edge, so the 17 hits represent
-fewer than 17 independent deployments. The sample is too small
-to draw distributional conclusions about the wider Internet;
-the contribution here is methodological — a reusable,
+The 43.8% Tranco-1k figure sits above the ≈25–30% open-Web
+edge average Cloudflare reports for 2024–2025
+[@cloudflare-pq-deploy], reflecting that Tranco-top-1k
+over-represents large CDN- and cloud-fronted properties.
+As a sample-selection sanity check we ran the same probe
+over a 30-host curated subset (major CDN, browser-vendor,
+distro, standards-body, and AI-vendor properties) and
+observed 17/30 (57%) PQ adoption — 13 percentage points
+above the Tranco-1k rate. The gap is attributable to
+curation: the 30-host list emphasises Cloudflare-fronted
+and Google-fronted properties whose edge terminators rolled
+out X25519MLKEM768 early. Side-by-side, the two numbers
+illustrate why "interesting hosts" surveys overstate PQ
+readiness relative to broader corpora.
+
+The contribution here is methodological — a reusable,
 ethics-vetted PQ-aware probe (Cargo binary, single-host
 smoke-testable, NDJSON output) that emits directly into
-Sezar's collector. Scaling the host list from 30 to the
-Tranco-top-1k changes the runtime, not the methodology.
+Sezar's collector — and an empirical baseline against which
+quarterly re-scans can chart the X25519MLKEM768 rollout.
+Repeating the probe over the next eight quarters from the
+same vantage point should produce a usable adoption time
+series, since the rate-cap and ethical safeguards stay
+invariant.
 
 ## 5.2 Study 2 — Axis C via the KME Emulator (n = 5 scenarios)
 

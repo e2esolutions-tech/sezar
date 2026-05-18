@@ -22,6 +22,19 @@ outputs**, **runtime envelope**, and **ethical considerations**.
 
 ## Study 1 — Public-Web TLS Survey (Axis A)
 
+> **Implementation note (2026-05-18).** The 2026-05-13 pilot run
+> reported in the paper used the alternative probe pair under
+> [`studies/study1/`](../../studies/study1/) — a Python `ssl`
+> baseline (`scan-tranco-1k.json`) and a Rust `rustls 0.23` +
+> `rustls-post-quantum 0.2` PQ-capable probe
+> (`pq-scan-tranco-1k.ndjson`) — at a 1 Hz rate cap. Those
+> artifacts are the canonical inputs to
+> [`studies/study1/analyse_tranco.py`](../../studies/study1/analyse_tranco.py),
+> which generates `plots/study1-tranco-{distribution,pq-kex}.{pdf,png}`
+> and `plots/study1-tranco-summary.json`. The zgrab2-based steps
+> below remain the planned recipe for re-runs at the larger
+> zgrab2-compatible scales (Tranco-100k, Tranco-1m).
+
 ### Inputs
 
 - **Tranco-top-1k** target list. Obtained from `https://tranco-list.eu/`
