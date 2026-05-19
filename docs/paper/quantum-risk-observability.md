@@ -26,9 +26,10 @@ abstract: |
   separately, if at all. Which primitives are quantum-resistant,
   which channels are additionally protected by quantum-secure key
   delivery, and how agile is each asset under migration pressure?
-  We argue that quantum-risk posture is a three-axis problem, not
-  one. We define algorithmic resistance (A), channel protection
-  (C), and migration agility (G) as independent observables, and
+  We treat quantum-risk posture as a three-axis problem rather
+  than the one-axis problem PQ-readiness scanners answer today.
+  We define algorithmic resistance (A), channel protection (C),
+  and migration agility (G) as independent observables, and
   combine them with the operator's deadline horizon into a single
   quantum-risk score $q(\text{asset}, t)$ whose agility weight
   shrinks as the deadline approaches. We extend an open event
@@ -89,9 +90,9 @@ ciphersuites cannot see the difference.
 Standards-body guidance [@nsa-qkd-position; @anssi-qkd] is
 skeptical of QKD as a substitute for PQC at present — and that
 position is reasonable when the question is "where should I
-invest." From an *observability* standpoint the dichotomy elides
-a distinction operators need: PQC and QKD are complementary
-signals on the *same* asset. An asset using ECDSA-P256 over a
+invest." But for observability the dichotomy is the wrong
+abstraction: PQC and QKD are complementary signals on the *same*
+asset. An asset using ECDSA-P256 over a
 QKD-protected link is in a different posture than an asset
 using ECDSA-P256 over an unprotected link, even though their
 algorithms are identical.
@@ -433,7 +434,7 @@ classification table, and the deadline-adjusted rollup. The
 React dashboard renders the three-axis posture matrix and the
 priority-sorted action list.](figures/sezar-architecture.pdf){#fig:arch width=90%}
 
-## 4.3 ETSI 014 KME Emulator: The Practitioner Artifact
+## 4.3 ETSI 014 KME Emulator
 
 Because hardware QKD is rare and expensive, we built a faithful
 implementation of the ETSI GS QKD 014 v1.1.1 Key Delivery API
@@ -541,19 +542,16 @@ observed 17/30 (57%) PQ adoption — 13 percentage points
 above the Tranco-1k rate. The gap is attributable to
 curation: the 30-host list emphasises Cloudflare-fronted
 and Google-fronted properties whose edge terminators rolled
-out X25519MLKEM768 early. Side-by-side, the two numbers
-illustrate why "interesting hosts" surveys overstate PQ
-readiness relative to broader corpora.
+out X25519MLKEM768 early. The two numbers together suggest
+that surveys of "interesting" hosts overstate PQ readiness
+compared to a Tranco-style broader corpus.
 
-The contribution here is methodological — a reusable,
-ethics-vetted PQ-aware probe (Cargo binary, single-host
-smoke-testable, NDJSON output) that emits directly into
-Sezar's collector — and an empirical baseline against which
-quarterly re-scans can chart the X25519MLKEM768 rollout.
-Repeating the probe over the next eight quarters from the
-same vantage point should produce a usable adoption time
-series, since the rate-cap and ethical safeguards stay
-invariant.
+The probe itself is a small Cargo binary that holds to a 1 Hz
+rate cap and emits NDJSON straight into the Sezar collector.
+Re-running it every quarter from the same vantage point gives
+an adoption time series; the rate cap and the SNI-identifier
+safeguards stay the same, so the only thing that changes is
+the data.
 
 ## 5.2 Study 2 — Axis C via the KME Emulator (n = 5 scenarios)
 
@@ -643,23 +641,23 @@ are all editable; the published dataset captures one operator's
 first cut, and subsequent reviewers can rerun
 `studies/study3/run.sh` after their own rule edits.
 
-## 5.4 What the Synthesis Demonstrates
+## 5.4 End-to-End Pipeline Check
 
-We exercise the full pipeline with the
-[`scripts/demo.sh`](scripts/demo.sh) one-command runner, which
-boots the emulator + collector + server, seeds three observed
-assets from the bundled zgrab2 fixture (legacy SHA-1/RC4, TLS
-1.2 ECDHE+RSA, TLS 1.3 ECDSA+QKD) plus one synthetic
-FIPS-locked appliance, then queries `sezar-server`'s
-`/v1/posture` endpoint. With default weights and $D =$
-2030-01-01 the seeded mix returns `org_q = 0.62`, ranking the
-legacy and FIPS-locked classical assets at the top of the
-priority queue and the PQ-capable QKD-protected asset at the
-bottom — the expected ordering for the three-axis model. The
-contribution at this scale is not a headline number; it is, to
-our knowledge, the first openly published end-to-end pipeline
-of this kind, with every leg (scan, collect, rollup, dashboard)
-open source and reproducible from a single Linux host.
+[`scripts/demo.sh`](scripts/demo.sh) boots the emulator,
+collector, and server, seeds three observed assets from the
+bundled zgrab2 fixture (legacy SHA-1/RC4, TLS 1.2 ECDHE+RSA,
+TLS 1.3 ECDSA+QKD) and one synthetic FIPS-locked appliance,
+then queries `sezar-server`'s `/v1/posture` endpoint. With
+default weights and $D =$ 2030-01-01 the seeded mix returns
+`org_q = 0.62`. The legacy and FIPS-locked classical assets
+sit at the top of the priority queue and the PQ-capable
+QKD-protected asset at the bottom — the ordering the
+three-axis model should produce.
+
+The point of this check is not the score itself but that the
+full chain — scan, collect, rollup, dashboard — runs on a
+single Linux host from open-source code, with no QKD hardware
+and no commercial scanner.
 
 ---
 
@@ -720,12 +718,11 @@ migrating cryptographic assets across networks that no single
 operator entirely designed, on schedules no single operator
 controls. Observability is the precondition for that work.
 
-We have argued that observability tooling has been
-undershooting the problem by an axis or two. "PQ-ready" treats
-algorithmic resistance as the only observable; the channel
-through which keys reach an endpoint and the cost of changing
-the algorithm are equally operationally significant, and
-current tooling surfaces neither.
+Observability tooling has been undershooting the problem by
+an axis or two. "PQ-ready" treats algorithmic resistance as
+the only observable; the channel through which keys reach an
+endpoint and the cost of changing the algorithm matter just as
+much in practice, and current tooling surfaces neither.
 
 The three-axis model we propose is one design choice among
 several. The scoring constants are debatable. The agility
@@ -749,8 +746,8 @@ the point.
 >
 > - "PQ-ready" is one bit of a multi-bit answer. Treating
 >   algorithmic resistance as the only observable hides
->   operationally critical differences between assets that
->   look identical on the wire.
+>   differences between assets that look identical on the wire
+>   but require very different remediation budgets.
 > - **Algorithmic resistance (A)**, **channel protection (C)**,
 >   and **migration agility (G)** are three independent
 >   observables. Each is measurable today with open tooling.

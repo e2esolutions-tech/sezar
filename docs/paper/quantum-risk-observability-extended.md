@@ -33,8 +33,8 @@ abstract: |
   agile is each asset — can it be migrated by configuration, library
   upgrade, or only by firmware replacement?
 
-  We argue that quantum-risk posture is a three-axis problem, not a
-  one-axis problem, and that observability tooling should reflect this.
+  We treat quantum-risk posture as a three-axis problem rather
+  than a one-axis problem, and align observability tooling to it.
   We formalize a posture model that grades each cryptographic asset on
   algorithmic resistance (A), channel protection (C), and migration
   agility (G), and combines them with the operator's deadline horizon
@@ -107,19 +107,17 @@ QKD — as alternatives. Either you migrate your algorithms (PQC), or
 you install QKD links on high-assurance segments, with the
 implicit understanding that QKD's hardware cost and distance limits
 make it inappropriate for general use [@nsa-qkd-position;
-@anssi-qkd]. We argue that this framing collapses too soon. From an
-*observability* standpoint — that is, from the standpoint of an
-operator trying to know what risks are present in their environment
-on any given day — PQC and QKD are *complementary observables*, not
+@anssi-qkd]. That framing collapses too soon. For an operator
+trying to know what risks are present in their environment on
+any given day, PQC and QKD are *complementary observables*, not
 alternatives. An asset using ECDSA-P256 over a fiber link
 protected by a Toshiba MU-QKD3 system is in a materially different
 posture than an asset using ECDSA-P256 over an unprotected wide-area
 link, even though their algorithms are identical. A unified
 observability model must capture both.
 
-We argue further that a complete quantum-risk model must include a
-third axis that current tooling almost entirely ignores: *crypto-
-agility*. An asset using a classical algorithm today but whose
+A complete quantum-risk model has to include a third axis that
+current tooling almost entirely ignores: *crypto-agility*. An asset using a classical algorithm today but whose
 algorithm is selected at runtime by a server configuration field is
 in a very different posture than an asset whose algorithm is
 hard-coded into firmware that ships from a vendor and rotates only
@@ -158,10 +156,10 @@ the patience to scan one thousand hosts.
 
 This paper makes the following contributions:
 
-1. **A three-axis quantum-risk posture model.** We argue that
-   algorithmic resistance, channel protection, and migration agility
-   are three independent observables that together determine an
-   asset's actual exposure to the post-quantum transition. We
+1. **A three-axis quantum-risk posture model.** Algorithmic
+   resistance, channel protection, and migration agility are three
+   independent observables that together determine an asset's
+   actual exposure to the post-quantum transition. We
    formalize each axis on a defined scale and define the unified
    deadline-adjusted risk function (§5).
 
@@ -344,8 +342,8 @@ firmware level; embedded devices in industrial or medical settings
 often have a fixed algorithm chosen at the silicon level. The
 emergence of FIPS 140-3 validation, with its requirement that
 algorithm changes trigger revalidation, introduces a second axis of
-*locked* status that is operationally significant for any
-regulated environment [@fips140-3].
+*locked* status that any regulated environment has to plan
+around [@fips140-3].
 
 Despite repeated standards-body emphasis on crypto-agility, the
 practitioner picture is poor. No widely deployed inventory tool we
@@ -406,10 +404,10 @@ operational and security testing
 operational data. The EuroQCI program [@euroqci] is in the process
 of standardizing inter-domain QKD telemetry.
 
-Crucially, this thread is *internal* to the QKD operator. From the
-SAE/application perspective — that is, from the perspective of an
-operator using QKD keys to protect application traffic — the public
-literature is much thinner. ETSI GS QKD 014 [@etsi-qkd-014]
+This thread, however, is *internal* to the QKD operator. For
+an operator using QKD keys to protect application traffic — the
+SAE/application perspective — the public literature is much
+thinner. ETSI GS QKD 014 [@etsi-qkd-014]
 standardizes the SAE-facing interface; we are not aware of an
 existing open-source SAE-side observability platform that consumes
 014 telemetry and integrates it with a broader cryptographic
@@ -1022,11 +1020,11 @@ curated pilot — github.com, microsoft.com, amazon.com,
 mozilla.org, kernel.org, nist.gov, openssl.org, and others —
 are notable in their own right as major
 infrastructure-relevant properties where the PQ rollout has
-not yet landed. Side-by-side, the two numbers illustrate why
-curated "interesting hosts" surveys overstate PQ readiness
-relative to broader corpora; we recommend reporting both a
-broad-corpus rate and any curated rate explicitly when
-summarising PQ-KEX adoption in the literature.
+not yet landed. The two numbers together suggest that surveys
+built on curated "interesting" host lists overstate PQ
+readiness compared to broader corpora. Where these numbers
+appear in the literature, both rates — broad-corpus and
+curated — deserve to be reported.
 
 **Two further observables of operational interest.** First,
 122 of 724 responsive Tranco-1k hosts (16.9%) still
@@ -1277,14 +1275,13 @@ the §3.1 worked example: the unit tests
 implementation reproduces the paper's α = 0.544 and
 δ = 0.392 to within 0.01.
 
-This is the first published end-to-end empirical pipeline on
-all three axes whose every leg — scan, collect, rollup,
-dashboard — ships as open source and runs on a single Linux
-host with no QKD hardware and no commercial scanner. The
-Tranco-1k scan reported in §8.1 is the broad-corpus headline
-for Axis A; scaling Study 3 from the 11-project pilot to the
-full OSS-50 corpus is the remaining mechanical exercise on
-the published runners.
+To our knowledge no comparable open pipeline covers all three
+axes end-to-end — scan, collect, rollup, dashboard — on a
+single Linux host without QKD hardware or a commercial
+scanner. The Tranco-1k scan reported in §8.1 is the
+broad-corpus result for Axis A; scaling Study 3 from the
+11-project pilot to the full OSS-50 corpus is the remaining
+mechanical step on the published runners.
 
 ---
 
