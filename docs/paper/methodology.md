@@ -378,28 +378,35 @@ CSV and the Tranco list snapshot in an academic archive
 
 Beyond the active-probe path used by Study 1, `sezar-net` also
 ships a *passive* observation path so an operator can watch their
-own outbound TLS without scanning. Two phases:
+own outbound TLS without scanning. Three modes share the same
+frame-handling code:
 
 - **Phase 2.0 — pcap-file replay** (default build). `sezar-net live
   --pcap <file>` reads a `.pcap` or `.pcapng` capture (e.g. from
   `tcpdump -w port-443.pcap port 443`), parses Ethernet / IPv4 /
   TCP, looks for TLS record-layer handshake messages, and emits one
   `crypto_inventory_event` per ClientHello / ServerHello. Pure-Rust,
-  no system dependencies, no privileges required — the
-  integration test in `crates/sezar-net/tests/live_pcap.rs`
-  synthesises a tiny ClientHello pcap end-to-end as a sanity check.
-- **Phase 2.1 — live-interface capture** (feature-gated). A
-  kernel-side TC classifier (`crates/sezar-net-ebpf/`, written
+  no system dependencies, no privileges required — the integration
+  test in `crates/sezar-net/tests/live_pcap.rs` synthesises a tiny
+  ClientHello pcap end-to-end as a sanity check.
+- **Phase 2.2 — libpcap live interface** (`--features live-pcap`).
+  `sezar-net live --iface lo` opens a network interface via libpcap
+  and feeds the same frame-handling path. Sensible defaults: 1 Hz
+  read timeout for Ctrl-C responsiveness, snaplen 1500, BPF filter
+  `tcp port 443`. Build needs `libpcap-devel` (Fedora) or
+  `libpcap-dev` (Debian/Ubuntu); run needs `CAP_NET_RAW`. The
+  intended audience is operators who want a low-friction `lo`
+  smoke test or small-scale capture without the eBPF toolchain.
+- **Phase 2.1 — eBPF TC classifier** (`--features live-interface`).
+  A kernel-side classifier (`crates/sezar-net-ebpf/`, written
   against `aya-ebpf` 0.1) attaches to a network interface's
   ingress hook, captures TLS handshake bytes into a ring buffer,
-  and a userspace loader (`crates/sezar-net/src/live_iface.rs`,
-  behind the `live-interface` feature) consumes them and produces
-  the same events as the pcap path. Build requires a nightly
-  toolchain, `bpf-linker`, and the `bpfel-unknown-none` target;
-  runtime requires `CAP_BPF` + `CAP_NET_ADMIN`. The skeleton is
-  committed but full attach-and-consume validation is deferred to
-  the next milestone — Phase 2.0 covers all paper-cited
-  reproductions today.
+  and a userspace loader (`crates/sezar-net/src/live_iface.rs`)
+  consumes them and emits identical events. Build requires a
+  nightly toolchain, `bpf-linker`, and the `bpfel-unknown-none`
+  target; runtime requires `CAP_BPF` + `CAP_NET_ADMIN`. The
+  skeleton is committed; full attach-and-consume validation on
+  real interfaces is the eBPF milestone that follows Phase 2.2.
 
 ---
 
