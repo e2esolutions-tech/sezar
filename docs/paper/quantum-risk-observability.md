@@ -6,11 +6,11 @@ author:
     affiliation: "E2E Solutions"
     role: "Chief Information Officer"
     email: "info@e2esolutions.tech"
-    orcid: "[to be provided]"
+    orcid: "0000-0001-9389-5357"
   - name: "Murat Aydos"
     affiliation: "Hacettepe University"
     role: "Associate Professor"
-    orcid: "[to be provided]"
+    orcid: "0000-0002-7570-9204"
 date: 2026-05-18
 target_venue: "IEEE Security & Privacy Magazine"
 target_length: "8 pages, IEEE two-column format"

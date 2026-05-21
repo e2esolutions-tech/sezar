@@ -9,8 +9,8 @@ Working draft of the Sezar reference paper plus its build pipeline.
 
 ## Authors
 
-- **Aleaddin Özer**, Chief Information Officer, E2E Solutions. <info@e2esolutions.tech>. ORCID: [pending].
-- **Murat Aydos**, Associate Professor, Hacettepe University. ORCID: [pending].
+- **Aleaddin Özer**, Chief Information Officer, E2E Solutions. <info@e2esolutions.tech>. ORCID: [0000-0001-9389-5357](https://orcid.org/0000-0001-9389-5357).
+- **Murat Aydos**, Associate Professor, Hacettepe University. ORCID: [0000-0002-7570-9204](https://orcid.org/0000-0002-7570-9204).
 
 ## Files
 
@@ -142,7 +142,9 @@ implementation reproduces α and δ to within 0.01.
   rustls-pq probe pair (the earlier zgrab2 plan was superseded
   before the scan ran); frontmatter author block aligned with the
   magazine version (`Aleaddin Özer` + `Murat Aydos`).
-- **Authors confirmed.** Strings rendered correctly. ORCIDs pending.
+- **Authors confirmed.** Strings rendered correctly. ORCIDs landed
+  (Aleaddin Özer 0000-0001-9389-5357 / Murat Aydos
+  0000-0002-7570-9204).
 - **References verified.** All 28 entries cross-checked against live
   sources; `microsoft-cryptotracker` previously identified as a
   fabricated name and replaced with the real Microsoft Security Blog
@@ -152,7 +154,7 @@ implementation reproduces α and δ to within 0.01.
 
 - **Target venue confirmed:** IEEE S&P Magazine. The 14-page WeasyPrint
   render fits roughly 8 pages in the IEEE 2-col submission template.
-- **ORCIDs:** to be added when available.
+- **ORCIDs:** landed 2026-05-21 — see Authors section above.
 - **PQ-capable Study 1 scale-up — resolved (2026-05-13 scan).**
   Tranco-top-1k (snapshot 6G8PX, 2026-05-13) returns 317/724
   (43.8%) X25519MLKEM768 adoption on responsive hosts; raw
