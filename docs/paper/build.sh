@@ -76,8 +76,9 @@ path = sys.argv[1]
 src = open(path).read()
 # Replace the author block: greedy until next top-level key.
 new_author = """author:
-  - "Aleaddin Özer (CIO, E2E Solutions)"
+  - "Aleaddin Özer✱ (CIO, E2E Solutions)"
   - "Murat Aydos (Assoc. Prof., Hacettepe University)"
+  - "✱ Corresponding author: info@e2esolutions.tech"
 """
 src = re.sub(
     r"^author:\n(?:[ -].*\n)+",
