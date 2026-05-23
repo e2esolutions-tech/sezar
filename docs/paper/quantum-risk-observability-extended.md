@@ -1474,28 +1474,3 @@ Studies 1 and 2 are committed under `studies/study1/` and
 and the agreement TSV are under `studies/study3/results/`.
 No human subjects, personally identifying information, or
 proprietary data are involved.
-
----
-
-# Corresponding Author
-
-Aleaddin Özer (<info@e2esolutions.tech>).
-
----
-
-# Author Bios
-
-**Aleaddin Özer** is Chief Information Officer at E2E
-Solutions, where he leads enterprise cryptographic
-infrastructure and post-quantum migration programs across
-critical-sector clients. His operational work informs the
-Sezar reference implementation. Contact:
-<info@e2esolutions.tech>. ORCID:
-[0000-0001-9389-5357](https://orcid.org/0000-0001-9389-5357).
-
-**Murat Aydos** is Associate Professor at Hacettepe
-University, working on applied cryptography, network security,
-and post-quantum migration strategy. His research has informed
-this paper's threat-model framing and crypto-agility scoring
-rubric. ORCID:
-[0000-0002-7570-9204](https://orcid.org/0000-0002-7570-9204).

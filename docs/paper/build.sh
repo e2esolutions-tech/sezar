@@ -70,12 +70,23 @@ build_one() {
 
   # Rewrite YAML structured author block to simple strings so pandoc's
   # default HTML template renders authors instead of "true".
+  #
+  # The magazine version keeps the title page minimal and carries
+  # ORCIDs in the Author Bios section. The extended version drops
+  # Author Bios entirely (research-journal convention) and folds
+  # the ORCIDs into the title page author lines.
   python3 - "$md_patched" <<'PYEOF'
 import re, sys
 path = sys.argv[1]
 src = open(path).read()
-# Replace the author block: greedy until next top-level key.
-new_author = """author:
+if "extended" in path:
+    new_author = """author:
+  - "Aleaddin Özer✱ (CIO, E2E Solutions, ORCID 0000-0001-9389-5357)"
+  - "Murat Aydos (Assoc. Prof., Hacettepe University, ORCID 0000-0002-7570-9204)"
+  - "✱ Corresponding author: info@e2esolutions.tech"
+"""
+else:
+    new_author = """author:
   - "Aleaddin Özer✱ (CIO, E2E Solutions)"
   - "Murat Aydos (Assoc. Prof., Hacettepe University)"
   - "✱ Corresponding author: info@e2esolutions.tech"
