@@ -35,9 +35,9 @@ abstract: |
   shrinks as the deadline approaches. We extend an open event
   schema with the new axes and release a reference implementation,
   Sezar: eBPF-based wire observation, an ETSI GS QKD 014 collector
-  and reusable KME emulator, and a static crypto-agility scanner.
-  Across three reproducible studies we measure 43.8% PQ-KEM
-  adoption (317/724 responsive hosts) across the Tranco-top-1k,
+  with a KME emulator, and a static crypto-agility scanner.
+  Across three reproducible studies we measure 43.8% hybrid
+  PQ-KEM adoption (317/724 responsive hosts) on the Tranco-top-1k,
   validate channel-state classification on every induced
   transition (13/13) in a KME emulator, and reach 91% agreement
   with hand-graded ground truth on an 11-project agility corpus. Practitioners can
@@ -53,9 +53,9 @@ of several PQ-discovery tools [@cisco-pqc-discovery;
 @ibm-pqc-discovery; @cloudflare-pq-deploy], and learn how much of
 their TLS, SSH, and certificate inventory is "PQ-ready."
 
-That answer is not wrong. It is incomplete in a way that matters
-operationally. Consider two TLS terminators sitting side by side
-in the same data center:
+That answer is not wrong. It is incomplete in a way operators
+feel in practice. Consider two TLS terminators sitting side by
+side in the same data center:
 
 - **Terminator A** runs nginx 1.27 with a TLS configuration that
   negotiates `X25519` today but accepts `X25519MLKEM768` the
@@ -122,17 +122,16 @@ inventory tool surfaces it as a first-class telemetry field. The
 result is a three-stranded literature feeding single-axis
 dashboards.
 
-This article argues that quantum-risk observability requires
-three axes, not one:
+This article treats quantum-risk observability as a three-axis
+problem:
 
 - **A** — Algorithmic resistance (the primitive itself).
 - **C** — Channel protection (the key-delivery mechanism).
 - **G** — Migration agility (the cost of changing A).
 
-In the rest of this article we define each axis, combine them
-into a single deadline-adjusted risk score, walk through a
-worked example, and describe an open reference implementation
-that any practitioner can deploy.
+The remainder defines each axis, gives the combined score,
+works through a four-asset example, and describes an open
+reference implementation that any practitioner can deploy.
 
 ---
 
@@ -158,9 +157,12 @@ A typical TLS 1.3 session contributes four primitive
 observations: key exchange, signature, AEAD, hash. We weight
 these by relevance to the harvest-now/decrypt-later threat —
 signature 0.40, KEM 0.30, AEAD 0.20, hash 0.10 — and
-re-normalize when a subset is present. The resulting per-asset
-score is a recognizable algorithm-readiness number that
-operators can compare against existing dashboards.
+re-normalize when a subset is present. The schema also carries
+a separate `auth` role for the MAC primitive in protocols where
+it is independent of the AEAD (SSH, IPsec-AH); in TLS 1.3
+session observations the MAC is folded into the AEAD term
+above. The resulting per-asset score is comparable to existing
+PQ-readiness dashboards.
 
 ## 2.2 Axis C — Channel Protection
 
@@ -189,9 +191,9 @@ the SAE we observe per-session attribution: *which* keys were
 consumed on *which* sessions.
 
 The SAE may *think* it is operating in hybrid PSK mode while
-the underlying KME has degraded into a classical fallback. The
-role of an observability layer is to surface this discrepancy.
-We define $c$ on observed KME state, not on SAE-reported
+the underlying KME has degraded into a classical fallback. An
+observability layer should make that discrepancy visible — so
+we define $c$ on observed KME state, not on SAE-reported
 intent.
 
 ## 2.3 Axis G — Migration Agility
@@ -241,14 +243,15 @@ $$
 with default weights $\alpha=0.5$, $\beta=0.2$, $\gamma(\tau)=
 0.3 \cdot (1-\tau)$, re-normalized so the three weights sum to
 one as $\gamma$ shrinks. The *agility* weight is the only weight
-that shrinks with deadline tension. The intuition: agility is
-an operator's optionality, and optionality is worth less as the
-clock runs out. The same asset gets evaluated as "fixable"
-early and as "stuck with whatever you've got" late.
+that shrinks with deadline tension. Agility is operator
+optionality, and optionality is worth less as the clock runs
+out. The same asset gets evaluated as "fixable" early and as
+"stuck with whatever you've got" late.
 
-The score is intentionally a *prioritization* signal — it
-answers "where should I spend the next quarter's migration
-budget?" rather than "what is the absolute risk of this asset?"
+The score is a *prioritization* signal, not an absolute risk
+number — it answers "where should I spend the next quarter's
+migration budget?" rather than "what is the absolute risk of
+this asset?"
 The dashboard pairs $q$ with an orthogonal **`BLOCKED`** flag
 for assets whose $G \le 0.20$: such assets cannot be migrated
 by configuration or software update alone and require a vendor
@@ -266,10 +269,10 @@ downstream).
 
 ## 3.1 A Worked Example
 
-To make the formula concrete we evaluate four representative
-assets at two time points: the present day ($t_1$ = 2026-05-13)
-and a date eighteen months before the NSA CNSA 2.0 browser /
-server class deadline ($t_2$ = 2029-07-01). All four assets
+Four representative assets, evaluated at two time points: the
+present day ($t_1$ = 2026-05-13) and a date eighteen months
+before the NSA CNSA 2.0 browser / server class deadline
+($t_2$ = 2029-07-01). All four assets
 share the same target deadline $D=$ 2030-01-01 and horizon
 $H=5$ years. At $t_1$ the deadline tension is $\tau_1 = 0.27$;
 at $t_2$ it is $\tau_2 = 0.90$. Renormalizing the weights so
@@ -312,23 +315,25 @@ deadline $D$ = 2030-01-01.
 | γ legacy-pinned | 0.12 | 0.00 | 0.50 | **0.82** | **0.90** | rising | —         |
 | δ modern-QKD    | 0.51 | 0.70 | 0.75 | **0.39** | **0.43** | rising | —         |
 
-Three observations follow from the table. First, the legacy
-SMTP server (γ) dominates the priority list throughout — both
-its algorithmic content and its limited agility leave it as
-the worst-graded asset, and it remains so as the deadline
-approaches. Second, the modern but locked appliance (β)
-sits above the modern but agile server (α) early in the
-window because its low agility is heavily penalized when the
-operator still has runway to act on it. As $\tau \to 1$ the
-agility weight shrinks and $q_\beta$ slightly declines while
-$q_\alpha$ rises — the priority queue tightens. The dashboard
-keeps β visible regardless via the `BLOCKED` flag, which marks
-it as requiring a vendor or hardware program independently of
-the priority signal. Third, asset δ — algorithmically identical
-to α but protected by a QKD-PSK channel — is the lowest-priority
-asset in the example throughout. QKD's contribution partially
-compensates for classical primitives, which matches the
-deployment rationale for QKD on high-assurance links.
+The legacy SMTP server (γ) dominates the priority list
+throughout. Both its algorithmic content and its limited agility
+leave it as the worst-graded asset, and it remains so as the
+deadline approaches.
+
+The modern but locked appliance (β) sits above the modern but
+agile server (α) early in the window because its low agility is
+heavily penalized when the operator still has runway to act on
+it. As $\tau \to 1$ the agility weight shrinks and $q_\beta$
+slightly declines while $q_\alpha$ rises — the priority queue
+tightens. The dashboard keeps β visible regardless via the
+`BLOCKED` flag, which marks it as requiring a vendor or hardware
+program independently of the priority signal.
+
+Asset δ — algorithmically identical to α but protected by a
+QKD-PSK channel — is the lowest-priority asset in the example
+throughout. QKD's contribution partially compensates for
+classical primitives, matching the deployment rationale for QKD
+on high-assurance links.
 
 The same observables produce different scores at different
 $t$ because the score is *prioritization-adjusted*, not
@@ -337,9 +342,9 @@ quarterly action list: focus on γ and `BLOCKED`-flagged β
 first, then α as its grace period erodes, and treat δ as a
 deferred maintenance item rather than a migration target.
 
-Producing those numbers operationally requires a pipeline that
+Producing those numbers in practice requires a pipeline that
 observes all three axes uniformly. The rest of the paper
-describes Sezar, which provides exactly that, and the empirical
+describes Sezar, which fills that gap, and the empirical
 work the pipeline supports.
 
 ![**Figure 1.** The three-axis quantum-risk space. Each
@@ -451,9 +456,8 @@ emulator:
 - Logs every interaction in a documented JSON capture format,
   enabling head-to-head testing of SAE implementations.
 
-We expect the emulator to be the most reused artifact from
-this work, independent of Sezar itself, by anyone integrating
-or testing software against ETSI 014.
+The emulator is useful independently of Sezar to anyone
+testing software against ETSI 014.
 
 ---
 
@@ -486,10 +490,10 @@ usable TLS handshake within the timeout; 276 were
 unresponsive (DNS failure, no TLS on 443, regional GeoIP
 block, or anti-bot middlebox). The 27.6% non-response rate
 is in the range reported by prior large-scale TLS scans of
-the open Web [@durumeric-tls]. All headline percentages
-below use the $n = 724$ responsive denominator.
+the open Web [@durumeric-tls]. All percentages below use the
+$n = 724$ responsive denominator.
 
-The headline numbers (Figures 4 and 5):
+The main findings (Figures 4 and 5):
 
 - **TLS 1.3 majority, TLS 1.2 long tail.** 602/724 (83.1%)
   negotiated TLS 1.3; 122/724 (16.9%) negotiated TLS 1.2.
@@ -513,10 +517,9 @@ The headline numbers (Figures 4 and 5):
   SLH-DSA signature, consistent with the wider observation
   that production trust-anchor PQ certificates have not yet
   rolled out [@digicert-pq].
-- **PQ key exchange — the headline result.** With the
-  PQ-capable probe advertising `X25519MLKEM768`, **317 of
-  724 responsive hosts (43.8%) negotiated the hybrid PQ
-  group**. The remaining 407 fell back to classical
+- **PQ key exchange.** With the PQ-capable probe advertising
+  `X25519MLKEM768`, **317 of 724 responsive hosts (43.8%)
+  negotiated the hybrid PQ group**. The remaining 407 fell back to classical
   `x25519` (312), `secp256r1` (80), or `secp384r1` (15).
 
 ![**Figure 4.** Study 1 — classical-probe baseline on the
@@ -531,10 +534,14 @@ when offered; the remainder fall back to classical `x25519`,
 `secp256r1`, or `secp384r1`. A metric the classical-only
 probe cannot observe.](studies/study1/plots/study1-tranco-pq-kex.pdf){#fig:study1pq width=95%}
 
-The 43.8% Tranco-1k figure sits above the ≈25–30% open-Web
-edge average Cloudflare reports for 2024–2025
-[@cloudflare-pq-deploy], reflecting that Tranco-top-1k
-over-represents large CDN- and cloud-fronted properties.
+The 43.8% Tranco-1k figure is close to the 39% of
+top-100k sites that Cloudflare measured supporting
+post-quantum key agreement in September 2025
+[@pq-tls-measurement]; both are site-capability
+measurements, and the 4-point gap is consistent with
+Tranco-top-1k over-representing large CDN- and
+cloud-fronted properties relative to the broader
+top-100k.
 As a sample-selection sanity check we ran the same probe
 over a 30-host curated subset (major CDN, browser-vendor,
 distro, standards-body, and AI-vendor properties) and
@@ -654,10 +661,9 @@ sit at the top of the priority queue and the PQ-capable
 QKD-protected asset at the bottom — the ordering the
 three-axis model should produce.
 
-The point of this check is not the score itself but that the
-full chain — scan, collect, rollup, dashboard — runs on a
-single Linux host from open-source code, with no QKD hardware
-and no commercial scanner.
+What the check demonstrates is the full chain running end
+to end on commodity Linux — scan, collect, rollup, dashboard —
+from open-source code alone.
 
 ---
 
@@ -686,17 +692,17 @@ rate at face value — there is no independent attestation in
 the V1 schema, so an operator integrating a QKD link must
 trust the vendor's KME for those readings.
 
-**The threat model accepts the standard PQC and QKD security
-arguments.** Compromise of either — a mathematical break of
-ML-KEM/ML-DSA, an implementation attack on a deployed QKD
-system — would recalibrate the scoring tables, not the model.
-The rollup constants are operator-tunable in configuration,
-not compiled in.
+The threat model accepts the standard PQC and QKD security
+arguments. A mathematical break of ML-KEM/ML-DSA, or an
+implementation attack on a deployed QKD system, would
+recalibrate the scoring tables, not the model. The rollup
+constants are operator-tunable in configuration, not compiled
+in.
 
-**We address neither economic nor political migration
-constraints** (budget cycles, regulatory lag, vendor support
-windows). These are first-order operator concerns that
-consume posture data, not produce it.
+Economic and political migration constraints — budget cycles,
+regulatory lag, vendor support windows — are out of scope. These
+are first-order operator concerns that consume posture data, not
+produce it.
 
 **The $q$ score is comparative, not absolute.** It is
 calibrated for relative prioritization within an environment,
@@ -728,17 +734,16 @@ The three-axis model we propose is one design choice among
 several. The scoring constants are debatable. The agility
 rubric will need revision as new evidence types appear. The
 QKD axis presumes a deployment trend that policy communities
-disagree about. None of these is a reason to keep using a
-single-axis dashboard.
+disagree about. But a single-axis dashboard is still worse
+than any three-axis variant on offer.
 
 We release the schema, the reference implementation, the ETSI
 014 KME emulator, the Semgrep agility ruleset, and the hand-
 graded OSS corpus under MIT
 (\url{https://github.com/e2esolutions-tech/sezar}).
-Practitioners can run all three studies on a single Linux host
-with no QKD hardware and no commercial scanner. We expect
-better choices than ours to emerge from that exposure; that is
-the point.
+Practitioners reproduce all three studies on commodity
+hardware without proprietary tooling. We expect better
+choices than ours to emerge from that exposure.
 
 ---
 
@@ -761,7 +766,7 @@ the point.
 >   strategies for the same problem.
 > - All artifacts described — schema, agents, ETSI 014
 >   emulator, agility ruleset, and OSS corpus — are released
->   under MIT and reproducible from a single Linux host.
+>   under MIT and reproducible without proprietary tooling.
 
 ---
 
@@ -772,10 +777,12 @@ Solutions, where he leads enterprise cryptographic
 infrastructure and post-quantum migration programs across
 critical-sector clients. His operational work informs the
 Sezar reference implementation. Contact:
-<info@e2esolutions.tech>. ORCID: [to be provided].
+<info@e2esolutions.tech>. ORCID:
+[0000-0001-9389-5357](https://orcid.org/0000-0001-9389-5357).
 
 **Murat Aydos** is Associate Professor at Hacettepe
 University, working on applied cryptography, network security,
 and post-quantum migration strategy. His research has informed
 this paper's threat-model framing and crypto-agility scoring
-rubric. ORCID: [to be provided].
+rubric. ORCID:
+[0000-0002-7570-9204](https://orcid.org/0000-0002-7570-9204).

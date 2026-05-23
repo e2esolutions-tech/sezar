@@ -36,10 +36,15 @@ The paper carries seven figures in the magazine version:
 | 1 | Three-axis cube (matplotlib mpl_toolkits.mplot3d) | `figures/three-axis-cube.{pdf,png}` |
 | 2 | $q(t)$ trajectory (matplotlib) | `figures/q-trajectory.{pdf,png}` |
 | 3 | Sezar reference architecture (matplotlib FancyBboxPatch) | `figures/sezar-architecture.{pdf,png}` |
-| 4 | Study 1 classical-probe distribution (Tranco-1k) | `../../studies/study1/plots/study1-tranco-distribution.{pdf,png}` |
-| 5 | Study 1 PQ-capable probe results (Tranco-1k) | `../../studies/study1/plots/study1-tranco-pq-kex.{pdf,png}` |
-| 6 | Study 2 R3 link-health timeline | `../../studies/study2/plots/r3-hard-failure-timeline.{pdf,png}` |
-| 7 | Study 3 agreement confusion matrix | `../../studies/study3/plots/study3-agreement-matrix.{pdf,png}` |
+| 4 | Study 1 classical-probe distribution (Tranco-1k) | `studies/study1/plots/study1-tranco-distribution.{pdf,png}` |
+| 5 | Study 1 PQ-capable probe results (Tranco-1k) | `studies/study1/plots/study1-tranco-pq-kex.{pdf,png}` |
+| 6 | Study 2 R3 link-health timeline | `studies/study2/plots/r3-hard-failure-timeline.{pdf,png}` |
+| 7 | Study 3 agreement confusion matrix | `studies/study3/plots/study3-agreement-matrix.{pdf,png}` |
+
+Paths in the table are repo-root-relative — the same form
+the paper sources use. `build.sh` rewrites them to absolute
+paths at render time, so writing them without a `../../`
+prefix in markdown is the canonical convention.
 
 Regenerate the conceptual figures (1–3) with the Python scripts under
 [`scripts/`](scripts/); the empirical figures (4–7) are produced by the
