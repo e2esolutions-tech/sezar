@@ -1,0 +1,25 @@
+# Submission bundle — Quantum Science and Technology (IOP)
+# Generated: 2026-05-23T21:53:22Z
+# Source commit: 78052b1
+
+7377dc023e0c362b8693d35700606afb7e3ded841a28ce6c4cbd85379c759687  ./cover-letter.md
+363a588e8978c11f026595671a260ca794fd62a1a08dc151ad84c797cc46aefd  ./cover-letter.pdf
+ce6ec4865f366e1e1dc25711ffaa3c6b5a243d198271faad14343e7d48ffda88  ./figures/q-trajectory.pdf
+8db48c26794a77ba7abcf76ec194849a20cfb29d807cf650ec622dc7790c681c  ./figures/q-trajectory.png
+42487a1e09172766a373c6dd88e980e48fd4599275b37d8e243646eb7f442d59  ./figures/r3-hard-failure-timeline.pdf
+4bd034e75831a97b5b77a82977c1bbfbed2a582b4c67653aa7a0d17dafa34eb3  ./figures/r3-hard-failure-timeline.png
+5f2ed93eaff407e9d635b539614660282bcce49428ef9a1dd1bcdd6a3c4eedd4  ./figures/sezar-architecture.pdf
+f5a01d7f1bc86a37d8c7ae4cf813178fff7c8d8803cd03cf9cbf0a6e63a4cdf2  ./figures/sezar-architecture.png
+36bc9a0ba6fb0982f8ac757c5323980aae2ad4830fb26a431c5114663805f346  ./figures/study1-tranco-distribution.pdf
+656bdcc1c3cdd1d215892c2c76093a475a315865b1df1eb21a0971858ae71681  ./figures/study1-tranco-distribution.png
+88ec565397698e142495fe4e4ce907010bb23a224c30ac095714d4039182ced7  ./figures/study1-tranco-pq-kex.pdf
+87d3e8c9473792b846f959b541b6f5eacf070fce10b2dad5cc0fb15efee1bcac  ./figures/study1-tranco-pq-kex.png
+a32058043769adaaa9fe8d16bdca076c67ce49c097048de3267a13f69fce42e8  ./figures/study3-agreement-matrix.pdf
+f7d89f4ed90cf9b2bb80c2ec329db8fb2369c77c6993cf9b3c07b61c6694147d  ./figures/study3-agreement-matrix.png
+1ced6c73377cb1fd561c489c7da88c30828cba4d48c24ba563724fa29916cc5f  ./figures/three-axis-cube.pdf
+f6d38cef815c4e7f48b5bec83ce23fb0404009f136d6abe6e552d27779020044  ./figures/three-axis-cube.png
+ccd0e8da50506d210e24793313b504056ba66c631708d3f030e1320dfe7584d2  ./manuscript.md
+570eb35929acfb8185e1e6369b4e419c0a4bec4e4b3606baeb29d8da4bb9ae85  ./manuscript.pdf
+b69e50141cb993a910cb27ba1d6b3ea8e97308a703c142948517180a3c866801  ./manuscript.tex
+88db5ada35b15bf751e37a9a6503095806cde454642738c6395e91250284b845  ./references.bib
+bb59b67dbfbab458eb558fa2f6a941e19cfebd694f27d2b5ecd8bb90bf4c1f0b  ./submission-checklist.md
