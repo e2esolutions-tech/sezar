@@ -62,7 +62,7 @@ abstract: |
 
 # 1. Introduction
 
-The cryptography deployed on the open Internet today was designed under
+The cryptography deployed on the open internet today was designed under
 assumptions that will not survive the next decade of computing.
 Shor's algorithm on a sufficiently large fault-tolerant quantum
 computer breaks RSA, finite-field Diffie–Hellman, and every
@@ -221,7 +221,7 @@ concludes.
 
 # 2. Background
 
-## 2.1 Post-Quantum Cryptography Standardization
+## 2.1 Post-quantum cryptography standardization
 
 NIST initiated its post-quantum cryptography standardization process
 in 2016 [@nist-pqc-call] and finalized the first three production
@@ -267,7 +267,7 @@ operator surveys: the algorithms exist, library support is
 materializing, but the long tail of embedded, appliance, and legacy
 software remains unaddressed [@cisco-pqc-discovery; @ibm-pqc-discovery].
 
-## 2.2 Quantum Key Distribution and ETSI GS QKD 014
+## 2.2 Quantum key distribution and ETSI GS QKD 014
 
 Quantum key distribution, in its prepare-and-measure form, was
 introduced by Bennett and Brassard in 1984 [@bb84] and has been
@@ -322,7 +322,7 @@ surface on which to observe QKD-protected channels: link status,
 key rate, request volume, error rates, and (with cooperating SAE
 instrumentation) which downstream sessions consume the keys.
 
-## 2.3 Crypto-Agility
+## 2.3 Crypto-agility
 
 Crypto-agility — the property that allows a system to change
 cryptographic primitives without invasive redesign — was codified
@@ -355,13 +355,13 @@ case-by-case engineering audits.
 
 ---
 
-# 3. Related Work
+# 3. Related work
 
 We organize related work along three threads — PQC discovery
 tooling, QKD telemetry, and crypto-agility analysis — and conclude
 with the gap statement that motivates the present paper.
 
-## 3.1 PQC Discovery and Migration Tooling
+## 3.1 PQC discovery and migration tooling
 
 Cisco's PQC Discovery service [@cisco-pqc-discovery] is, to our
 knowledge, the most operationally mature PQ inventory tool deployed
@@ -380,7 +380,7 @@ environment, classify by algorithm against a PQC-readiness
 yardstick, prioritize migration. Cloudflare's published reports
 [@cloudflare-pq-deploy] focus on edge-observable TLS handshake
 mixtures and provide one of the few public datasets on PQ adoption
-on the open Internet.
+on the open internet.
 
 The academic literature includes systematic measurements of TLS
 deployment hygiene (key sizes, cipher choices, validation behavior)
@@ -394,7 +394,7 @@ Common across this thread: algorithm-class is treated as the
 primary axis, hybrid/QKD is at most a footnote, and agility is
 discussed in prose but not surfaced as a measured field.
 
-## 3.2 QKD Telemetry
+## 3.2 QKD telemetry
 
 QKD telemetry has been studied primarily from the perspective of
 the QKD operator — the entity running the physical link and the
@@ -414,7 +414,7 @@ existing open-source SAE-side observability platform that consumes
 014 telemetry and integrates it with a broader cryptographic
 inventory.
 
-## 3.3 Crypto-Agility Analysis
+## 3.3 Crypto-agility analysis
 
 RFC 7696 [@rfc7696] is the canonical statement. Subsequent
 work has analyzed agility properties of individual protocols
@@ -430,7 +430,7 @@ checklists [@owasp-crypto], but none of this work, to our
 knowledge, has been operationalized as a continuous telemetry
 input feeding a cryptographic-posture dashboard.
 
-## 3.4 Gap Statement
+## 3.4 Gap statement
 
 Each thread is mature in isolation. What is missing — and
 what Sezar fills — is a tool that treats algorithmic
@@ -441,7 +441,7 @@ reproducible without commercial tooling.
 
 ---
 
-# 4. Threat Model and Operator Assumptions
+# 4. Threat model and operator assumptions
 
 We assume a *Q-day* adversary: a sufficiently capable
 fault-tolerant quantum computer capable of executing Shor's
@@ -492,12 +492,12 @@ its observed primitive is identical to the agile case.
 
 ---
 
-# 5. The Three-Axis Quantum-Risk Posture Model
+# 5. The three-axis quantum-risk posture model
 
 We define three independent axes — *A*, *C*, *G* — and a unified
 deadline-adjusted quantum-risk score $q(\mathit{asset}, t)$.
 
-## 5.1 Axis A — Algorithmic Resistance
+## 5.1 Axis A — Algorithmic resistance
 
 Axis $A$ scores the cryptographic primitives observed on an asset
 on the scale $[0, 1]$, where 0 corresponds to a primitive that is
@@ -509,13 +509,13 @@ Following the existing Sezar V1 rollup (defined in
 `docs/posture-rollup.md` in the Sezar repository), we classify
 each primitive into one of five categories:
 
-| Category     | $a$ value | Examples |
+| Category | $a$ value | Examples |
 |--------------|-----------|----------|
-| `pq`         | 1.0       | ML-KEM-{512,768,1024}, ML-DSA-{44,65,87}, SLH-DSA-*, AES-256-GCM, SHA-256 |
-| `pq_hybrid`  | 0.9       | X25519+ML-KEM-768, ECDH-P256+ML-KEM-768 |
-| `classical`  | 0.3       | X25519, Ed25519, RSA-2048, ECDSA-P256, AES-128-GCM |
-| `unknown`    | 0.4       | Anything not in the classification table |
-| `deprecated` | 0.0       | SHA-1, MD5, RSA-1024, RC4, 3DES, DH-1024 |
+| `pq` | 1.0 | ML-KEM-{512,768,1024}, ML-DSA-{44,65,87}, SLH-DSA-*, AES-256-GCM, SHA-256 |
+| `pq_hybrid` | 0.9 | X25519+ML-KEM-768, ECDH-P256+ML-KEM-768 |
+| `classical` | 0.3 | X25519, Ed25519, RSA-2048, ECDSA-P256, AES-128-GCM |
+| `unknown` | 0.4 | Anything not in the classification table |
+| `deprecated` | 0.0 | SHA-1, MD5, RSA-1024, RC4, 3DES, DH-1024 |
 
 For an asset with observed primitives $\{p_i\}$ at roles $\{r_i\}$
 with role weights $w_{r_i}$ summing to 1, the axis-A score is
@@ -535,7 +535,7 @@ fold the `auth` weight into $w_\text{encrypt}$ at observation
 time; the role exists in the schema so non-TLS-1.3 protocols
 can be represented without forcing AEAD semantics onto them.
 
-## 5.2 Axis C — Channel Protection
+## 5.2 Axis C — Channel protection
 
 Axis $C$ scores the channel through which key material reaches the
 endpoint, on the scale $[0, 1]$, where 0 corresponds to a channel
@@ -543,11 +543,11 @@ with no quantum-secure key delivery and 1 corresponds to a channel
 deriving its session key entirely from QKD-delivered material.
 Three categorical states cover the realistic deployment options:
 
-| State            | $c$ value | Description |
+| State | $c$ value | Description |
 |------------------|-----------|-------------|
-| `classical`      | 0.0       | Session key derived solely from the negotiated KEM. |
-| `qkd_hybrid_psk` | 0.7       | Session key derived from QKD-PSK XOR negotiated KEM (NIST SP 1800-38A pattern, ETSI 014 SAE). |
-| `qkd_only`       | 1.0       | Session key derived from QKD material alone (rare; MACsec-style transport). |
+| `classical` | 0.0 | Session key derived solely from the negotiated KEM. |
+| `qkd_hybrid_psk` | 0.7 | Session key derived from QKD-PSK XOR negotiated KEM (NIST SP 1800-38A pattern, ETSI 014 SAE). |
+| `qkd_only` | 1.0 | Session key derived from QKD material alone (rare; MACsec-style transport). |
 
 Sub-states allow partial credit when telemetry indicates a QKD
 link is *degraded* — high QBER, sustained KME unavailability, low
@@ -562,7 +562,7 @@ gracefully to a classical fallback. Sezar's role is to observe
 both layers and surface the discrepancy. We define $c$ on observed
 ETSI 014 status, not on SAE-reported intent.
 
-## 5.3 Axis G — Migration Agility
+## 5.3 Axis G — Migration agility
 
 Axis $G$ scores the asset's ability to migrate its primitives on
 the scale $[0, 1]$, where 0 corresponds to an asset whose
@@ -570,20 +570,20 @@ primitives can be changed only by physical replacement and 1
 corresponds to an asset that negotiates primitives on every
 session. We define five ordinal levels:
 
-| Level          | $g$ value | Definition (observable signature) |
+| Level | $g$ value | Definition (observable signature) |
 |----------------|-----------|------------------------------------|
-| `negotiated`   | 1.0       | Algorithm selected per-session by protocol negotiation. (TLS 1.3 server, modern SSH server, IKEv2 responder.) |
-| `configurable` | 0.75      | Algorithm fixed per-deployment but changeable by configuration without code change. (Library config file, environment variable.) |
-| `pinned`       | 0.50      | Algorithm fixed in code; changeable by software upgrade. (Hard-coded algorithm name in application source.) |
-| `locked`       | 0.20      | Algorithm fixed in firmware or by FIPS/compliance binding; changeable only by vendor update or revalidation cycle. (Embedded firmware crypto, FIPS 140-3 validated module under tested-configuration constraint.) |
-| `frozen`       | 0.0       | Algorithm fixed in silicon, ROM, or otherwise unchangeable without hardware replacement. (TPM 1.2 with hard-coded RSA-2048; smart-card hard-wired ECDSA-P256.) |
+| `negotiated` | 1.0 | Algorithm selected per-session by protocol negotiation. (TLS 1.3 server, modern SSH server, IKEv2 responder.) |
+| `configurable` | 0.75 | Algorithm fixed per-deployment but changeable by configuration without code change. (Library config file, environment variable.) |
+| `pinned` | 0.50 | Algorithm fixed in code; changeable by software upgrade. (Hard-coded algorithm name in application source.) |
+| `locked` | 0.20 | Algorithm fixed in firmware or by FIPS/compliance binding; changeable only by vendor update or revalidation cycle. (Embedded firmware crypto, FIPS 140-3 validated module under tested-configuration constraint.) |
+| `frozen` | 0.0 | Algorithm fixed in silicon, ROM, or otherwise unchangeable without hardware replacement. (TPM 1.2 with hard-coded RSA-2048; smart-card hard-wired ECDSA-P256.) |
 
 The classification is derived from static analysis of the asset's
 implementation surface plus, where available, vendor declarations
 of FIPS validation scope. We detail the scanning methodology in
 §7.3 and the scoring rubric in §8.3.
 
-## 5.4 Unified Deadline-Adjusted Quantum Risk
+## 5.4 Unified deadline-adjusted quantum risk
 
 The three axes are independent observables. To collapse them into
 a single posture metric we adopt the operator's deadline as a
@@ -620,7 +620,7 @@ to the org-wide posture, with `blockchain_key` weighted higher
 than `tls_session` (a forged signature against a public-chain key
 is permanent; a forged session is ephemeral).
 
-## 5.5 Interpretation and Bounds
+## 5.5 Interpretation and bounds
 
 The score $q \in [0, 1]$, with 0 = posture is fully aligned with
 the deadline and 1 = posture is maximally exposed. Operators
@@ -640,7 +640,7 @@ links.
 
 ---
 
-# 6. Event Schema Extensions
+# 6. Event schema extensions
 
 We extend the Sezar `crypto_inventory_event v1` schema (defined
 in `docs/crypto-event-schema.md` in the Sezar repository) with
@@ -649,7 +649,7 @@ unknown top-level fields continue to function; consumers that
 opt in to v1.1 gain access to channel-protection and agility
 observables.
 
-## 6.1 New Top-Level Fields
+## 6.1 New top-level fields
 
 ```json
 {
@@ -684,16 +684,16 @@ value and treat unknown top-level fields as opaque.
 }
 ```
 
-| Field                | Type   | Notes |
+| Field | Type | Notes |
 |----------------------|--------|-------|
-| `state`              | enum   | `classical` / `qkd_hybrid_psk` / `qkd_only`. |
-| `kme_endpoint`       | string | ETSI 014 base URL. Omitted when state = `classical`. |
-| `key_id_observed`    | string | UUID of the consumed key, when reported by the cooperating SAE. |
-| `psk_age_seconds`    | int    | Age of the PSK when the session began. |
-| `link_qber`          | float  | Quantum bit error rate (0–1). |
-| `link_key_rate_bps`  | int    | Average key generation rate over the prior minute. |
-| `link_health`        | enum   | `ok` / `degraded` / `failed`. |
-| `degraded_reason`    | string | One-sentence reason when degraded; `null` otherwise. |
+| `state` | enum | `classical` / `qkd_hybrid_psk` / `qkd_only`. |
+| `kme_endpoint` | string | ETSI 014 base URL. Omitted when state = `classical`. |
+| `key_id_observed` | string | UUID of the consumed key, when reported by the cooperating SAE. |
+| `psk_age_seconds` | int | Age of the PSK when the session began. |
+| `link_qber` | float | Quantum bit error rate (0–1). |
+| `link_key_rate_bps` | int | Average key generation rate over the prior minute. |
+| `link_health` | enum | `ok` / `degraded` / `failed`. |
+| `degraded_reason` | string | One-sentence reason when degraded; `null` otherwise. |
 
 The fields are populated by `sezar-qkd`, which polls the ETSI 014
 `/status` endpoint at configurable intervals. SAE-side fields
@@ -723,13 +723,13 @@ instrumentation in the SAE; when absent they are `null`.
 }
 ```
 
-| Field             | Type   | Notes |
+| Field | Type | Notes |
 |-------------------|--------|-------|
-| `level`           | enum   | `negotiated` / `configurable` / `pinned` / `locked` / `frozen`. |
-| `level_score`     | float  | Numeric value per §5.3. |
-| `evidence`        | array  | One or more evidentiary findings supporting the level. |
+| `level` | enum | `negotiated` / `configurable` / `pinned` / `locked` / `frozen`. |
+| `level_score` | float | Numeric value per §5.3. |
+| `evidence` | array | One or more evidentiary findings supporting the level. |
 | `scanner_version` | string | Sezar-agility version that produced the score. |
-| `rubric_version`  | string | Version of the public scoring rubric (§8.3). |
+| `rubric_version` | string | Version of the public scoring rubric (§8.3). |
 
 Evidence types in V1: `protocol_negotiation` (observed wire-level
 algorithm negotiation), `config_pattern` (configuration file
@@ -738,7 +738,7 @@ to a fixed algorithm), `firmware_string` (binary-extracted
 algorithm name), `fips_mode` (FIPS provider/kernel mode detected),
 `vendor_declaration` (operator-provided vendor statement).
 
-## 6.4 New Asset Kinds
+## 6.4 New asset kinds
 
 ```
 qkd_link          // identity = KME endpoint URL hash
@@ -749,7 +749,7 @@ These are emitted by `sezar-qkd` independently of the session
 events that consume their keys. They allow the dashboard to render
 a QKD link health view distinct from the SAE-side session view.
 
-## 6.5 Backwards Compatibility
+## 6.5 Backwards compatibility
 
 The schema extension is strictly additive:
 
@@ -770,14 +770,14 @@ The schema extension is strictly additive:
 
 ---
 
-# 7. Sezar: Reference Architecture and Implementation
+# 7. Sezar: reference architecture and implementation
 
 Sezar is an open-source observability platform implementing the
 three-axis posture model. The implementation is a single Rust
 workspace containing seven crates: five agents emitting events,
 one shared rollup library, and one collector/server.
 
-## 7.1 Workspace Layout
+## 7.1 Workspace layout
 
 ```
 sezar/
@@ -799,7 +799,7 @@ event shape, computed locally via `sezar-core::rollup` — is what
 keeps the platform composable across surfaces as different as
 eBPF TLS sniffing and Solidity source code analysis.
 
-## 7.2 sezar-qkd: ETSI 014 Collector and Emulator
+## 7.2 sezar-qkd: ETSI 014 collector and emulator
 
 The `sezar-qkd` crate fulfils two roles. Operationally, it is a
 collector that polls one or more ETSI GS QKD 014 KMEs, emits
@@ -843,7 +843,7 @@ backed by a synthetic key generator. The emulator:
 The emulator is the foundation of the §8.2 empirical study and
 is released alongside Sezar as a standalone tool.
 
-## 7.3 sezar-agility: Static Crypto-Agility Scanner
+## 7.3 sezar-agility: static crypto-agility scanner
 
 The `sezar-agility` crate implements the agility-axis scoring per
 §5.3. It accepts as input one or more *targets* and produces
@@ -851,12 +851,12 @@ The `sezar-agility` crate implements the agility-axis scoring per
 
 ### 7.3.1 Target types
 
-| Target            | Evidence sources |
+| Target | Evidence sources |
 |-------------------|------------------|
 | Source repository | Semgrep ruleset over the language-specific config and source files; file-path heuristics for build-time pinning. |
 | Installed package | Package manifest (rpm, dpkg, pip, npm) + binary string-extraction over the installed artifacts. |
-| Running host      | TLS handshake observation against the host (server algorithm support → `negotiated` evidence); plus optional auth into the host's config files. |
-| Vendor appliance  | Vendor-declared algorithm scope + observed handshake behavior. |
+| Running host | TLS handshake observation against the host (server algorithm support → `negotiated` evidence); plus optional auth into the host's config files. |
+| Vendor appliance | Vendor-declared algorithm scope + observed handshake behavior. |
 
 ### 7.3.2 Ruleset
 
@@ -898,7 +898,7 @@ Where evidence is absent, the scanner produces `level: pinned`
 
 We discuss limitations of static-only agility scoring in §9.
 
-## 7.4 sezar-core Unified Rollup
+## 7.4 sezar-core unified rollup
 
 The rollup engine extends the V1 implementation (see
 `docs/posture-rollup.md` in the Sezar repository) with the
@@ -908,7 +908,7 @@ configures $D$, $H$, and asset-class weights via the dashboard,
 and the engine recomputes on every event ingest. Fuzz testing
 covers all axis combinations.
 
-## 7.5 sezar-server and Dashboard
+## 7.5 sezar-server and dashboard
 
 The collector is an Axum HTTP service accepting v1.0 and v1.1
 events, validating against a generated JSON schema, persisting to
@@ -921,13 +921,13 @@ the project documentation.
 
 ---
 
-# 8. Empirical Evaluation
+# 8. Empirical evaluation
 
 We evaluate the model and implementation through three studies,
 each designed to be reproducible by an external practitioner with
 the published rulesets, emulator, and corpus lists.
 
-## 8.1 Study 1 — Axis A on the Public Web (Tranco-top-1k)
+## 8.1 Study 1 — Axis A on the public web (Tranco-top-1k)
 
 ### 8.1.1 Methodology
 
@@ -981,7 +981,7 @@ returned a usable TLS handshake within the 5-second timeout;
 the remaining 276 were unresponsive (DNS failure, no TCP, no
 TLS on 443, regional GeoIP block, or anti-bot middlebox).
 The 27.6% non-response rate is in the range reported by
-prior large-scale TLS scans of the open Web
+prior large-scale TLS scans of the open web
 [@durumeric-tls]. All headline percentages in this section
 use the $n = 724$ responsive denominator unless stated
 otherwise.
@@ -991,18 +991,18 @@ For sample-selection contrast we also report results from a
 IETF/IEEE/NIST/ETSI, and AI-vendor properties — that ran
 the same probe pair before the Tranco-1k scan.
 
-| Observable                          | Tranco-1k (n=724)    | Curated pilot (n=30) |
+| Observable | Tranco-1k (n=724) | Curated pilot (n=30) |
 |-------------------------------------|---------------------:|---------------------:|
-| TLS 1.3 negotiation                 | 602/724 (83.1%)      | 30/30 (100%)         |
-| TLS 1.2 fallback                    | 122/724 (16.9%)      | 0/30 (0%)            |
-| AES-256-GCM/SHA-384 (TLS 1.3)       | 384/724 (53.0%)      | 20/30 (67%)          |
-| AES-128-GCM/SHA-256 (TLS 1.3)       | 207/724 (28.6%)      | 7/30 (23%)           |
-| ChaCha20-Poly1305 (TLS 1.3)         | 11/724 (1.5%)        | 3/30 (10%)           |
-| ECDSA leaf cert (P256 + P384)       | 254/724 (35.1%)      | 18/30 (60%)          |
-| RSA-PKCS1 leaf cert (SHA256+SHA384) | 470/724 (64.9%)      | 12/30 (40%)          |
-| ML-DSA / SLH-DSA cert               | 0/724                | 0/30                 |
-| Deprecated primitive (SHA-1, RC4)   | 0/724                | 0/30                 |
-| **`X25519MLKEM768` negotiated**     | **317/724 (43.8%)**  | **17/30 (57%)**      |
+| TLS 1.3 negotiation | 602/724 (83.1%) | 30/30 (100%) |
+| TLS 1.2 fallback | 122/724 (16.9%) | 0/30 (0%) |
+| AES-256-GCM/SHA-384 (TLS 1.3) | 384/724 (53.0%) | 20/30 (67%) |
+| AES-128-GCM/SHA-256 (TLS 1.3) | 207/724 (28.6%) | 7/30 (23%) |
+| ChaCha20-Poly1305 (TLS 1.3) | 11/724 (1.5%) | 3/30 (10%) |
+| ECDSA leaf cert (P256 + P384) | 254/724 (35.1%) | 18/30 (60%) |
+| RSA-PKCS1 leaf cert (SHA256+SHA384) | 470/724 (64.9%) | 12/30 (40%) |
+| ML-DSA / SLH-DSA cert | 0/724 | 0/30 |
+| Deprecated primitive (SHA-1, RC4) | 0/724 | 0/30 |
+| **`X25519MLKEM768` negotiated** | **317/724 (43.8%)** | **17/30 (57%)** |
 
 **The headline PQ-adoption result is 317/724 (43.8%) on the
 Tranco-top-1k.** This is close to the 39% of top-100k sites
@@ -1052,7 +1052,7 @@ so the same downstream rollup, BLOCKED-flag derivation, and
 dashboard render exactly as for any other source-module
 input.
 
-## 8.2 Study 2 — Axis C via the ETSI GS QKD 014 Emulator
+## 8.2 Study 2 — Axis C via the ETSI GS QKD 014 emulator
 
 ### 8.2.1 Methodology
 
@@ -1102,13 +1102,13 @@ and the analysis script are at `studies/study2/`.
 state change produced a downstream `link_health` reading
 matching the expected post-op state.
 
-| Scenario          | Events captured | Induced transitions | Matched |
+| Scenario | Events captured | Induced transitions | Matched |
 |-------------------|----------------:|--------------------:|--------:|
-| R1 — steady-state | 33              | 1                   | 1/1     |
-| R2 — ramp         | 63              | 5                   | 5/5     |
-| R3 — hard-failure | 48              | 3                   | 3/3     |
-| R4 — stale-PSK    | 33              | 1                   | 1/1     |
-| R5 — bifurcated   | 48              | 3                   | 3/3     |
+| R1 — steady-state | 33 | 1 | 1/1 |
+| R2 — ramp | 63 | 5 | 5/5 |
+| R3 — hard-failure | 48 | 3 | 3/3 |
+| R4 — stale-PSK | 33 | 1 | 1/1 |
+| R5 — bifurcated | 48 | 3 | 3/3 |
 
 **Observation latency: p50 = 0.71s, range 0.70–0.71s** across
 all 13 transitions, against a configured 1-second poll
@@ -1143,7 +1143,7 @@ to populate the field.
 The emulator, replay scripts, and analysis notebooks ship
 under MIT alongside Sezar.
 
-## 8.3 Study 3 — Axis G on Fifty Open-Source Server Projects
+## 8.3 Study 3 — Axis G on fifty open-source server projects
 
 ### 8.3.1 Methodology
 
@@ -1185,20 +1185,20 @@ nine categories (HTTP, mail, DB, message-broker, DNS,
 VPN/secure-shell, messaging, certificate-authority, time)
 exercises the full pipeline:
 
-| Project        | Category              | Hand-grade   | Scanner      | Match |
+| Project | Category | Hand-grade | Scanner | Match |
 |----------------|-----------------------|--------------|--------------|------|
-| nginx          | http_server           | configurable | configurable | yes  |
-| haproxy        | http_server           | configurable | configurable | yes  |
-| caddy          | http_server           | configurable | configurable | yes  |
-| unbound        | dns_server            | configurable | configurable | yes  |
-| coredns        | dns_server            | configurable | configurable | yes  |
-| postfix        | mail_server           | configurable | configurable | yes  |
-| redis          | database              | configurable | configurable | yes  |
-| nats-server    | message_broker        | configurable | configurable | yes  |
-| step-ca        | certificate_authority | configurable | configurable | yes  |
-| prosody        | messaging             | configurable | configurable | yes  |
-| wireguard-tools| vpn_secure_shell      | pinned       | pinned       | yes  |
-| chrony         | time                  | configurable | **pinned**   | no   |
+| nginx | http_server | configurable | configurable | yes |
+| haproxy | http_server | configurable | configurable | yes |
+| caddy | http_server | configurable | configurable | yes |
+| unbound | dns_server | configurable | configurable | yes |
+| coredns | dns_server | configurable | configurable | yes |
+| postfix | mail_server | configurable | configurable | yes |
+| redis | database | configurable | configurable | yes |
+| nats-server | message_broker | configurable | configurable | yes |
+| step-ca | certificate_authority | configurable | configurable | yes |
+| prosody | messaging | configurable | configurable | yes |
+| wireguard-tools| vpn_secure_shell | pinned | pinned | yes |
+| chrony | time | configurable | **pinned** | no |
 
 **Agreement: 10/11 (91%); Cohen's $\kappa = 0.62$**
 (substantial agreement on the Landis–Koch scale). The single
@@ -1327,7 +1327,7 @@ windows). These are first-order operator concerns and we
 acknowledge them as out of scope for the observability layer;
 they are downstream consumers of the posture data.
 
-## 9.2 Ethical Considerations
+## 9.2 Ethical considerations
 
 Active TLS scanning, even of public web hosts, must be conducted
 responsibly. We follow established practice from prior
@@ -1350,7 +1350,7 @@ Operators integrating real KMEs are responsible for the
 security of those KMEs and the surrounding network, including
 mutual TLS authentication of the SAE.
 
-## 9.3 Deployment Guidance
+## 9.3 Deployment guidance
 
 For operators planning to deploy Sezar against a real
 environment, we recommend a phased rollout:
@@ -1372,7 +1372,7 @@ We caution against treating $q$ as a primary KPI. It is a
 within an environment. Inter-organization comparison requires
 shared $D$, shared weights, and shared corpora.
 
-## 9.4 Future Work
+## 9.4 Future work
 
 Several extensions are natural and intentionally deferred:
 
