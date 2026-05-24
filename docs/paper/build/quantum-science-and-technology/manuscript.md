@@ -1413,17 +1413,6 @@ footing.
 
 ---
 
-# Acknowledgments
-
-The authors thank the operators and reviewers who tested
-early versions of the Sezar runner against their own
-infrastructures and whose feedback shaped the published
-ruleset and the agility rubric. The Tranco list project
-provides the snapshot identifiers that make our broad-corpus
-measurements reproducible. Any errors are our own.
-
----
-
 # Author Contributions
 
 **Aleaddin Özer:** Conceptualization, methodology, software,
