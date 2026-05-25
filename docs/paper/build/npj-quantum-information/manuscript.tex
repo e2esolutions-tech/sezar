@@ -1,0 +1,1937 @@
+\section{1. Introduction}\label{introduction}
+
+The cryptography deployed on the open internet today was designed under
+assumptions that will not survive the next decade of computing. Shor's
+algorithm on a sufficiently large fault-tolerant quantum computer breaks
+RSA, finite-field Diffie--Hellman, and every deployed-at-scale elliptic
+curve scheme in polynomial time {[}1{]}. Grover's algorithm halves the
+effective key length of symmetric primitives {[}2{]}. The exact arrival
+date of a \emph{cryptographically relevant quantum computer} (CRQC)
+remains contested, but two operational facts are no longer in doubt.
+First, adversaries can record encrypted traffic now and decrypt it later
+once a CRQC is available --- the \emph{harvest-now, decrypt-later}
+threat {[}3{]}, {[}4{]}. Second, the standards bodies have moved: NIST
+finalized FIPS 203 (ML-KEM, née Kyber), FIPS 204 (ML-DSA, née
+Dilithium), and FIPS 205 (SLH-DSA, née SPHINCS+) in 2024 {[}5{]},
+{[}6{]}, {[}7{]}. The U.S. NSA's CNSA 2.0 suite gives calendar
+deadlines: software/firmware signing in PQC by 2025, browsers and
+servers by 2030, network equipment by 2030, with operating systems and
+other classes by 2033 {[}3{]}. The U.K., EU, and ANSSI guidance follows
+similar curves {[}8{]}, {[}9{]}.
+
+This places operators in an unfamiliar position. They must inventory,
+classify, and migrate cryptographic assets across networks they did not
+entirely design, on a deadline they did not set, using algorithms that
+did not exist in deployable form three years ago. Tools for the first
+step --- inventory and classification --- are appearing {[}10{]},
+{[}11{]}, {[}12{]}, {[}13{]}, and standards bodies have begun publishing
+guidance on which observables matter {[}4{]}, {[}14{]}.
+
+In parallel, a hardware-rooted track has matured. Quantum Key
+Distribution (QKD), proposed in 1984 {[}15{]} and matured through the
+SECOQC, Tokyo, and EuroQCI testbeds {[}16{]}, {[}17{]}, {[}18{]},
+delivers symmetric key material through a channel whose security reduces
+to physics rather than computational assumptions. ETSI's \emph{GS QKD
+014} specification standardized the REST interface between QKD
+key-management entities (KMEs) and the applications that consume their
+keys {[}19{]}. Commercial deployments exist in finance, government, and
+metropolitan-fiber settings {[}20{]}, {[}21{]}, {[}22{]}.
+
+Industrial and academic literature treats these two tracks --- PQC and
+QKD --- as alternatives. Either you migrate your algorithms (PQC), or
+you install QKD links on high-assurance segments, with the implicit
+understanding that QKD's hardware cost and distance limits make it
+inappropriate for general use {[}23{]}, {[}24{]}. That framing collapses
+too soon. For an operator trying to know what risks are present in their
+environment on any given day, PQC and QKD are \emph{complementary
+observables}, not alternatives. An asset using ECDSA-P256 over a fiber
+link protected by a Toshiba MU-QKD3 system is in a materially different
+posture than an asset using ECDSA-P256 over an unprotected wide-area
+link, even though their algorithms are identical. A unified
+observability model must capture both.
+
+A complete quantum-risk model has to include a third axis that current
+tooling almost entirely ignores: \emph{crypto-agility}. An asset using a
+classical algorithm today but whose algorithm is selected at runtime by
+a server configuration field is in a very different posture than an
+asset whose algorithm is hard-coded into firmware that ships from a
+vendor and rotates only on hardware refresh. The first is a
+configuration change; the second is a hardware-replacement program. The
+NIST PQ-migration playbook already names crypto-agility as a
+precondition for orderly migration {[}4{]}, {[}25{]}, yet no production
+observability tool we have seen surfaces it as a first-class telemetry
+axis. Without it, operators answering ``are we PQ-ready?'' answer a much
+easier question than ``can we \emph{become} PQ-ready in time?''
+
+We argue for, and implement, a \textbf{three-axis posture model}:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Axis A --- Algorithmic Resistance.} Is the primitive itself
+  quantum-resistant under standard assumptions?
+\item
+  \textbf{Axis C --- Channel Protection.} Is the key material protected
+  by a quantum-secure delivery mechanism (QKD, hybrid PSK derived from
+  QKD)?
+\item
+  \textbf{Axis G --- Migration Agility.} How quickly can axis A be
+  changed on this asset --- by configuration, library upgrade, or
+  hardware replacement?
+\end{itemize}
+
+We collapse the three into a single deadline-adjusted quantum-risk score
+\(q(\mathit{asset}, t)\) suitable for dashboard display, alert
+thresholds, and inter-organization comparison. We extend the open Sezar
+\texttt{crypto\_inventory\_event\ v1} schema with the additional axes,
+implement five agents that emit the same event shape, and evaluate the
+system through three empirical studies any practitioner can replicate on
+a Linux host with a public Internet connection.
+
+\subsection{1.1 Contributions}\label{contributions}
+
+This paper makes the following contributions:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{A three-axis quantum-risk posture model.} Algorithmic
+  resistance, channel protection, and migration agility are three
+  independent observables that together determine an asset's actual
+  exposure to the post-quantum transition. We formalize each axis on a
+  defined scale and define the unified deadline-adjusted risk function
+  (§5).
+\item
+  \textbf{An extended open event schema.} We extend the Sezar
+  \texttt{crypto\_inventory\_event\ v1} schema with channel-protection
+  and agility fields, and we add new asset kinds for QKD link and KME
+  observations. The extensions are additive and non-breaking (§6).
+\item
+  \textbf{An open observability platform.} We release Sezar --- five
+  agents (network, certificate, blockchain, key-management, QKD), a
+  posture rollup library, and a collector/dashboard. The implementation
+  choices that allow a single Rust workspace to host wire-level eBPF
+  observation, REST-based QKD telemetry collection, and static
+  crypto-agility analysis under one event shape are detailed in §7.
+\item
+  \textbf{An ETSI GS QKD 014 emulator and replay corpus.} We provide an
+  open implementation of the ETSI GS QKD 014 v1.1.1 Key Delivery API
+  with synthetic key generation, configurable QBER, link state-change
+  replay scenarios, and a documented capture format. Practitioners
+  without QKD hardware can drive and test QKD-aware software against it
+  (§7.2, §8.2).
+\item
+  \textbf{A reproducible crypto-agility scoring rubric.} We define a
+  five-level ordinal scale (Negotiated / Configurable / Pinned / Locked
+  / Frozen), publish a Semgrep rule pack that derives a defensible score
+  from source code or installed-package inspection, and release a
+  hand-graded ground-truth corpus of fifty open-source server projects
+  (§7.3, §8.3).
+\item
+  \textbf{Empirical baseline across the three axes.} We report A, C, G
+  scores for the Tranco-top-1k over TLS, for a controlled multi-KME ETSI
+  014 testbed exercising representative failure modes, and for an
+  eleven-project pilot drawn from the fifty-project agility corpus (§8).
+  Scaling the pilot to the full corpus is the remaining mechanical step.
+\end{enumerate}
+
+\subsection{1.2 Non-goals}\label{non-goals}
+
+This paper does not propose a new PQC primitive, a new QKD protocol, or
+a new key-management protocol. It does not argue that QKD should replace
+PQC, or vice versa; we take the standards-body position that hybrid
+deployments are the realistic operating mode and instrument both
+observables. We do not claim to inventory all deployed cryptography on
+Earth; our empirical work is bounded by the corpora we publish. We do
+not address adversary modeling beyond accepting the
+harvest-now/decrypt-later assumption.
+
+\subsection{1.3 Roadmap}\label{roadmap}
+
+§2 reviews the standards landscape (PQC, QKD, crypto-agility) at the
+level required to make the paper self-contained. §3 surveys related
+observability work and identifies the gap. §4 states the threat model
+and operator assumptions. §5 defines the three-axis posture model. §6
+specifies the event schema. §7 presents the Sezar reference
+implementation. §8 reports the empirical evaluation. §9 discusses
+limitations, ethics, and deployment guidance. §10 concludes.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{2. Background}\label{background}
+
+\subsection{2.1 Post-quantum cryptography
+standardization}\label{post-quantum-cryptography-standardization}
+
+NIST initiated its post-quantum cryptography standardization process in
+2016 {[}26{]} and finalized the first three production standards in
+August 2024 {[}5{]}, {[}6{]}, {[}7{]}. These are:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{FIPS 203 --- ML-KEM} (formerly CRYSTALS-Kyber), a
+  module-lattice key-encapsulation mechanism at three parameter sets
+  corresponding to NIST security categories 1, 3, and 5.
+\item
+  \textbf{FIPS 204 --- ML-DSA} (formerly CRYSTALS-Dilithium), a
+  module-lattice digital signature scheme also at three parameter sets.
+\item
+  \textbf{FIPS 205 --- SLH-DSA} (formerly SPHINCS+), a stateless
+  hash-based digital signature scheme, with both small and fast
+  parameter sets across SHA2 and SHAKE hashes.
+\end{itemize}
+
+A fourth standard for a fast falcon-style lattice signature (FN-DSA,
+formerly Falcon) is in advanced draft {[}27{]}. NIST has additionally
+signaled that further KEM candidates will be standardized to diversify
+mathematical assumptions {[}28{]}. The U.S. NSA's \emph{Commercial
+National Security Algorithm Suite 2.0} (CNSA 2.0) identifies
+ML-KEM-1024, ML-DSA-87, SLH-DSA-SHA2-256s, AES-256-GCM, and SHA-384 /
+SHA-512 as the required suite for national-security systems by
+milestones falling between 2025 and 2035 depending on equipment class
+{[}3{]}. The German BSI, French ANSSI, and U.K. NCSC have published
+equivalent guidance with broadly similar timelines and a shared
+recommendation to deploy \emph{hybrid} (classical + PQC) key exchange
+during the transition window {[}8{]}, {[}9{]}, {[}14{]}.
+
+The deployment story is mixed. Chrome and Firefox have shipped
+X25519MLKEM768 hybrid key exchange in TLS 1.3 since 2024 {[}29{]},
+{[}30{]}. Cloudflare reported roughly two percent of TLS 1.3 connections
+to its edge were post-quantum-protected in early 2024 {[}13{]}; by late
+2025 the majority of human-initiated traffic to the same edge was
+hybrid-PQ {[}31{]}. Linux kernel and OpenSSH support is staged across
+recent releases. Certificate authorities have piloted ML-DSA signing in
+test hierarchies but have not yet issued production-trust-anchor PQ
+certificates {[}32{]}. The pattern is consistent across operator
+surveys: the algorithms exist, library support is materializing, but the
+long tail of embedded, appliance, and legacy software remains
+unaddressed {[}10{]}, {[}11{]}.
+
+\subsection{2.2 Quantum key distribution and ETSI GS QKD
+014}\label{quantum-key-distribution-and-etsi-gs-qkd-014}
+
+Quantum key distribution, in its prepare-and-measure form, was
+introduced by Bennett and Brassard in 1984 {[}15{]} and has been
+deployed in operational testbeds for two decades {[}16{]}, {[}17{]}. A
+QKD system distributes symmetric key material between two endpoints
+using single-photon (or weak-coherent) quantum states, with security
+guarantees derived from the no-cloning theorem and the disturbance of
+measurement. Modern systems achieve metropolitan ranges (≤100 km dark
+fiber) at key rates from kilobits to megabits per second {[}20{]},
+{[}21{]}. Trusted-node relaying, satellite QKD {[}33{]}, and twin-field
+protocols {[}34{]} extend the reach, though at the cost of additional
+assumptions.
+
+QKD's controversial status in the policy community deserves brief
+treatment because it informs our observability design choices. The U.S.
+NSA has stated that QKD is not a replacement for PQC for
+national-security systems, citing implementation-attack surface, limited
+authentication coverage, and operational complexity {[}23{]}. The French
+ANSSI takes a similar position {[}24{]}. In contrast, the U.K., German,
+Italian, and Chinese research and standards communities continue to
+invest in QKD infrastructure, including the EU's EuroQCI program
+{[}18{]} and multiple national QKD networks. The pragmatic operator
+view, which this paper adopts, is that QKD will be deployed on a subset
+of high-assurance links (financial inter-datacenter, intelligence,
+government inter-site) regardless of which policy community is
+``correct,'' and that the deployment will be heterogeneous,
+vendor-specific, and operationally opaque without explicit observability
+tooling.
+
+ETSI's \emph{GS QKD 014 v1.1.1} specification (2019) standardizes the
+REST interface between a Key Management Entity (KME) --- the device that
+holds key material produced by the underlying QKD link --- and the
+applications consuming those keys (Secure Application Entities, SAEs)
+{[}19{]}. The interface defines three operations:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{GET\ /api/v1/keys/\{slave\_SAE\_ID\}/status} returns KME and
+  link status: current key rate, number of stored keys, supported key
+  sizes.
+\item
+  \texttt{GET\ /api/v1/keys/\{slave\_SAE\_ID\}/enc\_keys} returns one or
+  more fresh keys from the master KME, identified by UUIDs.
+\item
+  \texttt{POST\ /api/v1/keys/\{master\_SAE\_ID\}/dec\_keys} retrieves
+  the matching keys at the slave KME, by UUID.
+\end{itemize}
+
+The specification is deliberately silent on what an SAE does with the
+keys; in practice, SAEs use them as pre-shared keys (PSK) for IPsec,
+MACsec, or --- increasingly --- as the symmetric secret in a hybrid TLS
+PSK mode {[}35{]}, {[}36{]}. From an observability standpoint, ETSI 014
+gives us a stable, vendor-neutral surface on which to observe
+QKD-protected channels: link status, key rate, request volume, error
+rates, and (with cooperating SAE instrumentation) which downstream
+sessions consume the keys.
+
+\subsection{2.3 Crypto-agility}\label{crypto-agility}
+
+Crypto-agility --- the property that allows a system to change
+cryptographic primitives without invasive redesign --- was codified
+operationally by RFC 7696 {[}25{]} and is repeatedly named in
+PQ-migration guidance as a precondition for orderly transition {[}4{]},
+{[}8{]}, {[}14{]}. The literature describes crypto-agility along three
+dimensions: \emph{protocol} agility (TLS 1.3 negotiates ciphersuites;
+IPsec IKEv2 negotiates transforms), \emph{code} agility (a library
+exposes algorithm choice as a parameter, not a recompile-time decision),
+and \emph{deployment} agility (operators can roll out a new algorithm
+without firmware replacement or trust-anchor reissuance).
+
+In practice, agility varies dramatically across asset classes. A modern
+Web server typically negotiates its TLS ciphersuite on every handshake;
+a hardware HSM may lock its supported key types at the firmware level;
+embedded devices in industrial or medical settings often have a fixed
+algorithm chosen at the silicon level. The emergence of FIPS 140-3
+validation, with its requirement that algorithm changes trigger
+revalidation, introduces a second axis of \emph{locked} status that any
+regulated environment has to plan around {[}37{]}.
+
+Despite repeated standards-body emphasis on crypto-agility, the
+practitioner picture is poor. No widely deployed inventory tool we have
+seen reports crypto-agility as a first-class field. The question ``can
+this asset migrate?'' is repeatedly answered informally --- by tribal
+knowledge, vendor questionnaires, or case-by-case engineering audits.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{3. Related work}\label{related-work}
+
+We organize related work along three threads --- PQC discovery tooling,
+QKD telemetry, and crypto-agility analysis --- and conclude with the gap
+statement that motivates the present paper.
+
+\subsection{3.1 PQC discovery and migration
+tooling}\label{pqc-discovery-and-migration-tooling}
+
+Cisco's PQC Discovery service {[}10{]} is, to our knowledge, the most
+operationally mature PQ inventory tool deployed today. It combines
+passive network observation (NetFlow-derived context with optional
+inline TLS handshake inspection) with active endpoint scanning and a
+managed-service operator dashboard. The analytic surface is
+algorithm-class oriented: assets are labeled \emph{PQ-ready},
+\emph{classical}, or \emph{unknown} based on observed handshakes and
+reported algorithm support. The service does not surface
+channel-protection or agility as separate dimensions.
+
+IBM's \emph{Quantum-Safe Discover} {[}11{]} and Microsoft's internal
+\emph{CryptoTracker} tooling {[}12{]} follow similar patterns: enumerate
+cryptographic uses across an environment, classify by algorithm against
+a PQC-readiness yardstick, prioritize migration. Cloudflare's published
+reports {[}13{]} focus on edge-observable TLS handshake mixtures and
+provide one of the few public datasets on PQ adoption on the open
+internet.
+
+The academic literature includes systematic measurements of TLS
+deployment hygiene (key sizes, cipher choices, validation behavior)
+{[}38{]}, {[}39{]}, {[}40{]} and more recent measurements of hybrid PQ
+deployment in the wild {[}31{]}. NIST IR 8547 {[}4{]} provides the most
+authoritative migration playbook and includes a discovery section, but
+stops short of prescribing telemetry semantics.
+
+Common across this thread: algorithm-class is treated as the primary
+axis, hybrid/QKD is at most a footnote, and agility is discussed in
+prose but not surfaced as a measured field.
+
+\subsection{3.2 QKD telemetry}\label{qkd-telemetry}
+
+QKD telemetry has been studied primarily from the perspective of the QKD
+operator --- the entity running the physical link and the KMEs. The ETSI
+ISG-QKD has produced multiple documents on operational and security
+testing {[}41{]}, {[}42{]}, {[}43{]}; the SECOQC {[}16{]} and Tokyo
+{[}17{]} testbeds published detailed operational data. The EuroQCI
+program {[}18{]} is in the process of standardizing inter-domain QKD
+telemetry.
+
+This thread, however, is \emph{internal} to the QKD operator. For an
+operator using QKD keys to protect application traffic --- the
+SAE/application perspective --- the public literature is much thinner.
+ETSI GS QKD 014 {[}19{]} standardizes the SAE-facing interface; we are
+not aware of an existing open-source SAE-side observability platform
+that consumes 014 telemetry and integrates it with a broader
+cryptographic inventory.
+
+\subsection{3.3 Crypto-agility analysis}\label{crypto-agility-analysis}
+
+RFC 7696 {[}25{]} is the canonical statement. Subsequent work has
+analyzed agility properties of individual protocols (TLS, IPsec, S/MIME)
+and proposed agility frameworks for specific domains (industrial
+control, embedded), though without operationalising them as a continuous
+telemetry input.
+
+In the practitioner space, NCC Group has published audit reports on
+cryptographic-agility deficiencies in deployed products {[}44{]}. The
+OWASP and CIS communities maintain checklists {[}45{]}, but none of this
+work, to our knowledge, has been operationalized as a continuous
+telemetry input feeding a cryptographic-posture dashboard.
+
+\subsection{3.4 Gap statement}\label{gap-statement}
+
+Each thread is mature in isolation. What is missing --- and what Sezar
+fills --- is a tool that treats algorithmic resistance, channel
+protection, and migration agility as three independent telemetry axes,
+rolls them into a single deadline-adjusted score from a shared event
+schema, and is reproducible without commercial tooling.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{4. Threat model and operator
+assumptions}\label{threat-model-and-operator-assumptions}
+
+We assume a \emph{Q-day} adversary: a sufficiently capable
+fault-tolerant quantum computer capable of executing Shor's algorithm on
+RSA-2048-class moduli and elliptic-curve groups of practical size. The
+adversary's \emph{capability date} is unknown but treated as a moving
+deadline; the standards-body consensus places the planning horizon
+between 2030 and 2040 {[}3{]}, {[}4{]}, {[}8{]}. Following the
+harvest-now/decrypt-later threat model {[}3{]}, we assume that an
+adversary records classical-encrypted traffic \emph{today} and decrypts
+it \emph{later} once the CRQC is available. Consequently, traffic
+encrypted with classical-only KEMs is at risk \emph{now}, not at Q-day.
+
+We assume an operator who:
+
+\begin{itemize}
+\tightlist
+\item
+  Controls or has visibility into the cryptographic surfaces of their
+  environment (TLS termination points, certificate inventory,
+  application source code, host configuration, QKD links if any).
+\item
+  Operates under a calendar deadline (NIST CNSA 2.0 milestones,
+  regulatory mandates, or contractual obligations) that is fixed, even
+  if individual subdeadlines are uncertain.
+\item
+  Cannot replace all cryptography at once; migration is staged over
+  months to years.
+\item
+  Tolerates and benefits from continuous telemetry rather than periodic
+  audits.
+\end{itemize}
+
+We assume an adversary who:
+
+\begin{itemize}
+\tightlist
+\item
+  Records traffic now, decrypts later.
+\item
+  Cannot break PQ-secure primitives at standard parameter sizes (we
+  accept the NIST standardization process's hardness assumptions).
+\item
+  Cannot break the no-cloning theorem (we accept the standard QKD
+  security argument); but may exploit implementation-level QKD
+  vulnerabilities --- detector blinding, side channels, classical
+  authentication failure --- and so QKD protection is observed
+  \emph{probabilistically} by the SAE, not guaranteed.
+\item
+  May exploit non-cryptographic vulnerabilities; this paper does not
+  address those.
+\end{itemize}
+
+The threat model justifies treating agility as a \emph{risk multiplier}:
+an asset with low algorithmic resistance but high agility may not be at
+risk in \emph{real} terms because it can be migrated before the deadline
+horizon. An asset with low resistance and low agility (e.g., a hardware
+appliance with hard-coded ECDSA on a five-year refresh cycle) is at
+\emph{significantly higher} real risk, even if its observed primitive is
+identical to the agile case.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{5. The three-axis quantum-risk posture
+model}\label{the-three-axis-quantum-risk-posture-model}
+
+We define three independent axes --- \emph{A}, \emph{C}, \emph{G} ---
+and a unified deadline-adjusted quantum-risk score
+\(q(\mathit{asset}, t)\).
+
+\subsection{5.1 Axis A --- Algorithmic
+resistance}\label{axis-a-algorithmic-resistance}
+
+Axis \(A\) scores the cryptographic primitives observed on an asset on
+the scale \([0, 1]\), where 0 corresponds to a primitive that is
+quantum-trivial (a deprecated or known-broken algorithm) and 1
+corresponds to a primitive that is quantum-resistant under the standard
+NIST hardness assumptions.
+
+Following the existing Sezar V1 rollup (defined in
+\texttt{docs/posture-rollup.md} in the Sezar repository), we classify
+each primitive into one of five categories:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3143}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2857}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(a\) value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Examples
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{pq} & 1.0 & ML-KEM-\{512,768,1024\}, ML-DSA-\{44,65,87\},
+SLH-DSA-*, AES-256-GCM, SHA-256 \\
+\texttt{pq\_hybrid} & 0.9 & X25519+ML-KEM-768, ECDH-P256+ML-KEM-768 \\
+\texttt{classical} & 0.3 & X25519, Ed25519, RSA-2048, ECDSA-P256,
+AES-128-GCM \\
+\texttt{unknown} & 0.4 & Anything not in the classification table \\
+\texttt{deprecated} & 0.0 & SHA-1, MD5, RSA-1024, RC4, 3DES, DH-1024 \\
+\end{longtable}
+
+For an asset with observed primitives \(\{p_i\}\) at roles \(\{r_i\}\)
+with role weights \(w_{r_i}\) summing to 1, the axis-A score is
+
+\[
+A(\mathit{asset}) = \sum_i w_{r_i} \cdot a(p_i)
+\]
+
+Role weights are calibrated to harvest-now/decrypt-later risk:
+\(w_\text{sig}=0.40, w_\text{kex}=0.30, w_\text{encrypt}=0.20,
+w_\text{hash}=0.10\) for assets exhibiting all four roles, with
+re-normalization when only a subset is present. The schema also defines
+a fifth role, \texttt{auth} --- the MAC primitive in protocols where it
+is independent of the AEAD (SSH, IPsec-AH, TLS 1.2 ciphersuites with
+separate HMAC). For those assets we fold the \texttt{auth} weight into
+\(w_\text{encrypt}\) at observation time; the role exists in the schema
+so non-TLS-1.3 protocols can be represented without forcing AEAD
+semantics onto them.
+
+\subsection{5.2 Axis C --- Channel
+protection}\label{axis-c-channel-protection}
+
+Axis \(C\) scores the channel through which key material reaches the
+endpoint, on the scale \([0, 1]\), where 0 corresponds to a channel with
+no quantum-secure key delivery and 1 corresponds to a channel deriving
+its session key entirely from QKD-delivered material. Three categorical
+states cover the realistic deployment options:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4286}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2619}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3095}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+State
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(c\) value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{classical} & 0.0 & Session key derived solely from the
+negotiated KEM. \\
+\texttt{qkd\_hybrid\_psk} & 0.7 & Session key derived from QKD-PSK XOR
+negotiated KEM (NIST SP 1800-38A pattern, ETSI 014 SAE). \\
+\texttt{qkd\_only} & 1.0 & Session key derived from QKD material alone
+(rare; MACsec-style transport). \\
+\end{longtable}
+
+Sub-states allow partial credit when telemetry indicates a QKD link is
+\emph{degraded} --- high QBER, sustained KME unavailability, low key
+rate --- but the SAE has not failed over to classical. We discount the
+score in proportion to the observed degradation; formal degradation
+thresholds are deferred to the implementation section (§7.2).
+
+A subtle but important observation: the SAE may \emph{think} it is
+operating in QKD-hybrid mode while the underlying KME is failing
+gracefully to a classical fallback. Sezar's role is to observe both
+layers and surface the discrepancy. We define \(c\) on observed ETSI 014
+status, not on SAE-reported intent.
+
+\subsection{5.3 Axis G --- Migration
+agility}\label{axis-g-migration-agility}
+
+Axis \(G\) scores the asset's ability to migrate its primitives on the
+scale \([0, 1]\), where 0 corresponds to an asset whose primitives can
+be changed only by physical replacement and 1 corresponds to an asset
+that negotiates primitives on every session. We define five ordinal
+levels:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2540}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.1746}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.5714}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(g\) value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Definition (observable signature)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{negotiated} & 1.0 & Algorithm selected per-session by protocol
+negotiation. (TLS 1.3 server, modern SSH server, IKEv2 responder.) \\
+\texttt{configurable} & 0.75 & Algorithm fixed per-deployment but
+changeable by configuration without code change. (Library config file,
+environment variable.) \\
+\texttt{pinned} & 0.50 & Algorithm fixed in code; changeable by software
+upgrade. (Hard-coded algorithm name in application source.) \\
+\texttt{locked} & 0.20 & Algorithm fixed in firmware or by
+FIPS/compliance binding; changeable only by vendor update or
+revalidation cycle. (Embedded firmware crypto, FIPS 140-3 validated
+module under tested-configuration constraint.) \\
+\texttt{frozen} & 0.0 & Algorithm fixed in silicon, ROM, or otherwise
+unchangeable without hardware replacement. (TPM 1.2 with hard-coded
+RSA-2048; smart-card hard-wired ECDSA-P256.) \\
+\end{longtable}
+
+The classification is derived from static analysis of the asset's
+implementation surface plus, where available, vendor declarations of
+FIPS validation scope. We detail the scanning methodology in §7.3 and
+the scoring rubric in §8.3.
+
+\subsection{5.4 Unified deadline-adjusted quantum
+risk}\label{unified-deadline-adjusted-quantum-risk}
+
+The three axes are independent observables. To collapse them into a
+single posture metric we adopt the operator's deadline as a fourth
+input.
+
+Let \(D\) be the operator-configured deadline (e.g., 2030-01-01 for NSA
+CNSA 2.0 browser/server class). Let \(t\) be the current date. Define
+the \emph{deadline tension} \(\tau(t) = \max(0,
+\min(1, 1 - (D-t)/H))\), where \(H\) is a horizon constant (we use five
+years by default). When \(D\) is far in the future, \(\tau \to 0\) and
+agility forgives lower algorithmic resistance. As \(t \to D\),
+\(\tau \to 1\) and agility no longer compensates because there is
+insufficient time to migrate.
+
+We define the quantum-risk score as
+
+\[
+q(\mathit{asset}, t) = 1 - \Bigl( \alpha \cdot A + \beta \cdot C +
+  \gamma(\tau) \cdot G \Bigr)
+\]
+
+with \(\alpha + \beta + \gamma(\tau) = 1\). Default weights:
+\(\alpha = 0.5, \beta = 0.2, \gamma(\tau) = 0.3 \cdot (1-\tau)\),
+re-normalized when \(\gamma\) shrinks. The agility weight is the only
+weight that shrinks with deadline tension: an asset with high agility
+but classical algorithms looks safe today (because \(\gamma\) is large)
+and looks increasingly unsafe as the deadline approaches (because
+\(\gamma\) shrinks toward zero). This is the intended behavior: agility
+is forgiving \emph{now}, not \emph{at the deadline}.
+
+Asset-class weights \(w_k\) further weight the asset's contribution to
+the org-wide posture, with \texttt{blockchain\_key} weighted higher than
+\texttt{tls\_session} (a forged signature against a public-chain key is
+permanent; a forged session is ephemeral).
+
+\subsection{5.5 Interpretation and
+bounds}\label{interpretation-and-bounds}
+
+The score \(q \in [0, 1]\), with 0 = posture is fully aligned with the
+deadline and 1 = posture is maximally exposed. Operators typically
+configure alert thresholds at \(q > 0.6\) (``must migrate'') and
+\(q > 0.3\) (``plan migration'').
+
+Two edge cases warrant note. First, a fully PQ asset on a
+non-QKD-protected channel scores \(q = 1 - (0.5 \cdot 1 + 0.2 \cdot
+0 + 0.3 \cdot g)\), which is approximately 0.2 for a fully agile asset
+and 0.5 for a fully frozen asset, both before deadline tension. This is
+intentional: QKD is a \emph{bonus} on PQ-protected sessions, not a
+requirement. Second, a fully classical asset on a QKD-protected channel
+scores approximately 0.35 even with no agility --- QKD partially
+compensates for classical algorithms, reflecting the real-world
+deployment of QKD on high-assurance links.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{6. Event schema extensions}\label{event-schema-extensions}
+
+We extend the Sezar \texttt{crypto\_inventory\_event\ v1} schema
+(defined in \texttt{docs/crypto-event-schema.md} in the Sezar
+repository) with additive, non-breaking fields. Existing consumers that
+ignore unknown top-level fields continue to function; consumers that opt
+in to v1.1 gain access to channel-protection and agility observables.
+
+\subsection{6.1 New top-level fields}\label{new-top-level-fields}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{\{}
+  \DataTypeTok{"schema\_version"}\FunctionTok{:} \DecValTok{1}\FunctionTok{,}
+  \DataTypeTok{"schema\_minor"}\FunctionTok{:} \DecValTok{1}\FunctionTok{,}
+  \DataTypeTok{"source\_module"}\FunctionTok{:} \StringTok{"sezar{-}net"}\FunctionTok{,}
+  \DataTypeTok{"observed\_at"}\FunctionTok{:} \StringTok{"2026{-}08{-}15T11:42:03.421Z"}\FunctionTok{,}
+  \DataTypeTok{"asset"}\FunctionTok{:} \FunctionTok{\{} \ErrorTok{...} \FunctionTok{\},}
+  \DataTypeTok{"primitives"}\FunctionTok{:} \OtherTok{[} \ErrorTok{...} \OtherTok{]}\FunctionTok{,}
+  \DataTypeTok{"channel\_protection"}\FunctionTok{:} \FunctionTok{\{} \ErrorTok{...} \FunctionTok{\},}   \ErrorTok{//} \ErrorTok{NEW} \ErrorTok{in} \ErrorTok{1.1}
+  \DataTypeTok{"agility"}\FunctionTok{:} \FunctionTok{\{} \ErrorTok{...} \FunctionTok{\},}              \ErrorTok{//} \ErrorTok{NEW} \ErrorTok{in} \ErrorTok{1.1}
+  \DataTypeTok{"posture"}\FunctionTok{:} \FunctionTok{\{} \ErrorTok{...} \FunctionTok{\}}
+\FunctionTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\texttt{schema\_minor} is the first additive use of a minor-version
+field. Consumers must accept any \texttt{schema\_minor} ≥ their compiled
+value and treat unknown top-level fields as opaque.
+
+\subsection{\texorpdfstring{6.2
+\texttt{channel\_protection}}{6.2 channel\_protection}}\label{channel_protection}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{\{}
+  \DataTypeTok{"state"}\FunctionTok{:} \StringTok{"qkd\_hybrid\_psk"}\FunctionTok{,}
+  \DataTypeTok{"kme\_endpoint"}\FunctionTok{:} \StringTok{"https://kme{-}1.dc.example/api/v1"}\FunctionTok{,}
+  \DataTypeTok{"key\_id\_observed"}\FunctionTok{:} \StringTok{"9c45e0a2{-}..."}\FunctionTok{,}
+  \DataTypeTok{"psk\_age\_seconds"}\FunctionTok{:} \DecValTok{47}\FunctionTok{,}
+  \DataTypeTok{"link\_qber"}\FunctionTok{:} \FloatTok{0.018}\FunctionTok{,}
+  \DataTypeTok{"link\_key\_rate\_bps"}\FunctionTok{:} \DecValTok{12480}\FunctionTok{,}
+  \DataTypeTok{"link\_health"}\FunctionTok{:} \StringTok{"ok"}\FunctionTok{,}
+  \DataTypeTok{"degraded\_reason"}\FunctionTok{:} \KeywordTok{null}
+\FunctionTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.5946}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2162}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.1892}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Field
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Notes
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{state} & enum & \texttt{classical} / \texttt{qkd\_hybrid\_psk} /
+\texttt{qkd\_only}. \\
+\texttt{kme\_endpoint} & string & ETSI 014 base URL. Omitted when state
+= \texttt{classical}. \\
+\texttt{key\_id\_observed} & string & UUID of the consumed key, when
+reported by the cooperating SAE. \\
+\texttt{psk\_age\_seconds} & int & Age of the PSK when the session
+began. \\
+\texttt{link\_qber} & float & Quantum bit error rate (0--1). \\
+\texttt{link\_key\_rate\_bps} & int & Average key generation rate over
+the prior minute. \\
+\texttt{link\_health} & enum & \texttt{ok} / \texttt{degraded} /
+\texttt{failed}. \\
+\texttt{degraded\_reason} & string & One-sentence reason when degraded;
+\texttt{null} otherwise. \\
+\end{longtable}
+
+The fields are populated by \texttt{sezar-qkd}, which polls the ETSI 014
+\texttt{/status} endpoint at configurable intervals. SAE-side fields
+(\texttt{key\_id\_observed}, \texttt{psk\_age\_seconds}) require
+cooperating instrumentation in the SAE; when absent they are
+\texttt{null}.
+
+\subsection{\texorpdfstring{6.3
+\texttt{agility}}{6.3 agility}}\label{agility}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{\{}
+  \DataTypeTok{"level"}\FunctionTok{:} \StringTok{"configurable"}\FunctionTok{,}
+  \DataTypeTok{"level\_score"}\FunctionTok{:} \FloatTok{0.75}\FunctionTok{,}
+  \DataTypeTok{"evidence"}\FunctionTok{:} \OtherTok{[}
+    \FunctionTok{\{}
+      \DataTypeTok{"type"}\FunctionTok{:} \StringTok{"config\_pattern"}\FunctionTok{,}
+      \DataTypeTok{"file"}\FunctionTok{:} \StringTok{"/etc/nginx/nginx.conf"}\FunctionTok{,}
+      \DataTypeTok{"line"}\FunctionTok{:} \DecValTok{142}\FunctionTok{,}
+      \DataTypeTok{"snippet"}\FunctionTok{:} \StringTok{"ssl\_protocols TLSv1.2 TLSv1.3;}\CharTok{\textbackslash{}n}\StringTok{ssl\_ciphers HIGH:..."}
+    \FunctionTok{\}}\OtherTok{,}
+    \FunctionTok{\{}
+      \DataTypeTok{"type"}\FunctionTok{:} \StringTok{"fips\_mode"}\FunctionTok{,}
+      \DataTypeTok{"detected"}\FunctionTok{:} \KeywordTok{false}
+    \FunctionTok{\}}
+  \OtherTok{]}\FunctionTok{,}
+  \DataTypeTok{"scanner\_version"}\FunctionTok{:} \StringTok{"sezar{-}agility/0.3.1"}\FunctionTok{,}
+  \DataTypeTok{"rubric\_version"}\FunctionTok{:} \StringTok{"qra{-}rubric/v1.0"}
+\FunctionTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.5588}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2353}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2059}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Field
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Notes
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{level} & enum & \texttt{negotiated} / \texttt{configurable} /
+\texttt{pinned} / \texttt{locked} / \texttt{frozen}. \\
+\texttt{level\_score} & float & Numeric value per §5.3. \\
+\texttt{evidence} & array & One or more evidentiary findings supporting
+the level. \\
+\texttt{scanner\_version} & string & Sezar-agility version that produced
+the score. \\
+\texttt{rubric\_version} & string & Version of the public scoring rubric
+(§8.3). \\
+\end{longtable}
+
+Evidence types in V1: \texttt{protocol\_negotiation} (observed
+wire-level algorithm negotiation), \texttt{config\_pattern}
+(configuration file exposing algorithm choice), \texttt{code\_pattern}
+(source code reference to a fixed algorithm), \texttt{firmware\_string}
+(binary-extracted algorithm name), \texttt{fips\_mode} (FIPS
+provider/kernel mode detected), \texttt{vendor\_declaration}
+(operator-provided vendor statement).
+
+\subsection{6.4 New asset kinds}\label{new-asset-kinds}
+
+\begin{verbatim}
+qkd_link          // identity = KME endpoint URL hash
+qkd_kme           // identity = KME ID per ETSI 014 status
+\end{verbatim}
+
+These are emitted by \texttt{sezar-qkd} independently of the session
+events that consume their keys. They allow the dashboard to render a QKD
+link health view distinct from the SAE-side session view.
+
+\subsection{6.5 Backwards compatibility}\label{backwards-compatibility}
+
+The schema extension is strictly additive:
+
+\begin{itemize}
+\tightlist
+\item
+  All fields new in v1.1 are top-level; no existing field shape changes.
+\item
+  v1.0 consumers that do not recognize the new fields ignore them.
+\item
+  v1.1 producers that lack data for the new fields emit them as
+  \texttt{null} (per the V1 module emission contract).
+\item
+  The posture engine treats \texttt{channel\_protection:\ null} as
+  \texttt{state:\ classical} and \texttt{agility:\ null} as the
+  \texttt{UNKNOWN\_LEVEL\_FALLBACK} constant defined in
+  \texttt{sezar-agility}, which evaluates to \texttt{level:\ pinned}
+  (\texttt{level\_score:\ 0.50}). This is deliberately more conservative
+  than Axis A's \texttt{unknown\ =\ 0.4}: an asset whose agility we
+  cannot evidence is treated as if it were merely pinned rather than
+  freely configurable, so the rollup does not credit unmeasured agility
+  for free.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{7. Sezar: reference architecture and
+implementation}\label{sezar-reference-architecture-and-implementation}
+
+Sezar is an open-source observability platform implementing the
+three-axis posture model. The implementation is a single Rust workspace
+containing seven crates: five agents emitting events, one shared rollup
+library, and one collector/server.
+
+\subsection{7.1 Workspace layout}\label{workspace-layout}
+
+\begin{verbatim}
+sezar/
+├── crates/
+│   ├── sezar-core/       # event schema, rollup engine (no I/O)
+│   ├── sezar-server/     # axum collector + REST API
+│   ├── sezar-net/        # eBPF agent: TLS, SSH, IPsec
+│   ├── sezar-qkd/        # ETSI GS QKD 014 collector + emulator
+│   ├── sezar-cert/       # X.509 inventory (CT, host scan)
+│   ├── sezar-chain/      # public-chain crypto observation
+│   ├── sezar-id/         # HSM/KMS/smart-card inventory
+│   └── sezar-agility/    # static crypto-agility scanner
+├── docs/
+└── web/                  # React + Vite dashboard
+\end{verbatim}
+
+The architectural invariant --- every agent emits one and only one event
+shape, computed locally via \texttt{sezar-core::rollup} --- is what
+keeps the platform composable across surfaces as different as eBPF TLS
+sniffing and Solidity source code analysis.
+
+\subsection{7.2 sezar-qkd: ETSI 014 collector and
+emulator}\label{sezar-qkd-etsi-014-collector-and-emulator}
+
+The \texttt{sezar-qkd} crate fulfils two roles. Operationally, it is a
+collector that polls one or more ETSI GS QKD 014 KMEs, emits
+\texttt{qkd\_link} and \texttt{qkd\_kme} events, and serves as the data
+source for the \texttt{channel\_protection} block on session events
+emitted by cooperating SAEs.
+
+\subsubsection{7.2.1 Collector design}\label{collector-design}
+
+The collector is a Tokio async loop that, for each configured KME,
+issues:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{GET\ /api/v1/keys/\{slave\_SAE\_ID\}/status} at a configurable
+  cadence (default 5 s).
+\item
+  An auxiliary \texttt{enc\_keys} request at a slower cadence (default
+  60
+
+  \begin{enumerate}
+  \def\labelenumi{\alph{enumi})}
+  \setcounter{enumi}{18}
+  \tightlist
+  \item
+    to measure end-to-end key delivery latency. Keys are requested with
+    \texttt{size=0} when permitted, or discarded when not.
+  \end{enumerate}
+\end{itemize}
+
+The collector tracks per-KME state (last good status time,
+exponentially-weighted error rate, QBER history) and emits
+\texttt{qkd\_link} events on status change, plus heartbeat events at a
+configurable interval. Authentication to the KME follows ETSI 014
+guidance: mutual TLS with the SAE certificate.
+
+\subsubsection{7.2.2 Emulator}\label{emulator}
+
+Hardware QKD is expensive and rare, so we ship
+\texttt{sezar-qkd-kme-emulator} --- an ETSI 014 v1.1.1 implementation
+backed by a synthetic key generator. The emulator:
+
+\begin{itemize}
+\tightlist
+\item
+  Implements \texttt{/status}, \texttt{/enc\_keys}, and
+  \texttt{/dec\_keys} exactly per spec.
+\item
+  Generates synthetic keys at a configured rate, with configurable QBER,
+  key size, and lifetime.
+\item
+  Supports replay scenarios --- pre-recorded sequences of link state
+  changes (degradation, failure, recovery) --- for reproducibility.
+\item
+  Logs every interaction in a documented JSON capture format enabling
+  head-to-head A/B testing of SAE implementations.
+\end{itemize}
+
+The emulator is the foundation of the §8.2 empirical study and is
+released alongside Sezar as a standalone tool.
+
+\subsection{7.3 sezar-agility: static crypto-agility
+scanner}\label{sezar-agility-static-crypto-agility-scanner}
+
+The \texttt{sezar-agility} crate implements the agility-axis scoring per
+§5.3. It accepts as input one or more \emph{targets} and produces
+\texttt{agility} blocks attached to the corresponding assets.
+
+\subsubsection{7.3.1 Target types}\label{target-types}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5135}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.4865}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Target
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Evidence sources
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Source repository & Semgrep ruleset over the language-specific config
+and source files; file-path heuristics for build-time pinning. \\
+Installed package & Package manifest (rpm, dpkg, pip, npm) + binary
+string-extraction over the installed artifacts. \\
+Running host & TLS handshake observation against the host (server
+algorithm support → \texttt{negotiated} evidence); plus optional auth
+into the host's config files. \\
+Vendor appliance & Vendor-declared algorithm scope + observed handshake
+behavior. \\
+\end{longtable}
+
+\subsubsection{7.3.2 Ruleset}\label{ruleset}
+
+The published ruleset (\texttt{sezar-agility/rules/v1}) consists of
+several hundred Semgrep patterns covering common cryptographic libraries
+and protocols across C, Go, Rust, Python, Java, and configuration
+formats (nginx, Apache, OpenSSL config, sshd\_config, strongswan.conf,
+Postfix, Dovecot, HAProxy, Envoy). Each pattern emits one piece of
+evidence with a documented mapping to the five-level rubric.
+
+\subsubsection{7.3.3 Scoring algorithm}\label{scoring-algorithm}
+
+For each target, the scanner collects evidence and applies a
+\textbf{most-agile-wins} aggregation: the asset is scored at the
+\emph{most} agile level supported by any rule that fired. The rationale
+is asymmetric: rules fall into two semantic classes. \emph{Capability}
+rules (e.g., presence of an \texttt{ssl\_ciphers} directive, a
+\texttt{SSL\_CTX\_set\_cipher\_list} call) demonstrate that an operator
+can in fact change the algorithm without invasive surgery; their
+emit\_level is an \emph{upper bound on what is observable}.
+\emph{Constraint} rules (e.g., a literal hard-coded algorithm name in
+source) only report that \emph{some} algorithm is fixed somewhere ---
+they do not imply that there is no overriding config surface.
+Conservative-min aggregation systematically misclassifies large agility
+projects like nginx (which simultaneously embeds default algorithm
+strings in source and exposes ten configuration knobs that override
+them); the operationally useful question is ``what is the best surface I
+have,'' not ``what is the worst constraint anywhere.''
+
+Conservative-min remains available as an alternative aggregation
+projection for operators who require it (regulatory contexts where the
+weakest surface governs); the published scanner exposes both projections
+through a dashboard toggle.
+
+Where evidence is absent, the scanner produces \texttt{level:\ pinned}
+(the documented \texttt{UNKNOWN\_LEVEL\_FALLBACK} constant in
+\texttt{sezar-agility}) and surfaces the issue for operator review.
+
+We discuss limitations of static-only agility scoring in §9.
+
+\subsection{7.4 sezar-core unified
+rollup}\label{sezar-core-unified-rollup}
+
+The rollup engine extends the V1 implementation (see
+\texttt{docs/posture-rollup.md} in the Sezar repository) with the
+deadline-adjusted three-axis formula of §5.4. The implementation remains
+a pure function with no I/O; the operator configures \(D\), \(H\), and
+asset-class weights via the dashboard, and the engine recomputes on
+every event ingest. Fuzz testing covers all axis combinations.
+
+\subsection{7.5 sezar-server and
+dashboard}\label{sezar-server-and-dashboard}
+
+The collector is an Axum HTTP service accepting v1.0 and v1.1 events,
+validating against a generated JSON schema, persisting to Postgres
+(configuration) and a columnar store (events), and serving a React+Vite
+dashboard. The dashboard renders a three-axis posture matrix per asset
+class, a deadline-countdown view tied to the configured \(D\), and an
+inventory table sortable by \(q\). Implementation details are routine
+and we defer them to the project documentation.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{8. Empirical evaluation}\label{empirical-evaluation}
+
+We evaluate the model and implementation through three studies, each
+designed to be reproducible by an external practitioner with the
+published rulesets, emulator, and corpus lists.
+
+\subsection{8.1 Study 1 --- Axis A on the public web
+(Tranco-top-1k)}\label{study-1-axis-a-on-the-public-web-tranco-top-1k}
+
+\subsubsection{8.1.1 Methodology}\label{methodology}
+
+We scan the Tranco-top-1k {[}46{]} over TLS with two purpose-built
+probes --- general-purpose scanners such as \texttt{zgrab2} {[}47{]} do
+not yet advertise X25519MLKEM768 in the ClientHello, so we built
+dedicated baseline and PQ-capable probes to keep the ClientHello surface
+deterministic and the output schema aligned with Sezar's collector:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Classical baseline probe} --- Python \texttt{ssl} with the
+  system OpenSSL defaults. Establishes a TLS handshake without
+  advertising \texttt{X25519MLKEM768}. Output: JSON array.
+\item
+  \textbf{PQ-capable probe} --- a Rust binary built on
+  \texttt{rustls\ =\ 0.23} + \texttt{rustls-post-quantum\ =\ 0.2}, with
+  a custom certificate verifier that accepts every chain (this is
+  observability, not authentication). Advertises \texttt{X25519MLKEM768}
+  alongside the classical groups. Output: one NDJSON record per host.
+\end{enumerate}
+
+For each host we record: connect/handshake outcome, negotiated TLS
+version, negotiated cipher suite, negotiated key-exchange group, leaf
+certificate signature algorithm, and the leaf certificate Subject. The
+scan is constrained to one TCP connection per host, identifies itself in
+the ClientHello SNI extension as
+\texttt{sezar-survey/1.0\ +https://e2esolutions.tech/sezar}, and uses a
+5-second connect+handshake timeout with a 1 Hz rate cap.
+
+The scan source code, target list, raw probe outputs, and analysis
+script are released alongside this paper at
+\href{studies/study1/}{\texttt{studies/study1/}}.
+
+Ethical considerations: this is a one-shot benign TLS handshake similar
+to common research scans {[}38{]}; we do not attempt protocol downgrade
+or repeated probing. Scan rate is ≤1 Hz per probe and exits immediately
+on connection error.
+
+\subsubsection{8.1.2 Metrics}\label{metrics}
+
+We report the distribution of asset-A scores across the corpus, the
+prevalence of PQ-capable hosts, the distribution of certificate
+signature algorithms, and the prevalence of weak/ deprecated primitives
+still observed.
+
+\subsubsection{8.1.3 Results (Tranco-1k snapshot 6G8PX,
+2026-05-13)}\label{results-tranco-1k-snapshot-6g8px-2026-05-13}
+
+We ran the methodology of §8.1.1 against the Tranco-top-1k list
+\texttt{6G8PX} (snapshot 2026-05-13). 724 of 1,000 hosts returned a
+usable TLS handshake within the 5-second timeout; the remaining 276 were
+unresponsive (DNS failure, no TCP, no TLS on 443, regional GeoIP block,
+or anti-bot middlebox). The 27.6\% non-response rate is in the range
+reported by prior large-scale TLS scans of the open web {[}38{]}. All
+headline percentages in this section use the \(n = 724\) responsive
+denominator unless stated otherwise.
+
+For sample-selection contrast we also report results from a 30-host
+curated pilot --- major CDN, browser-vendor, distro,
+IETF/IEEE/NIST/ETSI, and AI-vendor properties --- that ran the same
+probe pair before the Tranco-1k scan.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4568}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2716}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2716}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Observable
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Tranco-1k (n=724)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Curated pilot (n=30)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+TLS 1.3 negotiation & 602/724 (83.1\%) & 30/30 (100\%) \\
+TLS 1.2 fallback & 122/724 (16.9\%) & 0/30 (0\%) \\
+AES-256-GCM/SHA-384 (TLS 1.3) & 384/724 (53.0\%) & 20/30 (67\%) \\
+AES-128-GCM/SHA-256 (TLS 1.3) & 207/724 (28.6\%) & 7/30 (23\%) \\
+ChaCha20-Poly1305 (TLS 1.3) & 11/724 (1.5\%) & 3/30 (10\%) \\
+ECDSA leaf cert (P256 + P384) & 254/724 (35.1\%) & 18/30 (60\%) \\
+RSA-PKCS1 leaf cert (SHA256+SHA384) & 470/724 (64.9\%) & 12/30 (40\%) \\
+ML-DSA / SLH-DSA cert & 0/724 & 0/30 \\
+Deprecated primitive (SHA-1, RC4) & 0/724 & 0/30 \\
+\textbf{\texttt{X25519MLKEM768} negotiated} & \textbf{317/724 (43.8\%)}
+& \textbf{17/30 (57\%)} \\
+\end{longtable}
+
+\textbf{The headline PQ-adoption result is 317/724 (43.8\%) on the
+Tranco-top-1k.} This is close to the 39\% of top-100k sites that
+Cloudflare measured supporting post-quantum key agreement in September
+2025 {[}31{]}; both numbers are site-capability measurements, and the
+4-point gap is consistent with Tranco-top-1k over-representing large
+CDN- and cloud-fronted properties relative to the broader top-100k
+corpus. The remaining 407 responsive hosts fell back to classical
+\texttt{x25519} (312), \texttt{secp256r1} (80), or \texttt{secp384r1}
+(15).
+
+The curated 30-host pilot returned 17/30 = 57\% PQ adoption --- 13
+percentage points above the Tranco-1k rate. The gap is attributable to
+sample-selection bias: the curated list emphasises Cloudflare-fronted
+and Google-fronted properties (cloudflare.com, twitter.com, reddit.com,
+anthropic.com, openai.com, google.com, youtube.com, e2esolutions.tech,
+and a long tail) whose edge terminators rolled out X25519MLKEM768 early.
+The 13 classical-only hosts in the curated pilot --- github.com,
+microsoft.com, amazon.com, mozilla.org, kernel.org, nist.gov,
+openssl.org, and others --- are notable in their own right as major
+infrastructure-relevant properties where the PQ rollout has not yet
+landed. The two numbers together suggest that surveys built on curated
+``interesting'' host lists overstate PQ readiness compared to broader
+corpora. Where these numbers appear in the literature, both rates ---
+broad-corpus and curated --- deserve to be reported.
+
+\textbf{Two further observables of operational interest.} First, 122 of
+724 responsive Tranco-1k hosts (16.9\%) still negotiate TLS 1.2 at the
+top of the Web. Because \texttt{X25519MLKEM768} is a TLS 1.3 key-share,
+that 16.9\% cohort is structurally PQ-ineligible until the operator's
+TLS terminator can negotiate TLS 1.3 --- a long-tail constraint not
+visible in any single-axis cipher dashboard. Second, the
+certificate-signature distribution on the Tranco-1k is RSA-dominant
+(64.9\%), inverting the ECDSA-dominant (60\%) distribution in the
+curated pilot. The curated list skews toward post-2020 CDN deployments
+that default to ECDSA; the broader corpus retains a substantial RSA
+installed base.
+
+Pipeline integration: PQ-probe NDJSON parses straight into the same
+\texttt{tls\_session} asset shape consumed by \texttt{from-zgrab}, so
+the same downstream rollup, BLOCKED-flag derivation, and dashboard
+render exactly as for any other source-module input.
+
+\subsection{8.2 Study 2 --- Axis C via the ETSI GS QKD 014
+emulator}\label{study-2-axis-c-via-the-etsi-gs-qkd-014-emulator}
+
+\subsubsection{8.2.1 Methodology}\label{methodology-1}
+
+We construct a controlled testbed of one master KME, two slave KMEs, and
+three cooperating SAEs (a strongSwan IPsec endpoint operating in PSK
+mode with QKD-PSK rotation, a Wireguard endpoint with manual PSK
+rotation, and a custom TLS endpoint using the NIST SP 1800-38A
+hybrid-PSK pattern). The KMEs are \texttt{sezar-qkd-kme-emulator}
+instances; we drive them through a documented sequence of replay
+scenarios:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{R1 --- Steady-state.} Constant QBER 1.8\%, key rate 12 kbps,
+  no interruption. 24 hours.
+\item
+  \textbf{R2 --- Gradual degradation.} QBER ramps from 1.8\% to 8.5\%
+  over 4 hours; the SAE policy should fail over to classical at the
+  configured threshold. We observe whether each SAE detects the
+  degradation and whether Sezar's \texttt{link\_health} reflects the
+  transition.
+\item
+  \textbf{R3 --- Hard failure.} KME unreachable for 30 minutes. SAE
+  behavior should be: continue with cached PSK until lifetime expires,
+  then fail closed or fall back to classical per policy.
+\item
+  \textbf{R4 --- Stale PSK.} PSK rotation is suppressed at the SAE while
+  the KME continues to produce keys. Sezar should observe
+  \texttt{psk\_age\_seconds} rising past policy.
+\item
+  \textbf{R5 --- Bifurcated SAE.} The strongSwan endpoint sees a healthy
+  KME while the Wireguard endpoint sees a failed KME (simulating partial
+  KME outage). Sezar should report inconsistent per-session
+  \texttt{channel\_protection} while the \texttt{qkd\_link} aggregate is
+  \texttt{degraded}.
+\end{itemize}
+
+\subsubsection{8.2.2 Metrics}\label{metrics-1}
+
+We measure: SAE failover correctness, Sezar observation latency
+(emulator change → emitted event), event-ordering correctness under
+concurrent KME polls, and posture-rollup correctness (particularly that
+the unified \(q\) score reflects the degradation appropriately).
+
+\subsubsection{8.2.3 Results}\label{results}
+
+All five scenarios ran end-to-end in compressed time (30--60s each
+rather than the full 4--24h documented duration; the runner is at
+\texttt{studies/study2/run.sh}). Per-scenario captures and the analysis
+script are at \texttt{studies/study2/}.
+
+\textbf{Classification correctness: 13/13.} Every operator-induced state
+change produced a downstream \texttt{link\_health} reading matching the
+expected post-op state.
+
+\begin{longtable}[]{@{}lrrr@{}}
+\toprule\noalign{}
+Scenario & Events captured & Induced transitions & Matched \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+R1 --- steady-state & 33 & 1 & 1/1 \\
+R2 --- ramp & 63 & 5 & 5/5 \\
+R3 --- hard-failure & 48 & 3 & 3/3 \\
+R4 --- stale-PSK & 33 & 1 & 1/1 \\
+R5 --- bifurcated & 48 & 3 & 3/3 \\
+\end{longtable}
+
+\textbf{Observation latency: p50 = 0.71s, range 0.70--0.71s} across all
+13 transitions, against a configured 1-second poll interval. The latency
+band hovers tightly around half the poll period --- the analytical
+expectation for periodic polling --- and dominates over event-emission
+cost. Increasing the poll interval moves the median latency linearly; in
+real ETSI 014 deployments where the operational poll cadence is
+typically 5--10 s {[}41{]}, this gives a p50 closer to 2.5--5 s.
+
+The R3 link\_health timeline (plotted in the magazine companion;
+analogue plots for every scenario ship in
+\texttt{studies/study2/plots/}) shows the hard-failure transition
+landing as expected.
+
+R5 illustrates the per-session attribution case. When one KME returns
+503, the link-level event flips to \texttt{failed} even though a
+separately healthy paired KME continues to deliver keys. KME-only
+telemetry cannot distinguish this from a full outage; the
+channel-protection block on per-session events does.
+
+R4 surfaces a gap we left in by design. Sezar's KME-side polling alone
+cannot distinguish a fresh PSK from one the SAE has held for hours; the
+\texttt{psk\_age\_seconds} field on \texttt{channel\_protection} is
+populated only when the SAE co-operates. Closed-source SAEs without that
+instrumentation are visible to Sezar only at the link layer. We
+open-source patches for strongSwan, Wireguard, and a sample TLS endpoint
+to populate the field.
+
+The emulator, replay scripts, and analysis notebooks ship under MIT
+alongside Sezar.
+
+\subsection{8.3 Study 3 --- Axis G on fifty open-source server
+projects}\label{study-3-axis-g-on-fifty-open-source-server-projects}
+
+\subsubsection{8.3.1 Methodology}\label{methodology-2}
+
+We select fifty widely deployed open-source server projects spanning
+HTTP, mail, database, message broker, and VPN categories: nginx, Apache
+httpd, HAProxy, Envoy, Caddy, Traefik, OpenSSH server, Postfix, Dovecot,
+Exim, PostgreSQL, MySQL, Redis, MongoDB, RabbitMQ, Kafka, OpenVPN,
+strongSwan, Wireguard, PowerDNS, BIND, Unbound, CoreDNS, and others. The
+full list, with hand-graded ground-truth levels and reviewer notes,
+ships as \texttt{crates/sezar-agility/corpus/oss-50-v1.csv} in the Sezar
+repository.
+
+For each project we:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Run \texttt{sezar-agility} against the source repository at a pinned
+  commit.
+\item
+  Run \texttt{sezar-agility} against the installed binary on Rocky Linux
+  10 with default package configuration.
+\item
+  Hand-grade the project against the §5.3 rubric, using two reviewers
+  and reporting inter-rater agreement.
+\item
+  Report the divergence between automatic and hand-graded scores; treat
+  the hand grade as ground truth for the corpus.
+\end{enumerate}
+
+\subsubsection{8.3.2 Metrics}\label{metrics-2}
+
+We report per-project agility level, the per-evidence contribution to
+the score, the false-negative and false-positive rates of the Semgrep
+ruleset against the ground-truth grading, and the distribution of
+agility levels across the corpus by category.
+
+\subsubsection{8.3.3 Results (n = 11 pilot
+subset)}\label{results-n-11-pilot-subset}
+
+The full OSS-50 corpus is committed at
+\texttt{crates/sezar-agility/corpus/oss-50-v1.csv} with hand-graded
+ground truth. A pilot run over an 11-project subset spanning nine
+categories (HTTP, mail, DB, message-broker, DNS, VPN/secure-shell,
+messaging, certificate-authority, time) exercises the full pipeline:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2192}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.3151}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1918}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1918}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.0822}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Project
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Hand-grade
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Scanner
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Match
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+nginx & http\_server & configurable & configurable & yes \\
+haproxy & http\_server & configurable & configurable & yes \\
+caddy & http\_server & configurable & configurable & yes \\
+unbound & dns\_server & configurable & configurable & yes \\
+coredns & dns\_server & configurable & configurable & yes \\
+postfix & mail\_server & configurable & configurable & yes \\
+redis & database & configurable & configurable & yes \\
+nats-server & message\_broker & configurable & configurable & yes \\
+step-ca & certificate\_authority & configurable & configurable & yes \\
+prosody & messaging & configurable & configurable & yes \\
+wireguard-tools & vpn\_secure\_shell & pinned & pinned & yes \\
+chrony & time & configurable & \textbf{pinned} & no \\
+\end{longtable}
+
+\textbf{Agreement: 10/11 (91\%); Cohen's \(\kappa = 0.62\)} (substantial
+agreement on the Landis--Koch scale). The single dissent is
+\textbf{chrony}, where the static evidence is genuinely ambiguous
+between a \texttt{configurable} reading (NTS key-types are
+operator-controlled in \texttt{chrony.conf}) and a \texttt{pinned}
+reading (the NTP authentication path embeds many literal symmetric-
+algorithm references). The scanner picked the latter on the strength of
+11 hard-coded references; no capability rule fired on chrony's NTS
+surface because it uses neither OpenSSL nor Go's \texttt{crypto/tls}. We
+flag this for v2 of the ruleset and the corpus.
+
+The confusion matrix (plotted in the magazine companion) visualises this
+result. Per-project event JSON, evidence listings, and the full
+agreement TSV are at \texttt{studies/study3/results/}.
+
+Failure modes characterised during the run:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Go ecosystem coverage gap.} The v1 ruleset's first cut matched
+  only OpenSSL-style API calls (\texttt{SSL\_CTX\_set\_cipher\_list},
+  \texttt{SSL\_CONF\_cmd}, \ldots). Three projects (coredns, step-ca,
+  caddy) initially classified as \texttt{pinned} because nothing
+  matched. Adding a one-rule \texttt{go-stdlib-tls-config} pattern
+  matching \texttt{crypto/tls}'s \texttt{Config} / \texttt{CipherSuites}
+  / \texttt{MinVersion} fields recovered all three to
+  \texttt{configurable}.
+\item
+  \textbf{Aggregation policy.} Conservative-min aggregation
+  systematically misclassified nginx: nginx embeds literal algorithm
+  names in source (for crypto-impl code paths and tests, emit\_level
+  \texttt{pinned}) and exposes operator config knobs (emit\_level
+  \texttt{configurable}). The §7.3.3 most-agile- wins policy resolves
+  the ambiguity in favour of the capability surface; conservative-min
+  remains available as a regulatory-context alternative.
+\item
+  \textbf{No-evidence fallback.} Wireguard correctly classified
+  \texttt{pinned} with zero evidence collected --- the project's
+  userspace tooling has no OpenSSL or Go-tls surface, so the documented
+  \texttt{UNKNOWN\_LEVEL\_FALLBACK\ =\ Pinned} applies. The ground-truth
+  grade agrees.
+\end{itemize}
+
+Scaling the pilot to the full OSS-50 list is mechanical; the runner
+already iterates over the corpus CSV.
+
+\subsection{8.4 End-to-end pipeline}\label{end-to-end-pipeline}
+
+\texttt{scripts/demo.sh} exercises the full V1 pipeline end-to-end: boot
+the KME emulator, the QKD collector, sezar-server, and seed events from
+both the bundled zgrab2 fixture and a synthetic FIPS-locked asset. The
+collector's \texttt{/v1/posture} endpoint returns:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{\{}
+  \DataTypeTok{"org\_q"}\FunctionTok{:} \FloatTok{0.627}\FunctionTok{,}
+  \DataTypeTok{"deadline"}\FunctionTok{:} \StringTok{"2030{-}01{-}01T00:00:00Z"}\FunctionTok{,}
+  \DataTypeTok{"horizon\_years"}\FunctionTok{:} \FloatTok{5.0}\FunctionTok{,}
+  \DataTypeTok{"assets"}\FunctionTok{:} \DecValTok{5}\FunctionTok{,}
+  \DataTypeTok{"blocked\_count"}\FunctionTok{:} \DecValTok{1}
+\FunctionTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+The inventory ordering, sorted by \(q\) descending, places the TLS 1.0 +
+RC4 + SHA-1 legacy host at the top (q ≈ 0.72), the TLS 1.2 ECDHE+RSA
+classical host just below (q ≈ 0.69), the FIPS-locked appliance third
+with the \texttt{BLOCKED} flag raised (q ≈ 0.68), the modern TLS 1.3 +
+ECDSA-P256 hybrid-PSK QKD host at the bottom of the priority queue (q ≈
+0.43). This matches the model's expected behaviour from §5.4 (axis
+combination) and §5.5 (edge cases). The channel-protection axis pulls
+the QKD-protected asset down even though its algorithmic content is
+classical; the agility axis pushes the FIPS-locked asset up even though
+its observed primitives match the nominally-agile modern host; the
+deadline-tension term leaves the legacy host at the top of the queue.
+
+The implementation's pure-Rust rollup (in
+\texttt{crates/sezar-server/src/posture.rs}) was verified against the
+magazine companion's four-asset worked example: the unit tests
+\texttt{worked\_example\_alpha\_q\_matches\_paper} and
+\texttt{worked\_example\_delta\_q\_matches\_paper} assert that the
+implementation reproduces α = 0.544 (modern-agile host, no QKD,
+evaluated 2026-05-13) and δ = 0.392 (legacy classical host, same date)
+to within 0.01.
+
+To our knowledge no comparable open pipeline covers all three axes
+end-to-end on commodity hardware. The Tranco-1k scan reported in §8.1 is
+the broad-corpus result for Axis A; scaling Study 3 from the 11-project
+pilot to the full OSS-50 corpus is the remaining mechanical step on the
+published runners.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{9. Discussion}\label{discussion}
+
+\subsection{9.1 Limitations}\label{limitations}
+
+Our agility scoring is static and pattern-based; it is necessarily
+approximate. A project may \emph{appear} pinned in source while actually
+being agile through a runtime extension mechanism we did not
+pattern-match. Conversely, a project may appear agile via a config field
+that is in practice never changed. We address false negatives by
+reporting per-evidence detail; we cannot fully address the second class
+without operator input.
+
+Our channel-protection axis depends on cooperating SAE instrumentation
+for per-session attribution. Sezar can observe the KME state
+independently, but linking a specific TLS or IPsec session to a specific
+consumed key requires the SAE to emit the \texttt{key\_id\_observed}
+field. We expect adoption in cooperating software (we open-source
+patches for strongSwan, Wireguard, and a sample TLS endpoint as part of
+the release) but note that closed-source SAEs may report only at the
+link level.
+
+Our threat model accepts the NIST PQC hardness assumptions and the
+standard QKD security argument. Compromise of either --- by mathematical
+break (PQC) or by implementation attack (QKD) --- would require
+recalibration of the scoring tables. The schema supports this: the
+rollup constants are operator-tunable in configuration, not compiled in.
+
+We do not address economic or political constraints on migration (budget
+cycles, regulatory approval lag, vendor support windows). These are
+first-order operator concerns and we acknowledge them as out of scope
+for the observability layer; they are downstream consumers of the
+posture data.
+
+\subsection{9.2 Ethical considerations}\label{ethical-considerations}
+
+Active TLS scanning, even of public web hosts, must be conducted
+responsibly. We follow established practice from prior measurement work
+{[}38{]}: one connection per host, clear User-Agent identification,
+opt-out instructions linked from the identifying URL, conservative scan
+rate, no protocol downgrade, no repeated probing. The Tranco list
+excludes adult content and known sensitive categories; we additionally
+exclude any host that returns a robots.txt directive on its base URL
+within the first 1024 bytes.
+
+The agility scanner operates on source code already public under
+open-source licenses and on installed binaries on hosts the operator
+controls. No private code or vendor materials are processed.
+
+The QKD emulator generates synthetic key material only; it is not
+connected to a real QKD link in our published study. Operators
+integrating real KMEs are responsible for the security of those KMEs and
+the surrounding network, including mutual TLS authentication of the SAE.
+
+\subsection{9.3 Deployment guidance}\label{deployment-guidance}
+
+For operators planning to deploy Sezar against a real environment, we
+recommend a phased rollout:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Phase 1: Inventory only.} Run \texttt{sezar-net} and
+  \texttt{sezar-agility} in observe-only mode. Establish a baseline.
+\item
+  \textbf{Phase 2: Add deadline.} Configure \(D\) per applicable
+  regulatory regime. Observe how \(q\) evolves with no other change.
+\item
+  \textbf{Phase 3: Prioritize.} Sort assets by \(q\) descending, migrate
+  the top \(N\) by quarter.
+\item
+  \textbf{Phase 4: Integrate QKD telemetry where it exists.} Add
+  \texttt{sezar-qkd} only when a real KME is present and the SAE
+  instrumentation is in place; the channel-protection axis is
+  \emph{additive} and never required.
+\end{enumerate}
+
+We caution against treating \(q\) as a primary KPI. It is a
+\emph{comparative} score, calibrated for relative prioritization within
+an environment. Inter-organization comparison requires shared \(D\),
+shared weights, and shared corpora.
+
+\subsection{9.4 Future work}\label{future-work}
+
+Several extensions are natural and intentionally deferred:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Time-decay.} Treating an observation made three months ago as
+  less authoritative than one made today.
+\item
+  \textbf{Asset relationship modeling.} Linking a TLS session's
+  certificate to the issuing CA's signing key allows the posture of an
+  upstream asset to propagate into the downstream score.
+\item
+  \textbf{Adversary modeling.} Allowing operators to plug in their own
+  estimate of CRQC arrival as a probability distribution over \(D\)
+  rather than a single date.
+\item
+  \textbf{Standardization.} Submitting the
+  \texttt{crypto\_inventory\_event} schema to IETF as an Informational
+  draft so other tools can emit and consume it.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{10. Conclusion}\label{conclusion}
+
+Operators preparing for the post-quantum transition cannot plan from a
+single bit per asset. The ``is my asset PQ-ready?'' framing collapses
+two assets with very different remediation costs into one bucket and
+ignores the channel through which their key material travels. We have
+set out a three-axis posture model, an open event schema, an
+implementation, and three empirical studies that anchor the baseline.
+The combined score \(q\) exists to surface what the single-bit view
+hides; the \texttt{BLOCKED} flag exists to catch what \(q\) alone does
+not.
+
+We do not claim the scoring constants are optimal, that the agility
+rubric covers every deployment pattern, or that our threat model
+survives every adversary. We do claim that surfacing all three axes
+beats single-axis dashboards, and that the released artifacts let the
+community critique, refine, and supersede our specific choices on shared
+empirical footing.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Author Contributions}\label{author-contributions}
+
+\textbf{Aleaddin Özer:} Conceptualization, methodology, software,
+investigation, data curation, writing --- original draft, writing ---
+review and editing, project administration. \textbf{Murat Aydos:}
+Conceptualization, methodology, validation, formal analysis, writing ---
+review and editing, supervision. Both authors read and approved the
+final manuscript.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Competing Interests}\label{competing-interests}
+
+The authors declare no competing financial or non-financial interests.
+E2E Solutions develops the Sezar reference implementation released under
+the MIT License but derives no direct commercial revenue from its
+publication. The authors have no financial stake in any of the
+cryptographic stacks, QKD vendors, or scanning tools discussed in this
+work.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Funding}\label{funding}
+
+This work was self-funded by E2E Solutions and Hacettepe University. No
+external grants, sponsorships, or contracts supported the design,
+execution, or reporting of the research presented here.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Data and Code Availability}\label{data-and-code-availability}
+
+All artifacts described in this paper are released under the MIT License
+at \url{https://github.com/e2esolutions-tech/sezar}. The repository
+contains the \texttt{crypto\_inventory\_event\ v1.1} schema, the Sezar
+reference implementation (network, certificate, blockchain,
+key-management, QKD agents plus collector and dashboard), the ETSI GS
+QKD 014 emulator and its replay corpus, the Semgrep crypto-agility
+ruleset, the hand-graded ground-truth corpus of fifty open-source server
+projects (\texttt{crates/sezar-agility/corpus/oss-50-v1.csv}), and the
+runner scripts that reproduce Studies 1--3. Tranco snapshot
+\texttt{6G8PX} (2026-05-13) was used for the Study 1 sample frame. Raw
+NDJSON captures and analysis plots for Studies 1 and 2 are committed
+under \texttt{studies/study1/} and \texttt{studies/study2/}; Study 3's
+per-project evidence listings and the agreement TSV are under
+\texttt{studies/study3/results/}. No human subjects, personally
+identifying information, or proprietary data are involved.
+
+\protect\phantomsection\label{refs}
+\begin{CSLReferences}{0}{0}
+\bibitem[\citeproctext]{ref-shor1997}
+\CSLLeftMargin{{[}1{]} }%
+\CSLRightInline{P. W. Shor, {``Polynomial-time algorithms for prime
+factorization and discrete logarithms on a quantum computer,''}
+\emph{SIAM Journal on Computing}, vol. 26, no. 5, pp. 1484--1509, 1997,
+doi:
+\href{https://doi.org/10.1137/S0097539795293172}{10.1137/S0097539795293172}.}
+
+\bibitem[\citeproctext]{ref-grover1996}
+\CSLLeftMargin{{[}2{]} }%
+\CSLRightInline{L. K. Grover, {``A fast quantum mechanical algorithm for
+database search,''} in \emph{Proceedings of the 28th annual ACM
+symposium on theory of computing (STOC)}, 1996, pp. 212--219. doi:
+\href{https://doi.org/10.1145/237814.237866}{10.1145/237814.237866}.}
+
+\bibitem[\citeproctext]{ref-nsa-cnsa2}
+\CSLLeftMargin{{[}3{]} }%
+\CSLRightInline{NSA, {``{Announcing the Commercial National Security
+Algorithm Suite 2.0},''} U.S. National Security Agency, Sep. 2022.}
+
+\bibitem[\citeproctext]{ref-nist-ir8547}
+\CSLLeftMargin{{[}4{]} }%
+\CSLRightInline{NIST, {``{Transition to Post-Quantum Cryptography
+Standards},''} National Institute of Standards; Technology, NIST IR 8547
+(Initial Public Draft), Nov. 2024.}
+
+\bibitem[\citeproctext]{ref-fips203}
+\CSLLeftMargin{{[}5{]} }%
+\CSLRightInline{NIST, {``{FIPS 203: Module-Lattice-Based
+Key-Encapsulation Mechanism Standard (ML-KEM)},''} National Institute of
+Standards; Technology, Aug. 2024.}
+
+\bibitem[\citeproctext]{ref-fips204}
+\CSLLeftMargin{{[}6{]} }%
+\CSLRightInline{NIST, {``{FIPS 204: Module-Lattice-Based Digital
+Signature Standard (ML-DSA)},''} National Institute of Standards;
+Technology, Aug. 2024.}
+
+\bibitem[\citeproctext]{ref-fips205}
+\CSLLeftMargin{{[}7{]} }%
+\CSLRightInline{NIST, {``{FIPS 205: Stateless Hash-Based Digital
+Signature Standard (SLH-DSA)},''} National Institute of Standards;
+Technology, Aug. 2024.}
+
+\bibitem[\citeproctext]{ref-ncsc-pqc}
+\CSLLeftMargin{{[}8{]} }%
+\CSLRightInline{UK NCSC, {``{Preparing for Quantum-Safe
+Cryptography}.''} UK National Cyber Security Centre guidance, 2023.}
+
+\bibitem[\citeproctext]{ref-anssi-pqc}
+\CSLLeftMargin{{[}9{]} }%
+\CSLRightInline{ANSSI, {``{ANSSI Views on the Post-Quantum Cryptography
+Transition},''} Agence nationale de la sécurité des systèmes
+d'information (France), 2022.}
+
+\bibitem[\citeproctext]{ref-cisco-pqc-discovery}
+\CSLLeftMargin{{[}10{]} }%
+\CSLRightInline{Cisco Systems, {``{Post-Quantum Cryptography at Cisco:
+Trust Center Overview and Quantum-Safe WAN Whitepaper}.''}
+\url{https://www.cisco.com/site/us/en/about/trust-center/post-quantum-cryptography.html},
+2024.}
+
+\bibitem[\citeproctext]{ref-ibm-pqc-discovery}
+\CSLLeftMargin{{[}11{]} }%
+\CSLRightInline{IBM, {``{IBM Guardium Quantum Safe and IBM Quantum Safe
+Explorer}.''} \url{https://www.ibm.com/products/guardium-quantum-safe},
+2024.}
+
+\bibitem[\citeproctext]{ref-microsoft-cryptotracker}
+\CSLLeftMargin{{[}12{]} }%
+\CSLRightInline{A. Shemesh and J. Rutzer, {``{Building your
+cryptographic inventory: A customer strategy for cryptographic posture
+management}.''} Microsoft Security Blog, 2026-04-16,
+\url{https://www.microsoft.com/en-us/security/blog/2026/04/16/building-your-cryptographic-inventory-a-customer-strategy-for-cryptographic-posture-management/},
+Apr. 2026.}
+
+\bibitem[\citeproctext]{ref-cloudflare-pq-deploy}
+\CSLLeftMargin{{[}13{]} }%
+\CSLRightInline{B. Westerbaan, {``{The state of the post-quantum
+Internet}.''} Cloudflare Blog, 2024-03-05,
+\url{https://blog.cloudflare.com/pq-2024/}, Mar. 2024.}
+
+\bibitem[\citeproctext]{ref-bsi-migration}
+\CSLLeftMargin{{[}14{]} }%
+\CSLRightInline{BSI, {``{Migration to Post-Quantum Cryptography:
+Recommendations for Action},''} Bundesamt für Sicherheit in der
+Informationstechnik (Germany), 2023.}
+
+\bibitem[\citeproctext]{ref-bb84}
+\CSLLeftMargin{{[}15{]} }%
+\CSLRightInline{C. H. Bennett and G. Brassard, {``Quantum cryptography:
+Public key distribution and coin tossing,''} in \emph{Proceedings of the
+IEEE international conference on computers, systems and signal
+processing}, Bangalore, India, 1984, pp. 175--179.}
+
+\bibitem[\citeproctext]{ref-secoqc}
+\CSLLeftMargin{{[}16{]} }%
+\CSLRightInline{M. Peev, C. Pacher, R. Alléaume, C. Barreiro, J. Bouda,
+\emph{et al.}, {``The {SECOQC} quantum key distribution network in
+vienna,''} \emph{New Journal of Physics}, vol. 11, no. 7, p. 075001,
+2009.}
+
+\bibitem[\citeproctext]{ref-tokyo-qkd}
+\CSLLeftMargin{{[}17{]} }%
+\CSLRightInline{M. Sasaki, M. Fujiwara, H. Ishizuka, \emph{et al.},
+{``Field test of quantum key distribution in the {Tokyo} {QKD}
+{Network},''} \emph{Optics Express}, vol. 19, no. 11, pp. 10387--10409,
+2011.}
+
+\bibitem[\citeproctext]{ref-euroqci}
+\CSLLeftMargin{{[}18{]} }%
+\CSLRightInline{European Commission, {``{European Quantum Communication
+Infrastructure (EuroQCI) Initiative}.''}
+\url{https://digital-strategy.ec.europa.eu/en/policies/european-quantum-communication-infrastructure-euroqci},
+2023.}
+
+\bibitem[\citeproctext]{ref-etsi-qkd-014}
+\CSLLeftMargin{{[}19{]} }%
+\CSLRightInline{ETSI ISG-QKD, {``{GS QKD 014 V1.1.1 --- Quantum Key
+Distribution; Protocol and Data Format of REST-Based Key Delivery
+API},''} ETSI, Feb. 2019.}
+
+\bibitem[\citeproctext]{ref-idq-deployments}
+\CSLLeftMargin{{[}20{]} }%
+\CSLRightInline{N. Aquina \emph{et al.}, {``{A Critical Analysis of
+Deployed Use Cases for Quantum Key Distribution and Comparison with
+Post-Quantum Cryptography},''} \emph{EPJ Quantum Technology}, vol. 12,
+no. 51, 2025, doi:
+\href{https://doi.org/10.1140/epjqt/s40507-025-00350-5}{10.1140/epjqt/s40507-025-00350-5}.}
+
+\bibitem[\citeproctext]{ref-toshiba-qkd}
+\CSLLeftMargin{{[}21{]} }%
+\CSLRightInline{M. Pittaluga \emph{et al.}, {``600-km repeater-like
+quantum communications with dual-band stabilization,''} \emph{Nature
+Photonics}, vol. 15, pp. 530--535, 2021, doi:
+\href{https://doi.org/10.1038/s41566-021-00811-0}{10.1038/s41566-021-00811-0}.}
+
+\bibitem[\citeproctext]{ref-qti-qkd}
+\CSLLeftMargin{{[}22{]} }%
+\CSLRightInline{Quantum Telecommunications Italy (QTI), {``{QUID:
+Italian National Quantum Communication Infrastructure Deployment}.''}
+EuroQCI Italy project, \url{https://quid-euroqci-italy.eu/the-project/},
+2024.}
+
+\bibitem[\citeproctext]{ref-nsa-qkd-position}
+\CSLLeftMargin{{[}23{]} }%
+\CSLRightInline{NSA, {``{Quantum Key Distribution (QKD) and Quantum
+Cryptography (QC)}.''} NSA Information Sheet, 2020.}
+
+\bibitem[\citeproctext]{ref-anssi-qkd}
+\CSLLeftMargin{{[}24{]} }%
+\CSLRightInline{ANSSI, {``{Should Quantum Key Distribution Be Used for
+Secure Communications?}''} Agence nationale de la sécurité des systèmes
+d'information (France), 2020.}
+
+\bibitem[\citeproctext]{ref-rfc7696}
+\CSLLeftMargin{{[}25{]} }%
+\CSLRightInline{R. Housley, {``{Guidelines for Cryptographic Algorithm
+Agility and Selecting Mandatory-to-Implement Algorithms},''} IETF, RFC
+7696, 2015.}
+
+\bibitem[\citeproctext]{ref-nist-pqc-call}
+\CSLLeftMargin{{[}26{]} }%
+\CSLRightInline{NIST, {``{Post-Quantum Cryptography Standardization Call
+for Proposals}.''}
+\url{https://csrc.nist.gov/projects/post-quantum-cryptography}, 2016.}
+
+\bibitem[\citeproctext]{ref-nist-fn-dsa}
+\CSLLeftMargin{{[}27{]} }%
+\CSLRightInline{R. Perlner, {``{FIPS 206 Status Update: FN-DSA
+(Falcon)},''} National Institute of Standards; Technology, Computer
+Security Division, 2025.}
+
+\bibitem[\citeproctext]{ref-nist-pqc-onramp}
+\CSLLeftMargin{{[}28{]} }%
+\CSLRightInline{NIST, {``{Additional Digital Signature Schemes and KEM
+On-Ramp Round}.''} NIST Post-Quantum Cryptography project page, 2023.}
+
+\bibitem[\citeproctext]{ref-chrome-pq-tls}
+\CSLLeftMargin{{[}29{]} }%
+\CSLRightInline{D. Adrian, B. Beck, D. Benjamin, and D. O'Brien,
+{``{Advancing Our Amazing Bet on Asymmetric Cryptography}.''} Chromium
+Blog, 2024-05-23 (Chrome 131 shipped ML-KEM Nov 2024),
+\url{https://blog.google/chromium/advancing-our-amazing-bet-on-asymmetric/},
+May 2024.}
+
+\bibitem[\citeproctext]{ref-firefox-pq-tls}
+\CSLLeftMargin{{[}30{]} }%
+\CSLRightInline{Mozilla, {``{Firefox 132 Release Notes: Post-Quantum Key
+Exchange (mlkem768x25519) for TLS 1.3}.''}
+\url{https://www.firefox.com/en-US/firefox/132.0/releasenotes/}, Oct.
+2024.}
+
+\bibitem[\citeproctext]{ref-pq-tls-measurement}
+\CSLLeftMargin{{[}31{]} }%
+\CSLRightInline{Cloudflare Research, {``{State of the Post-Quantum
+Internet in 2025}.''} Cloudflare Blog,
+\url{https://blog.cloudflare.com/pq-2025/}, 2025.}
+
+\bibitem[\citeproctext]{ref-digicert-pq}
+\CSLLeftMargin{{[}32{]} }%
+\CSLRightInline{DigiCert, {``{ML-DSA and FN-DSA Post-Quantum Signature
+Readiness}.''} DigiCert PQC Insights and Blog,
+\url{https://www.digicert.com/insights/post-quantum-cryptography/mldsa},
+2025.}
+
+\bibitem[\citeproctext]{ref-micius}
+\CSLLeftMargin{{[}33{]} }%
+\CSLRightInline{S.-K. Liao, W.-Q. Cai, W.-Y. Liu, \emph{et al.},
+{``Satellite-to-ground quantum key distribution,''} \emph{Nature}, vol.
+549, pp. 43--47, 2017.}
+
+\bibitem[\citeproctext]{ref-twin-field}
+\CSLLeftMargin{{[}34{]} }%
+\CSLRightInline{M. Lucamarini, Z. L. Yuan, J. F. Dynes, and A. J.
+Shields, {``Overcoming the rate--distance limit of quantum key
+distribution without quantum repeaters,''} \emph{Nature}, vol. 557, pp.
+400--403, 2018.}
+
+\bibitem[\citeproctext]{ref-hybrid-tls-psk}
+\CSLLeftMargin{{[}35{]} }%
+\CSLRightInline{T. Wiggers, S. Celi, P. Schwabe, D. Stebila, and N.
+Sullivan, {``{KEM-based pre-shared-key handshakes for TLS 1.3}.''} IETF
+Internet-Draft draft-wiggers-tls-authkem-psk-05 (2026-05-04, individual
+submission),
+\url{https://datatracker.ietf.org/doc/draft-wiggers-tls-authkem-psk/},
+May 2026.}
+
+\bibitem[\citeproctext]{ref-nist-sp-1800-38a}
+\CSLLeftMargin{{[}36{]} }%
+\CSLRightInline{NIST National Cybersecurity Center of Excellence,
+{``{Migration to Post-Quantum Cryptography (NIST SP 1800-38, Vols.~A--C,
+Preliminary Drafts)},''} National Institute of Standards; Technology,
+2023.}
+
+\bibitem[\citeproctext]{ref-fips140-3}
+\CSLLeftMargin{{[}37{]} }%
+\CSLRightInline{NIST, {``{FIPS 140-3: Security Requirements for
+Cryptographic Modules},''} National Institute of Standards; Technology,
+2019.}
+
+\bibitem[\citeproctext]{ref-durumeric-tls}
+\CSLLeftMargin{{[}38{]} }%
+\CSLRightInline{Z. Durumeric, J. Kasten, M. Bailey, and J. A. Halderman,
+{``Analysis of the {HTTPS} certificate ecosystem,''} in
+\emph{Proceedings of the ACM internet measurement conference (IMC)},
+2013.}
+
+\bibitem[\citeproctext]{ref-holz-tls}
+\CSLLeftMargin{{[}39{]} }%
+\CSLRightInline{R. Holz, L. Braun, N. Kammenhuber, and G. Carle, {``The
+{SSL} landscape: A thorough analysis of the {X.509} {PKI} using active
+and passive measurements,''} in \emph{Proceedings of the ACM internet
+measurement conference (IMC)}, 2011.}
+
+\bibitem[\citeproctext]{ref-felt-tls}
+\CSLLeftMargin{{[}40{]} }%
+\CSLRightInline{A. P. Felt, R. Barnes, A. King, C. Palmer, C. Bentzel,
+and P. Tabriz, {``Measuring {HTTPS} adoption on the web,''} in
+\emph{Proceedings of the 26th USENIX security symposium}, 2017.}
+
+\bibitem[\citeproctext]{ref-etsi-qkd-002}
+\CSLLeftMargin{{[}41{]} }%
+\CSLRightInline{ETSI ISG-QKD, {``{GS QKD 002 --- Use Cases},''} ETSI,
+2010.}
+
+\bibitem[\citeproctext]{ref-etsi-qkd-008}
+\CSLLeftMargin{{[}42{]} }%
+\CSLRightInline{ETSI ISG-QKD, {``{GS QKD 008 --- Module Security
+Specification},''} ETSI, 2010.}
+
+\bibitem[\citeproctext]{ref-etsi-qkd-011}
+\CSLLeftMargin{{[}43{]} }%
+\CSLRightInline{ETSI ISG-QKD, {``{GS QKD 011 --- Component
+Characterization: Characterizing Optical Components for QKD Systems},''}
+ETSI, 2016.}
+
+\bibitem[\citeproctext]{ref-ncc-group-crypto-audits}
+\CSLLeftMargin{{[}44{]} }%
+\CSLRightInline{NCC Group, {``{Cryptographic Implementation Audits and
+Crypto-Agility Findings (Public Reports)}.''} NCC Group Research blog,
+\url{https://research.nccgroup.com/}, 2018-\/-2024.}
+
+\bibitem[\citeproctext]{ref-owasp-crypto}
+\CSLLeftMargin{{[}45{]} }%
+\CSLRightInline{OWASP Foundation, {``{OWASP Cryptographic Storage Cheat
+Sheet}.''}
+\url{https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html},
+2024.}
+
+\bibitem[\citeproctext]{ref-tranco}
+\CSLLeftMargin{{[}46{]} }%
+\CSLRightInline{V. Le Pochat, T. Van Goethem, S. Tajalizadehkhoob, M.
+Korczyński, and W. Joosen, {``{Tranco}: A research-oriented top sites
+ranking hardened against manipulation,''} in \emph{Proceedings of the
+network and distributed system security symposium (NDSS)}, 2019.}
+
+\bibitem[\citeproctext]{ref-zgrab2}
+\CSLLeftMargin{{[}47{]} }%
+\CSLRightInline{ZMap Project, {``{zgrab2: A Fast Application-Layer
+Network Scanner}.''} \url{https://github.com/zmap/zgrab2}, 2024.}
+
+\end{CSLReferences}

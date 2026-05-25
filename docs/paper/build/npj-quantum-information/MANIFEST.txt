@@ -1,0 +1,26 @@
+# Submission bundle — npj Quantum Information (Nature Portfolio)
+# Generated: 2026-05-25T18:57:11Z
+# Source commit: 5354171
+
+5deaba7aeb35161a871f62ba8f5d8383996dd39edc8427ebafb3b6ea4ab6d159  ./cover-letter.md
+d97b92c7d56839aeb5b543c061f4a2569b55cdb69add2cf15f1710653165fe45  ./cover-letter.pdf
+ce6ec4865f366e1e1dc25711ffaa3c6b5a243d198271faad14343e7d48ffda88  ./figures/q-trajectory.pdf
+8db48c26794a77ba7abcf76ec194849a20cfb29d807cf650ec622dc7790c681c  ./figures/q-trajectory.png
+42487a1e09172766a373c6dd88e980e48fd4599275b37d8e243646eb7f442d59  ./figures/r3-hard-failure-timeline.pdf
+4bd034e75831a97b5b77a82977c1bbfbed2a582b4c67653aa7a0d17dafa34eb3  ./figures/r3-hard-failure-timeline.png
+5f2ed93eaff407e9d635b539614660282bcce49428ef9a1dd1bcdd6a3c4eedd4  ./figures/sezar-architecture.pdf
+f5a01d7f1bc86a37d8c7ae4cf813178fff7c8d8803cd03cf9cbf0a6e63a4cdf2  ./figures/sezar-architecture.png
+36bc9a0ba6fb0982f8ac757c5323980aae2ad4830fb26a431c5114663805f346  ./figures/study1-tranco-distribution.pdf
+656bdcc1c3cdd1d215892c2c76093a475a315865b1df1eb21a0971858ae71681  ./figures/study1-tranco-distribution.png
+88ec565397698e142495fe4e4ce907010bb23a224c30ac095714d4039182ced7  ./figures/study1-tranco-pq-kex.pdf
+87d3e8c9473792b846f959b541b6f5eacf070fce10b2dad5cc0fb15efee1bcac  ./figures/study1-tranco-pq-kex.png
+a32058043769adaaa9fe8d16bdca076c67ce49c097048de3267a13f69fce42e8  ./figures/study3-agreement-matrix.pdf
+f7d89f4ed90cf9b2bb80c2ec329db8fb2369c77c6993cf9b3c07b61c6694147d  ./figures/study3-agreement-matrix.png
+1ced6c73377cb1fd561c489c7da88c30828cba4d48c24ba563724fa29916cc5f  ./figures/three-axis-cube.pdf
+f6d38cef815c4e7f48b5bec83ce23fb0404009f136d6abe6e552d27779020044  ./figures/three-axis-cube.png
+7d409024c78dd4135055b45c45ccfbe088809609b3d9dfa213d5fa477369e9fd  ./manuscript.md
+d562b4d63b868f3de084e5c1a15706845ebdeb65962863e0b5a07833d4363bb1  ./manuscript.pdf
+b55065a8e34d6ef148c75f07769fa90b824d6ff3cf2e742596bf290d91c76143  ./manuscript.tex
+88db5ada35b15bf751e37a9a6503095806cde454642738c6395e91250284b845  ./references.bib
+8702b2621eca1a143bce2ce6c0bc0a31dd3bdee93b42e7c30263d8c9e5f79dad  ./submission-checklist.md
+4a2b4c1ad457bdbc88d3130e8630fc88a6902df8522c6520d8023ad77ec5f485  ./suggested-reviewers.md
