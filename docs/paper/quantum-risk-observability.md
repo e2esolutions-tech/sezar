@@ -5,7 +5,7 @@ author:
   - name: "Aleaddin Özer"
     affiliation: "E2E Solutions"
     role: "Chief Information Officer"
-    email: "aleaddinozer@hacettepe.edu.tr"
+    email: "ozer@e2esolutions.tech"
     orcid: "0000-0001-9389-5357"
   - name: "Murat Aydos"
     affiliation: "Hacettepe University"
@@ -776,7 +776,7 @@ Solutions, where he leads enterprise cryptographic
 infrastructure and post-quantum migration programs across
 critical-sector clients. His operational work informs the
 Sezar reference implementation. Contact:
-<aleaddinozer@hacettepe.edu.tr>. ORCID:
+<ozer@e2esolutions.tech>. ORCID:
 [0000-0001-9389-5357](https://orcid.org/0000-0001-9389-5357).
 
 **Murat Aydos** is Associate Professor at Hacettepe

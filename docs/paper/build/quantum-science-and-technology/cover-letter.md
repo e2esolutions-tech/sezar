@@ -2,7 +2,7 @@
 
 **To:** Editorial Office, *Quantum Science and Technology* (IOP Publishing)
 **From:** Aleaddin Özer (Corresponding Author) · ORCID 0000-0001-9389-5357
-**E-mail:** aleaddinozer@hacettepe.edu.tr
+**E-mail:** ozer@e2esolutions.tech
 **Date:** 1 June 2026
 
 Dear Editors,
