@@ -1,6 +1,6 @@
 # Submission bundle — npj Quantum Information (Nature Portfolio)
-# Generated: 2026-06-01T15:51:19Z
-# Source commit: 071dc4f
+# Generated: 2026-06-01T16:25:44Z
+# Source commit: 3a8db0b
 
 029eb6a1f8ebbdd44642ebac8a69c526d106d070e95d452d7056ba4f4b0f29e9  ./cover-letter.md
 de9a05f8b1b0e1549cc53981de9bee66bd135527d8e2e76e3158b3ea83ab9df4  ./cover-letter.pdf
@@ -18,10 +18,10 @@ a32058043769adaaa9fe8d16bdca076c67ce49c097048de3267a13f69fce42e8  ./figures/stud
 f7d89f4ed90cf9b2bb80c2ec329db8fb2369c77c6993cf9b3c07b61c6694147d  ./figures/study3-agreement-matrix.png
 1ced6c73377cb1fd561c489c7da88c30828cba4d48c24ba563724fa29916cc5f  ./figures/three-axis-cube.pdf
 f6d38cef815c4e7f48b5bec83ce23fb0404009f136d6abe6e552d27779020044  ./figures/three-axis-cube.png
-ed1b59165e0cc061c849d277d8280ed51fd0bd819452697a26940ce9f829dd54  ./manuscript-latex-preview.pdf
-86373b3664ff06facd95f2b2b4f5062f6b3123dfad147a5e82735ddd9f9837a1  ./manuscript-latex.zip
+1c7e7489c8514e54c91dcee67e52fb9061f4889767c5e8542d3765384b9ef8cd  ./manuscript-latex-preview.pdf
+b2ca33477543dd648ff51b47ab0ad1271f412bd037fc5396979c06598cda4e93  ./manuscript-latex.zip
 c2883de5bd93c56ddc674ca07eb77d59e1a46804d156d1e8b8b63ef303878edc  ./manuscript.md
-544bd3590cfa0df3e76035eea0577458ff7fac22c0a1ab72747d49c09ac1a167  ./manuscript.pdf
-88db5ada35b15bf751e37a9a6503095806cde454642738c6395e91250284b845  ./references.bib
+6341a3bcdccbb3a9d05c3b05110d40a65757af642ed9c7b818882af0d020672d  ./manuscript.pdf
+95639f53ee638f49a0a861dc4f9bee85f175edcb6b6084b79ae24ef5ca467f5c  ./references.bib
 efebe082ab2795d58411d9a34fb0db33f14bd6b01b7ac65c7becf13a39d5c8a9  ./submission-checklist.md
 58070a16901ef30458693d7ccfe48c2126ecc66150aa2901bc0d7e07e2a850ce  ./suggested-reviewers.md

@@ -126,6 +126,20 @@ for bad, good in {
     r'\$\delta\$':r'\ensuremath{\delta}', r'\$\tau\$':r'\ensuremath{\tau}',
 }.items():
     src = src.replace(bad, good)
+
+# Title-page layout: print the keyword list under the abstract and
+# force the body to start on a fresh page, so page 1 is title +
+# abstract + keywords only. Matches what a research-journal review
+# PDF is expected to look like; the journal's own class file
+# reproduces this at the typesetting stage.
+keywords = ("post-quantum cryptography; quantum key distribution; "
+            "crypto-agility; observability; cryptographic posture; "
+            "NIST PQC standardization")
+kw_block = (r"\end{abstract}" "\n"
+            r"\medskip\noindent\textbf{Keywords:} " + keywords + "\n"
+            r"\clearpage")
+src = src.replace(r"\end{abstract}", kw_block, 1)
+
 open(path, "w").write(src)
 PYEOF
 
