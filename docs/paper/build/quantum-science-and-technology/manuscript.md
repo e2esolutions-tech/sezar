@@ -1438,15 +1438,47 @@ three-axis model in this paper grades each of those
 separately and combines them only at the rollup stage,
 which is where the operator actually needs a number.
 
-The scoring constants are debatable. The agility rubric
-will need refinement as new crypto APIs land in deployed
-software. The QKD axis presumes a deployment trend that
-not everyone agrees on. None of that changes the underlying
-claim, which is that one bit per asset is fewer bits than
-operators need. The schema, the implementation, the
-emulator, the rule pack, and the hand-graded corpus are
-all open. We hope readers will run the studies again,
-disagree with our weights, and replace them.
+The empirical work suggests the gap is not hypothetical.
+On the Tranco-top-1k, 43.8% of responsive hosts negotiated
+a hybrid PQ key exchange when offered one — a figure that
+says nothing about whether those same hosts could rotate
+their certificate signature algorithm, or whether any of
+their key material is QKD-protected, because the
+single-axis scan does not look. The emulator study showed
+that channel-state classification stays correct across
+every induced KME and link failure we drove (13 of 13),
+including the per-session attribution case that link-level
+telemetry alone cannot resolve. And the agility pilot
+reached 91% agreement with hand-graded ground truth on
+eleven projects, with the disagreements concentrated where
+the static evidence is genuinely ambiguous rather than
+where the rubric is wrong. None of these three results is
+reachable from a PQ-ready bit; each requires its own axis.
+
+We are deliberate about what the model does not settle. The
+scoring constants are one defensible choice among several,
+and we expose them as configuration rather than compiling
+them in. The agility rubric will need refinement as new
+crypto APIs land in deployed software, and the Go-ecosystem
+coverage gap we hit in Study 3 is a concrete example of
+that maintenance burden. The QKD axis presumes a deployment
+trend that not everyone in the community shares, which is
+exactly why we made it additive — an operator with no QKD
+links pays no modelling cost for the axis existing. What we
+do claim is narrow and, we think, hard to argue with: one
+bit per asset is fewer bits than an operator facing a
+2030–2035 deadline actually needs, and surfacing all three
+axes is a strict improvement over surfacing one.
+
+The schema, the reference implementation, the ETSI 014
+emulator, the Semgrep rule pack, and the hand-graded corpus
+are released together under MIT. The studies are scripted
+end to end and run on a single commodity host without QKD
+hardware. We would rather see readers rerun the
+measurements, disagree with our weights, and supersede them
+on a shared empirical footing than have the specific
+constants in this paper treated as settled. The model is
+the contribution; the numbers are an invitation.
 
 ---
 

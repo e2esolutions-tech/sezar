@@ -108,6 +108,7 @@ echo "[latex-zip] pandoc → standalone LaTeX..."
 pandoc "$WORK/src.md" \
   --bibliography="$BIB" --citeproc --csl="$CSL" \
   --standalone \
+  --metadata reference-section-title="References" \
   -V documentclass=article -V geometry:margin=1in -V fontsize=11pt \
   -o "$WORK/manuscript.tex"
 
