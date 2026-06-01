@@ -490,6 +490,13 @@ its observed primitive is identical to the agile case.
 We define three independent axes — *A*, *C*, *G* — and a unified
 deadline-adjusted quantum-risk score $q(\mathit{asset}, t)$.
 
+![**Figure 1.** The three-axis quantum-risk space. Each
+cryptographic asset occupies a point in $(A, C, G)$; colour
+encodes the deadline-adjusted score $q$. The four worked-example
+assets (α, β, γ, δ) are plotted at their observed coordinates.
+The shaded region near the $A=0, G=0$ corner is the
+`BLOCKED`-flagged volume requiring out-of-band remediation.](figures/three-axis-cube.pdf){#fig:cube width=85%}
+
 ## 5.1 Axis A — Algorithmic resistance
 
 Axis $A$ scores the cryptographic primitives observed on an asset
@@ -607,6 +614,15 @@ $\gamma$ is large) and looks increasingly unsafe as the deadline
 approaches (because $\gamma$ shrinks toward zero). This is the
 intended behavior: agility is forgiving *now*, not *at the
 deadline*.
+
+![**Figure 2.** Trajectory of $q(t)$ for the four worked-example
+assets from 2026 to the deadline at 2030-01-01, holding
+observables fixed. The legacy-pinned asset (γ) climbs steepest;
+the modern-agile asset (α) rises across the $q > 0.6$
+must-migrate threshold as its agility weight erodes. The
+locked-but-modern asset (β) remains high throughout — the
+`BLOCKED` flag, not the prioritization score, is what surfaces
+it for action.](figures/q-trajectory.pdf){#fig:trajectory width=85%}
 
 Asset-class weights $w_k$ further weight the asset's contribution
 to the org-wide posture, with `blockchain_key` weighted higher
@@ -769,6 +785,15 @@ Sezar is an open-source observability platform implementing the
 three-axis posture model. The implementation is a single Rust
 workspace containing seven crates: five agents emitting events,
 one shared rollup library, and one collector/server.
+
+![**Figure 3.** Sezar reference architecture. Five agents
+(`sezar-net`, `sezar-qkd`, `sezar-agility`, plus `sezar-cert`
+and `sezar-chain`/`sezar-id` in later phases) emit
+`crypto_inventory_event` records into `sezar-server`. The
+shared `sezar-core` library hosts the schema, the
+classification table, and the deadline-adjusted rollup. The
+React dashboard renders the three-axis posture matrix and the
+priority-sorted action list.](figures/sezar-architecture.pdf){#fig:arch width=90%}
 
 ## 7.1 Workspace layout
 
@@ -979,6 +1004,18 @@ prior large-scale TLS scans of the open web
 use the $n = 724$ responsive denominator unless stated
 otherwise.
 
+![**Figure 4.** Study 1 — classical-probe baseline on the
+Tranco-top-1k (n_ok = 724): negotiated TLS 1.3 ciphersuite
+(left) and leaf certificate signature algorithm
+(right).](studies/study1/plots/study1-tranco-distribution.pdf){#fig:study1 width=95%}
+
+![**Figure 5.** Study 1 — PQ-capable probe (rustls +
+`rustls-post-quantum`) against the Tranco-top-1k. 317 of
+724 responsive hosts (43.8%) negotiate `X25519MLKEM768`
+when offered; the remainder fall back to classical `x25519`,
+`secp256r1`, or `secp384r1`. A metric the classical-only
+probe cannot observe.](studies/study1/plots/study1-tranco-pq-kex.pdf){#fig:study1pq width=95%}
+
 For sample-selection contrast we also report results from a
 30-host curated pilot — major CDN, browser-vendor, distro,
 IETF/IEEE/NIST/ETSI, and AI-vendor properties — that ran
@@ -1113,10 +1150,15 @@ ETSI 014 deployments where the operational poll cadence is
 typically 5–10 s [@etsi-qkd-002], this gives a p50 closer to
 2.5–5 s.
 
-The R3 link_health timeline (plotted in the magazine companion;
-analogue plots for every scenario ship in
-`studies/study2/plots/`) shows the hard-failure transition
-landing as expected.
+The R3 link_health timeline (Figure 6; analogue plots for
+every scenario ship in `studies/study2/plots/`) shows the
+hard-failure transition landing as expected.
+
+![**Figure 6.** Study 2 — R3 hard-failure timeline. The KME is
+forced unreachable at T+10s and recovered at T+30s; the collector
+captures the Ok → Failed → Ok cycle on the next poll
+(observation latency ≈ 0.7s on the configured 1s
+interval).](studies/study2/plots/r3-hard-failure-timeline.pdf){#fig:study2 width=95%}
 
 R5 illustrates the per-session attribution case. When one KME
 returns 503, the link-level event flips to `failed` even though
@@ -1205,10 +1247,12 @@ fired on chrony's NTS surface because it uses neither OpenSSL
 nor Go's `crypto/tls`. We flag this for v2 of the ruleset
 and the corpus.
 
-The confusion matrix (plotted in the magazine companion)
-visualises this result. Per-project event JSON, evidence
-listings, and the full agreement TSV are at
-`studies/study3/results/`.
+The confusion matrix (Figure 7) visualises this result.
+Per-project event JSON, evidence listings, and the full
+agreement TSV are at `studies/study3/results/`.
+
+![**Figure 7.** Study 3 — confusion matrix (n=11 projects,
+10/11 agreement, Cohen's $\kappa=0.62$).](studies/study3/plots/study3-agreement-matrix.pdf){#fig:study3 width=70%}
 
 Failure modes characterised during the run:
 

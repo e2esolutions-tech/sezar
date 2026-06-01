@@ -4,22 +4,41 @@
 **Submission system:** Editorial Manager via
 <https://www.nature.com/npjqi/>
 **Article type:** Article (Original Research)
-**Date prepared:** 2026-05-25
+**Date prepared:** 2026-06-01
 **Manuscript word count:** ~9,220 words (no hard limit; npj
 QI "strongly recommends" concise writing)
 
+## Upload format — read first
+
+The Editorial Manager manuscript-upload screen requires an
+**editable** format, not a PDF: either a Word document with
+inline figures, or **LaTeX with figures, compressed as a
+`.zip`** which the portal compiles into a review PDF.
+
+We supply the LaTeX `.zip`. **Upload `manuscript-latex.zip`
+as the primary manuscript file.** It contains a standalone
+`manuscript.tex`, `references.bib`, and the seven figures
+under `figures/`. The `.tex` has been compile-tested locally
+with xelatex (30 pp, zero missing-character warnings); the
+result is `manuscript-latex-preview.pdf` in this folder, for
+a quick visual check before upload.
+
 ## Files in this bundle
 
-| File | Purpose | Required at submission? |
+| File | Purpose | Use at submission |
 |---|---|---|
-| `manuscript.pdf` | Main manuscript, embedded figures (Nature accepts inline placement at initial submission) | yes |
+| `manuscript-latex.zip` | **Primary upload** — standalone `.tex` + `references.bib` + `figures/`. Portal compiles it. | **yes — this is the manuscript** |
+| `manuscript-latex-preview.pdf` | Local xelatex compile of the zip, for visual verification | reference only |
+| `manuscript.pdf` | WeasyPrint render with the same content + figures | reference / reviewer convenience |
 | `manuscript.md` | Canonical authoring source | optional |
-| `manuscript.tex` | Pandoc-generated LaTeX (acceptance stage will require the Nature Portfolio LaTeX template; this file gives a starting point) | optional pre-acceptance |
-| `cover-letter.md` | Cover letter source | optional |
-| `suggested-reviewers.md` | Five-name reviewer list per Nature Portfolio policy | **yes — Nature mandatory** |
-| `references.bib` | BibTeX bibliography (47 entries) | optional pre-acceptance |
-| `figures/` | Seven figures, PDF + PNG per figure | yes (Nature accepts embedded at initial submission) |
+| `cover-letter.md` / `.pdf` | Cover letter | yes |
+| `suggested-reviewers.md` | Five-name reviewer list per Nature policy | **yes — Nature mandatory** |
+| `references.bib` | BibTeX bibliography (47 entries) | inside the zip |
+| `figures/` | Seven figures, PDF + PNG | inside the zip |
 | `MANIFEST.txt` | SHA-256 over every file | optional |
+
+To rebuild the zip after any manuscript edit:
+`cd docs/paper && ./make-latex-zip.sh build/npj-quantum-information`
 
 ## Pre-submission operator checks
 
