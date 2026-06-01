@@ -1,6 +1,6 @@
 # Submission bundle — npj Quantum Information (Nature Portfolio)
-# Generated: 2026-06-01T15:26:14Z
-# Source commit: ffe9de0
+# Generated: 2026-06-01T15:35:09Z
+# Source commit: 060c0af
 
 029eb6a1f8ebbdd44642ebac8a69c526d106d070e95d452d7056ba4f4b0f29e9  ./cover-letter.md
 de9a05f8b1b0e1549cc53981de9bee66bd135527d8e2e76e3158b3ea83ab9df4  ./cover-letter.pdf

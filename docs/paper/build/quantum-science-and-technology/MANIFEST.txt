@@ -1,6 +1,6 @@
 # Submission bundle — Quantum Science and Technology (IOP)
-# Generated: 2026-06-01T15:26:12Z
-# Source commit: ffe9de0
+# Generated: 2026-06-01T15:35:09Z
+# Source commit: 060c0af
 
 ec3a1531c0b79e0ae6d31a37999e74d07eedb4f9f5689c2c07b91847b9c098fe  ./cover-letter.md
 710243df295b2d5717c075faaf731116d7b9774aa70441d3cab1147fd37ad4c4  ./cover-letter.pdf
