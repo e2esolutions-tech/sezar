@@ -5,7 +5,7 @@ author:
   - name: "Aleaddin Özer"
     affiliation: "E2E Solutions"
     role: "Chief Information Officer"
-    email: "info@e2esolutions.tech"
+    email: "aleaddinozer@hacettepe.edu.tr"
     orcid: "0000-0001-9389-5357"
   - name: "Murat Aydos"
     affiliation: "Hacettepe University"
@@ -714,36 +714,35 @@ signal we expose to compensate for this.
 
 # 7. Outlook
 
-The post-quantum transition is one of the largest cryptographic
-migrations in the history of the Internet [@nist-ir8547].
-The standards bodies
-have set the algorithms and the deadlines [@fips203; @fips204;
-@fips205; @nsa-cnsa2; @nist-ir8547]. The remaining work is
-operational: enumerating, classifying, prioritizing, and
-migrating cryptographic assets across networks that no single
-operator entirely designed, on schedules no single operator
-controls. Observability is the precondition for that work.
+The algorithms and the deadlines are now set [@fips203;
+@fips204; @fips205; @nsa-cnsa2; @nist-ir8547]. What remains
+is operator work — finding the assets, classifying them,
+ranking them, migrating them — across networks no single
+operator designed and on a schedule no single operator
+controls. None of this can begin until the observability is
+in place.
 
-Observability tooling has been undershooting the problem by
-an axis or two. "PQ-ready" treats algorithmic resistance as
-the only observable; the channel through which keys reach an
-endpoint and the cost of changing the algorithm matter just as
-much in practice, and current tooling surfaces neither.
+Today's observability undershoots. "PQ-ready" treats the
+algorithm as the only thing worth looking at; the channel
+through which keys arrive and the cost of replacing the
+algorithm matter just as much in practice, and current
+tooling sees neither.
 
-The three-axis model we propose is one design choice among
-several. The scoring constants are debatable. The agility
-rubric will need revision as new evidence types appear. The
-QKD axis presumes a deployment trend that policy communities
-disagree about. But a single-axis dashboard is still worse
-than any three-axis variant on offer.
+The three-axis model in this paper is one design choice
+among several. The scoring constants are debatable. The
+agility rubric will need refinement as new crypto APIs land
+in deployed software. The QKD axis presumes a deployment
+trend that not everyone agrees on. We think any of these
+choices is better than continuing to publish single-bit
+dashboards, but we are explicit that they are choices.
 
-We release the schema, the reference implementation, the ETSI
-014 KME emulator, the Semgrep agility ruleset, and the hand-
-graded OSS corpus under MIT
-(\url{https://github.com/e2esolutions-tech/sezar}).
-Practitioners reproduce all three studies on commodity
-hardware without proprietary tooling. We expect better
-choices than ours to emerge from that exposure.
+The schema, the reference implementation, the ETSI 014 KME
+emulator, the Semgrep agility ruleset, and the hand-graded
+OSS corpus are released under MIT at
+\url{https://github.com/e2esolutions-tech/sezar}. Each of
+the three studies can be replicated on commodity hardware
+without proprietary tooling. Better weights, better
+rubrics, and better measurements than ours should follow.
 
 ---
 
@@ -777,7 +776,7 @@ Solutions, where he leads enterprise cryptographic
 infrastructure and post-quantum migration programs across
 critical-sector clients. His operational work informs the
 Sezar reference implementation. Contact:
-<info@e2esolutions.tech>. ORCID:
+<aleaddinozer@hacettepe.edu.tr>. ORCID:
 [0000-0001-9389-5357](https://orcid.org/0000-0001-9389-5357).
 
 **Murat Aydos** is Associate Professor at Hacettepe

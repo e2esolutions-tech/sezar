@@ -1,9 +1,9 @@
 # Submission bundle — npj Quantum Information (Nature Portfolio)
-# Generated: 2026-05-25T18:57:11Z
-# Source commit: 5354171
+# Generated: 2026-06-01T15:19:57Z
+# Source commit: 8c16eb3
 
-5deaba7aeb35161a871f62ba8f5d8383996dd39edc8427ebafb3b6ea4ab6d159  ./cover-letter.md
-d97b92c7d56839aeb5b543c061f4a2569b55cdb69add2cf15f1710653165fe45  ./cover-letter.pdf
+030bc886aae7f0d8fa5666072adcd761897deba3351d970446fd8909fa5557bc  ./cover-letter.md
+9ba4f723bf3d6be1b04d7b2472235b59f103141dac9e73dcfece303e18cd7524  ./cover-letter.pdf
 ce6ec4865f366e1e1dc25711ffaa3c6b5a243d198271faad14343e7d48ffda88  ./figures/q-trajectory.pdf
 8db48c26794a77ba7abcf76ec194849a20cfb29d807cf650ec622dc7790c681c  ./figures/q-trajectory.png
 42487a1e09172766a373c6dd88e980e48fd4599275b37d8e243646eb7f442d59  ./figures/r3-hard-failure-timeline.pdf
@@ -18,9 +18,9 @@ a32058043769adaaa9fe8d16bdca076c67ce49c097048de3267a13f69fce42e8  ./figures/stud
 f7d89f4ed90cf9b2bb80c2ec329db8fb2369c77c6993cf9b3c07b61c6694147d  ./figures/study3-agreement-matrix.png
 1ced6c73377cb1fd561c489c7da88c30828cba4d48c24ba563724fa29916cc5f  ./figures/three-axis-cube.pdf
 f6d38cef815c4e7f48b5bec83ce23fb0404009f136d6abe6e552d27779020044  ./figures/three-axis-cube.png
-7d409024c78dd4135055b45c45ccfbe088809609b3d9dfa213d5fa477369e9fd  ./manuscript.md
-d562b4d63b868f3de084e5c1a15706845ebdeb65962863e0b5a07833d4363bb1  ./manuscript.pdf
-b55065a8e34d6ef148c75f07769fa90b824d6ff3cf2e742596bf290d91c76143  ./manuscript.tex
+0a34d268b0830033bbd53ab3d407c4e954732c5cbe60e4f7b3b4ef61123b8f1c  ./manuscript.md
+e5acee7b07f96c88b244f315eb3913447d3d93b27a22bffda24986b288330e14  ./manuscript.pdf
+4b596c58fefe1616f2f3bb5b59b960b3511290a6fdb772e1b7043b637e92a2bc  ./manuscript.tex
 88db5ada35b15bf751e37a9a6503095806cde454642738c6395e91250284b845  ./references.bib
 8702b2621eca1a143bce2ce6c0bc0a31dd3bdee93b42e7c30263d8c9e5f79dad  ./submission-checklist.md
-4a2b4c1ad457bdbc88d3130e8630fc88a6902df8522c6520d8023ad77ec5f485  ./suggested-reviewers.md
+58070a16901ef30458693d7ccfe48c2126ecc66150aa2901bc0d7e07e2a850ce  ./suggested-reviewers.md

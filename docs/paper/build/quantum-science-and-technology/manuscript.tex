@@ -90,50 +90,41 @@ a Linux host with a public Internet connection.
 
 \subsection{1.1 Contributions}\label{contributions}
 
-This paper makes the following contributions:
+The model side. We formalise the three axes --- algorithmic resistance,
+channel protection, migration agility --- on defined scales and define
+the deadline-adjusted scoring function \(q(\mathit{asset}, t)\). The
+agility weight shrinks as the deadline approaches; the orthogonal
+\texttt{BLOCKED} flag catches what \(q\) alone does not. Details in §5.
 
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\item
-  \textbf{A three-axis quantum-risk posture model.} Algorithmic
-  resistance, channel protection, and migration agility are three
-  independent observables that together determine an asset's actual
-  exposure to the post-quantum transition. We formalize each axis on a
-  defined scale and define the unified deadline-adjusted risk function
-  (§5).
-\item
-  \textbf{An extended open event schema.} We extend the Sezar
-  \texttt{crypto\_inventory\_event\ v1} schema with channel-protection
-  and agility fields, and we add new asset kinds for QKD link and KME
-  observations. The extensions are additive and non-breaking (§6).
-\item
-  \textbf{An open observability platform.} We release Sezar --- five
-  agents (network, certificate, blockchain, key-management, QKD), a
-  posture rollup library, and a collector/dashboard. The implementation
-  choices that allow a single Rust workspace to host wire-level eBPF
-  observation, REST-based QKD telemetry collection, and static
-  crypto-agility analysis under one event shape are detailed in §7.
-\item
-  \textbf{An ETSI GS QKD 014 emulator and replay corpus.} We provide an
-  open implementation of the ETSI GS QKD 014 v1.1.1 Key Delivery API
-  with synthetic key generation, configurable QBER, link state-change
-  replay scenarios, and a documented capture format. Practitioners
-  without QKD hardware can drive and test QKD-aware software against it
-  (§7.2, §8.2).
-\item
-  \textbf{A reproducible crypto-agility scoring rubric.} We define a
-  five-level ordinal scale (Negotiated / Configurable / Pinned / Locked
-  / Frozen), publish a Semgrep rule pack that derives a defensible score
-  from source code or installed-package inspection, and release a
-  hand-graded ground-truth corpus of fifty open-source server projects
-  (§7.3, §8.3).
-\item
-  \textbf{Empirical baseline across the three axes.} We report A, C, G
-  scores for the Tranco-top-1k over TLS, for a controlled multi-KME ETSI
-  014 testbed exercising representative failure modes, and for an
-  eleven-project pilot drawn from the fifty-project agility corpus (§8).
-  Scaling the pilot to the full corpus is the remaining mechanical step.
-\end{enumerate}
+The schema side. \texttt{crypto\_inventory\_event\ v1.1} adds two
+top-level fields (\texttt{channel\_protection}, \texttt{agility}) and
+two new asset kinds (\texttt{qkd\_link}, \texttt{qkd\_kme}). The
+extensions are strictly additive; v1.0 consumers ignore them safely. §6.
+
+The implementation side. Sezar ships as five cooperating agents
+(network, certificate, blockchain, key-management, QKD), a shared rollup
+library, and a collector / dashboard. A single Rust workspace hosts
+wire-level eBPF observation, REST-based QKD telemetry collection, and
+static crypto-agility analysis under one event shape. §7 walks through
+the implementation choices that made the unified shape possible.
+
+A working QKD test rig. \texttt{sezar-qkd-kme-emulator} is an open ETSI
+GS QKD 014 v1.1.1 Key Delivery implementation backed by a synthetic key
+generator, configurable QBER, link state-change replay scenarios, and a
+documented capture format. Practitioners without QKD hardware can drive
+and test QKD-aware software against it. §7.2, §8.2.
+
+An auditable agility rubric. The five-level ordinal scale (Negotiated /
+Configurable / Pinned / Locked / Frozen) is derived from RFC 7696 and
+operationalised through a Semgrep rule pack that runs against source
+code or installed packages. The hand-graded ground-truth corpus of fifty
+open-source server projects ships alongside the ruleset. §7.3, §8.3.
+
+An empirical baseline. We report A, C, G scores for the Tranco-top-1k
+over TLS, for a controlled multi-KME ETSI 014 testbed exercising
+representative failure modes, and for the 11-project pilot drawn from
+the 50-project agility corpus. Scaling the pilot to the full corpus is
+the remaining mechanical step. §8.
 
 \subsection{1.2 Non-goals}\label{non-goals}
 
@@ -1563,33 +1554,31 @@ Several extensions are natural and intentionally deferred:
 
 \section{10. Conclusion}\label{conclusion}
 
-Operators preparing for the post-quantum transition cannot plan from a
-single bit per asset. The ``is my asset PQ-ready?'' framing collapses
-two assets with very different remediation costs into one bucket and
-ignores the channel through which their key material travels. We have
-set out a three-axis posture model, an open event schema, an
-implementation, and three empirical studies that anchor the baseline.
-The combined score \(q\) exists to surface what the single-bit view
-hides; the \texttt{BLOCKED} flag exists to catch what \(q\) alone does
-not.
+Single-bit PQ-readiness was the right answer to a question that turned
+out to be too narrow. An asset's quantum-risk posture depends on its
+primitive, on the channel through which its keys are delivered, and on
+how quickly the primitive can be replaced before the deadline lands. The
+three-axis model in this paper grades each of those separately and
+combines them only at the rollup stage, which is where the operator
+actually needs a number.
 
-We do not claim the scoring constants are optimal, that the agility
-rubric covers every deployment pattern, or that our threat model
-survives every adversary. We do claim that surfacing all three axes
-beats single-axis dashboards, and that the released artifacts let the
-community critique, refine, and supersede our specific choices on shared
-empirical footing.
+The scoring constants are debatable. The agility rubric will need
+refinement as new crypto APIs land in deployed software. The QKD axis
+presumes a deployment trend that not everyone agrees on. None of that
+changes the underlying claim, which is that one bit per asset is fewer
+bits than operators need. The schema, the implementation, the emulator,
+the rule pack, and the hand-graded corpus are all open. We hope readers
+will run the studies again, disagree with our weights, and replace them.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \section{Author Contributions}\label{author-contributions}
 
-\textbf{Aleaddin Özer:} Conceptualization, methodology, software,
-investigation, data curation, writing --- original draft, writing ---
-review and editing, project administration. \textbf{Murat Aydos:}
-Conceptualization, methodology, validation, formal analysis, writing ---
-review and editing, supervision. Both authors read and approved the
-final manuscript.
+Aleaddin Özer designed and built the Sezar reference implementation, ran
+the three empirical studies, and wrote the first draft. Murat Aydos
+contributed the threat-model framing and the crypto-agility rubric,
+validated the posture-model derivation, and reviewed the draft for
+revision. Both authors approved the final manuscript.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -1614,21 +1603,21 @@ execution, or reporting of the research presented here.
 
 \section{Data and Code Availability}\label{data-and-code-availability}
 
-All artifacts described in this paper are released under the MIT License
-at \url{https://github.com/e2esolutions-tech/sezar}. The repository
-contains the \texttt{crypto\_inventory\_event\ v1.1} schema, the Sezar
-reference implementation (network, certificate, blockchain,
-key-management, QKD agents plus collector and dashboard), the ETSI GS
-QKD 014 emulator and its replay corpus, the Semgrep crypto-agility
-ruleset, the hand-graded ground-truth corpus of fifty open-source server
-projects (\texttt{crates/sezar-agility/corpus/oss-50-v1.csv}), and the
-runner scripts that reproduce Studies 1--3. Tranco snapshot
-\texttt{6G8PX} (2026-05-13) was used for the Study 1 sample frame. Raw
-NDJSON captures and analysis plots for Studies 1 and 2 are committed
-under \texttt{studies/study1/} and \texttt{studies/study2/}; Study 3's
-per-project evidence listings and the agreement TSV are under
-\texttt{studies/study3/results/}. No human subjects, personally
-identifying information, or proprietary data are involved.
+Everything is at \url{https://github.com/e2esolutions-tech/sezar} under
+MIT. The repository carries the schema (v1.1), the five-agent reference
+implementation, the ETSI GS QKD 014 emulator with its replay corpus, the
+Semgrep agility rule pack, and the hand-graded ground-truth corpus
+(\texttt{crates/sezar-agility/corpus/oss-50-v1.csv}). Runner scripts
+reproduce all three studies.
+
+Study 1 used Tranco snapshot \texttt{6G8PX} (2026-05-13) as its sample
+frame. Raw NDJSON captures and the analysis plots for Studies 1 and 2
+live under \texttt{studies/study1/} and \texttt{studies/study2/}. Study
+3's per-project evidence listings and the agreement TSV are at
+\texttt{studies/study3/results/}.
+
+No human subjects, personally identifying information, or proprietary
+data are involved.
 
 \protect\phantomsection\label{refs}
 \begin{CSLReferences}{0}{0}

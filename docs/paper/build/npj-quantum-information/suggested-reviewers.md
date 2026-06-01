@@ -43,10 +43,11 @@ recent-grant relationships with any of the five names below.
   PLANTS Working Group co-chair.
 - **Why this paper.** First author on the cited IETF
   Internet-Draft `hybrid-tls-psk` underlying our §5.2
-  Axis C definition of `qkd_hybrid_psk` channels.
-  Best-placed to evaluate the schema's representation of
-  the hybrid PQ + QKD-PSK pattern and the QKD-PSK §8.2
-  emulator study.
+  Axis C definition of `qkd_hybrid_psk` channels. Well
+  positioned to judge how faithfully the schema captures
+  the hybrid PQ + QKD-PSK pattern and to read the
+  §8.2 emulator results against the protocol-design
+  intent.
 
 ## 3. Zakir Durumeric
 
@@ -60,9 +61,10 @@ recent-grant relationships with any of the five names below.
   deployment measurement.
 - **Why this paper.** First author on the cited reference
   for the Internet-wide HTTPS scan methodology that our
-  Tranco-top-1k probe is patterned on. Best-placed to
-  audit the sampling, ethics, and non-response handling
-  of Study 1.
+  Tranco-top-1k probe is patterned on. If the sampling,
+  the ethics framing, or the non-response handling of
+  Study 1 deserves scrutiny, this is the reader who
+  will catch it.
 
 ## 4. Christoph Pacher
 
@@ -75,11 +77,11 @@ recent-grant relationships with any of the five names below.
   continuous-variable QKD engineering; ETSI QKD
   standardisation contributor.
 - **Why this paper.** Cited as the lead engineering author
-  on the SECOQC Vienna QKD network. Best-placed to assess
-  the realism of our ETSI GS QKD 014 emulator (§7.2,
-  §8.2), the QBER / key-rate variables we expose on the
+  on the SECOQC Vienna QKD network. We would value a check
+  on whether the ETSI GS QKD 014 emulator (§7.2, §8.2),
+  the QBER / key-rate variables we expose on the
   per-link `channel_protection` block, and our induced
-  failure-mode catalogue against actual deployed-network
+  failure-mode catalogue ring true against deployed-network
   experience.
 
 ## 5. Russ Housley
@@ -91,12 +93,13 @@ recent-grant relationships with any of the five names below.
   prolific author of TLS, S/MIME, X.509, and CMS RFCs;
   active on post-quantum migration of PKIX and CMS.
 - **Why this paper.** Author of RFC 7696, *Guidelines for
-  Cryptographic Algorithm Agility*, cited as the
+  Cryptographic Algorithm Agility*, which we cite as the
   operational source for our Axis G (Migration Agility).
-  Best-placed to evaluate whether the five-level
-  ordinal rubric (Negotiated / Configurable / Pinned /
-  Locked / Frozen) maps faithfully to the agility
-  characteristics RFC 7696 enumerates.
+  The natural reviewer to read our five-level ordinal
+  rubric (Negotiated / Configurable / Pinned / Locked /
+  Frozen) against the agility properties RFC 7696
+  enumerates, and to flag anything we are mapping
+  incorrectly.
 
 ---
 
