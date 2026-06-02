@@ -1484,12 +1484,14 @@ the contribution; the numbers are an invitation.
 
 # Author Contributions
 
-Aleaddin Özer designed and built the Sezar reference
-implementation, ran the three empirical studies, and wrote
-the first draft. Murat Aydos contributed the threat-model
-framing and the crypto-agility rubric, validated the
-posture-model derivation, and reviewed the draft for
-revision. Both authors approved the final manuscript.
+Aleaddin Özer conceived the study, designed the three-axis
+posture model, implemented the Sezar reference platform,
+conducted all three empirical studies, and wrote the
+manuscript. Murat Aydos supervised the work as doctoral
+advisor, providing continuous critical review, methodological
+guidance, and feedback throughout the project, and revised
+the manuscript. Both authors reviewed and approved the final
+manuscript.
 
 ---
 

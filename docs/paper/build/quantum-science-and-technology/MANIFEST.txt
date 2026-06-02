@@ -1,6 +1,6 @@
 # Submission bundle — Quantum Science and Technology (IOP)
-# Generated: 2026-06-01T16:45:01Z
-# Source commit: 68df398
+# Generated: 2026-06-02T05:58:54Z
+# Source commit: b3a0c96
 
 ec3a1531c0b79e0ae6d31a37999e74d07eedb4f9f5689c2c07b91847b9c098fe  ./cover-letter.md
 710243df295b2d5717c075faaf731116d7b9774aa70441d3cab1147fd37ad4c4  ./cover-letter.pdf
@@ -18,9 +18,9 @@ a32058043769adaaa9fe8d16bdca076c67ce49c097048de3267a13f69fce42e8  ./figures/stud
 f7d89f4ed90cf9b2bb80c2ec329db8fb2369c77c6993cf9b3c07b61c6694147d  ./figures/study3-agreement-matrix.png
 1ced6c73377cb1fd561c489c7da88c30828cba4d48c24ba563724fa29916cc5f  ./figures/three-axis-cube.pdf
 f6d38cef815c4e7f48b5bec83ce23fb0404009f136d6abe6e552d27779020044  ./figures/three-axis-cube.png
-33d6e55945d144b1f907914066929bf329d4af3123d0a0d76048edd27b762838  ./manuscript-latex-preview.pdf
-a718033b311301c94ceca9e3931f4fcfe98cc5b313af62406106f1d487d6d456  ./manuscript-latex.zip
-d9c3f120ed41be9d6875f0790f20f18d756ae4573adc4a60e367fd90a9d2cbeb  ./manuscript.md
-1c5f2a1b7e2a06a701f5102720351d9345c6c96a608e382fd13b518f18305d3d  ./manuscript.pdf
+3c3f1f50d938a9c48770b9972fec0eec336f41750c35604415b3bdf962d15d17  ./manuscript-latex-preview.pdf
+fe305a721e2a8b2a6d0a915bbca2aac462a47db4df2e2e198062e4a83b10e26e  ./manuscript-latex.zip
+9d37bfc9dfe9a326269024dcacc3cffc42387c8ed60066a2b276bba3580f7cc6  ./manuscript.md
+6f205a514a7aa8ef0cbd83d73ae88b2f6cea9694a1f9d157671d86ec47b03852  ./manuscript.pdf
 95639f53ee638f49a0a861dc4f9bee85f175edcb6b6084b79ae24ef5ca467f5c  ./references.bib
 bb59b67dbfbab458eb558fa2f6a941e19cfebd694f27d2b5ecd8bb90bf4c1f0b  ./submission-checklist.md
