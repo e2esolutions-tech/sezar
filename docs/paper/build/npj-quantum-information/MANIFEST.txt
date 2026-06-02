@@ -1,9 +1,9 @@
 # Submission bundle — npj Quantum Information (Nature Portfolio)
-# Generated: 2026-06-01T16:45:01Z
-# Source commit: 68df398
+# Generated: 2026-06-02T05:27:23Z
+# Source commit: a037f24
 
-029eb6a1f8ebbdd44642ebac8a69c526d106d070e95d452d7056ba4f4b0f29e9  ./cover-letter.md
-de9a05f8b1b0e1549cc53981de9bee66bd135527d8e2e76e3158b3ea83ab9df4  ./cover-letter.pdf
+689c3f0bac0c851771236a840a0d6420baba755ac3b63be05c526cfe1697b5ad  ./cover-letter.md
+56407d62fe3a466a680a9a9dcc6da00967aa3bc6bda953679856909b7d2a0ab2  ./cover-letter.pdf
 ce6ec4865f366e1e1dc25711ffaa3c6b5a243d198271faad14343e7d48ffda88  ./figures/q-trajectory.pdf
 8db48c26794a77ba7abcf76ec194849a20cfb29d807cf650ec622dc7790c681c  ./figures/q-trajectory.png
 42487a1e09172766a373c6dd88e980e48fd4599275b37d8e243646eb7f442d59  ./figures/r3-hard-failure-timeline.pdf

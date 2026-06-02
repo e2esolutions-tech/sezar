@@ -3,83 +3,91 @@
 **To:** Editorial Office, *npj Quantum Information* (Nature Portfolio)
 **From:** Aleaddin Özer (Corresponding Author) · ORCID 0000-0001-9389-5357
 **E-mail:** ozer@e2esolutions.tech
-**Date:** 1 June 2026
+**Date:** 2 June 2026
 
 Dear Editors,
 
-We would like *npj Quantum Information* to consider our
-manuscript *"Three Axes of Quantum Risk: A Unified
-Observability Model for PQC, QKD, and Crypto-Agility"* as an
-Original Research Article.
+Please consider our manuscript, *"Three Axes of Quantum
+Risk: A Unified Observability Model for PQC, QKD, and
+Crypto-Agility,"* as an Original Research Article for
+*npj Quantum Information*.
 
-The motivation is operator-side. The post-quantum migration
-is being driven now by NIST FIPS 203/204/205 and by the
-NSA CNSA 2.0 schedule, but the cryptographic inventory tools
-operators rely on still classify assets along one dimension:
-PQ-resistant or not. We argue this is structurally
-insufficient. An asset's posture also depends on the channel
-through which its keys arrive (where QKD becomes a measured
-property, not a separate research topic), and on how
-quickly its primitive can be replaced before the deadline.
-The paper formalises these as Axis A, Axis C, and Axis G,
-combines them with the deadline horizon into a per-asset
-score $q(\mathit{asset}, t)$, and ships an open reference
-platform that observes all three.
+The work started from a practical frustration. NIST has
+finalised its post-quantum standards and the NSA has put
+calendar deadlines on the migration, so operators are now
+being asked to inventory their cryptography and act on it.
+The tools they have for that job report a single bit per
+asset: PQ-resistant, or not. In practice that bit hides
+most of what an operator needs to decide where to spend a
+migration budget. Two TLS terminators can both read
+"classical," yet one is a configuration change away from a
+hybrid key exchange while the other is locked to a FIPS
+firmware build that will not move for eighteen months.
+And the single-bit view has nothing at all to say about
+quantum key distribution, which protects the channel rather
+than the primitive and is being deployed on exactly the
+high-assurance links where the migration matters most.
 
-What we think is interesting for *npj QI* readers
+We make the case that quantum-risk posture is a three-axis
+measurement, not a one-axis label. The axes are algorithmic
+resistance, the protection on the channel that carries the
+key material, and how quickly the primitive can actually be
+replaced. We combine them with the operator's own deadline
+into a single score and — this is the part we care about —
+we build the instrumentation that observes all three on
+real systems, and we run it.
 
-Quantum information research has shaped the underlying
-primitives — both lattice KEMs and QKD links. The gap our
-work fills is between the science and the deployment
-posture: how do you measure what fraction of a real
-infrastructure benefits from each, and how do you compare
-two assets when one has a PQ KEM but no QKD link and the
-other is classical but QKD-protected? Axis C is the part
-most likely to interest QST/QI readers: a per-session
-attribution of QKD-derived key material, validated on a
-working ETSI GS QKD 014 emulator we release alongside
-the paper, with 13 induced failure modes correctly
-classified.
+We think the channel axis is where the manuscript speaks
+most directly to this journal. QKD is usually studied as a
+physical-layer or protocol question; here it appears as a
+measured property of a deployed link, attributed per
+session, and validated on an open ETSI GS QKD 014 emulator
+that reproduces the link and key-management failure modes a
+real deployment would see. We drove thirteen such failures
+and the channel-state classification was correct on every
+one, including the case where one key-management endpoint
+fails while its healthy pair keeps delivering keys — a
+situation link-level telemetry alone cannot resolve. For a
+readership that has built the QKD systems being deployed, we
+hope the question "how would an operator actually observe
+this in production?" is a useful one to put on the table.
 
-The empirical results are modest but reproducible. We
-measured 43.8% hybrid PQ-KEM adoption (317 of 724
-responsive hosts) on a Tranco-top-1k probe. We measured
-91% agreement with hand-graded ground truth on an
-eleven-project crypto-agility pilot drawn from a fifty-
-project corpus. Every artifact — schema, implementation,
-emulator, replay corpus, Semgrep ruleset, hand-graded
-TSV, Tranco snapshot identifier — is open at
-<https://github.com/e2esolutions-tech/sezar> under MIT.
+The empirical results are deliberately modest and fully
+reproducible. On the Tranco top-1000 we measured 43.8% of
+responsive hosts negotiating a hybrid PQ key exchange when
+offered one. On an eleven-project crypto-agility pilot we
+reached 91% agreement with hand-graded ground truth. None
+of the studies needs QKD hardware or a commercial scanner;
+they run on one Linux host. Everything — the schema, the
+implementation, the emulator and its replay corpus, the
+agility rule pack, the hand-graded data, and the Tranco
+snapshot identifier — is released under the MIT License at
+<https://github.com/e2esolutions-tech/sezar>.
 
-A note on APC
+On open-access fees: both authors are self-funding this
+work, with no grant or industrial sponsor behind it. We
+would be grateful for any waiver or discount the journal
+can extend, and we are submitting in the hope of publishing
+with *npj Quantum Information* either way.
 
-Both authors are self-funding this work; we have no
-external grant or industrial sponsor covering open-access
-fees. If the journal can offer a discount on the Original
-Research APC we would gratefully take it, but our intent
-is to publish in *npj QI* regardless of the outcome of
-that request.
+The usual declarations: the manuscript is original and not
+under consideration elsewhere; both authors approved it and
+their CRediT contributions are stated in the back matter;
+we declare no competing interests; the work was self-funded;
+and the data and code availability statement points to the
+open repository above. We suggest five reviewers in the
+accompanying file, three of them first authors on work we
+cite, none with any co-author or advisory tie to us. On
+acceptance we would publish under CC-BY 4.0.
 
-## Submission disclosures
+Thank you for your time and for considering the manuscript.
 
-- **Originality.** The manuscript is not under
-  consideration anywhere else and has not been published.
-- **Authorship.** Both authors approved the submission.
-  CRediT contributions are stated in §10 of the
-  manuscript.
-- **Competing interests.** None declared. E2E Solutions
-  releases Sezar under MIT but earns no direct revenue
-  from this publication.
-- **Funding.** Self-funded by E2E Solutions and
-  Hacettepe University.
-- **Data and code.** See the Data and Code Availability
-  block in §10 of the manuscript; everything is on
-  GitHub under MIT.
-- **Suggested reviewers.** Five names in
-  `suggested-reviewers.md`, three of them first
-  authors on cited references. No co-author or
-  advisor relationship with the submitting authors.
-- **Licence.** CC-BY 4.0 on acceptance.
+Yours sincerely,
 
-Aleaddin Özer · Hacettepe University · E2E Solutions
-Murat Aydos · Associate Professor, Hacettepe University · ORCID 0000-0002-7570-9204
+Aleaddin Özer
+E2E Solutions · Hacettepe University
+ORCID 0000-0001-9389-5357
+
+Murat Aydos
+Associate Professor, Hacettepe University
+ORCID 0000-0002-7570-9204
