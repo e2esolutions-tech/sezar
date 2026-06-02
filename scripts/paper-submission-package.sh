@@ -200,7 +200,7 @@ Generated $DATE by scripts/paper-submission-package.sh.
 - [ ] Conflict-of-interest declaration prepared if venue requires
 - [ ] Funding-disclosure statement matches grants list
 - [ ] Page count fits venue limit ($venue: 8 pages IEEE 2-col for magazine; ~21 pages full for IMC/NDSS extended)
-- [ ] No-AI-attribution rule honoured (per repo NOTES.md): the manuscript text contains no AI-assistant mentions, no Co-Authored-By footers, no machine-generated boilerplate
+- [ ] No-AI-attribution rule honoured: the manuscript text contains no AI-assistant or style mentions, no co-author trailers, no machine-generated boilerplate
 
 ## Suggested venues this variant fits
 
