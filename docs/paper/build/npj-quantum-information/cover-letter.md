@@ -1,8 +1,8 @@
 # Cover Letter
 
-**To:** Editorial Office, *npj Quantum Information* (Nature Portfolio)
-**From:** Aleaddin Özer (Corresponding Author) · ORCID 0000-0001-9389-5357
-**E-mail:** ozer@e2esolutions.tech
+**To:** Editorial Office, *npj Quantum Information* (Nature Portfolio)\
+**From:** Aleaddin Özer (Corresponding Author) · ORCID 0000-0001-9389-5357\
+**E-mail:** ozer@e2esolutions.tech\
 **Date:** 2 June 2026
 
 Dear Editors,
@@ -84,10 +84,10 @@ Thank you for your time and for considering the manuscript.
 
 Yours sincerely,
 
-Aleaddin Özer
-E2E Solutions · Hacettepe University
+Aleaddin Özer\
+E2E Solutions · Hacettepe University\
 ORCID 0000-0001-9389-5357
 
-Murat Aydos
-Associate Professor, Hacettepe University
+Murat Aydos\
+Associate Professor, Hacettepe University\
 ORCID 0000-0002-7570-9204
