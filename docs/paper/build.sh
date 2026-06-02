@@ -81,13 +81,13 @@ path = sys.argv[1]
 src = open(path).read()
 if "extended" in path:
     new_author = """author:
-  - "Aleaddin Özer✱ (CIO, E2E Solutions, ORCID 0000-0001-9389-5357)"
+  - "Aleaddin Özer✱ (Chief System Engineer, E2E Solutions, ORCID 0000-0001-9389-5357)"
   - "Murat Aydos (Assoc. Prof., Hacettepe University, ORCID 0000-0002-7570-9204)"
   - "✱ Corresponding author: ozer@e2esolutions.tech"
 """
 else:
     new_author = """author:
-  - "Aleaddin Özer✱ (CIO, E2E Solutions)"
+  - "Aleaddin Özer✱ (Chief System Engineer, E2E Solutions)"
   - "Murat Aydos (Assoc. Prof., Hacettepe University)"
   - "✱ Corresponding author: ozer@e2esolutions.tech"
 """

@@ -3,7 +3,7 @@ title: "Three Axes of Quantum Risk: A Unified Observability Model for PQC, QKD, 
 author:
   - name: "Aleaddin Özer"
     affiliation: "E2E Solutions"
-    role: "Chief Information Officer"
+    role: "Chief System Engineer"
     email: "ozer@e2esolutions.tech"
     orcid: "0000-0001-9389-5357"
   - name: "Murat Aydos"
@@ -1497,12 +1497,13 @@ manuscript.
 
 # Competing Interests
 
-The authors declare no competing financial or non-financial
-interests. E2E Solutions develops the Sezar reference
-implementation released under the MIT License but derives no
-direct commercial revenue from its publication. The authors
-have no financial stake in any of the cryptographic stacks,
-QKD vendors, or scanning tools discussed in this work.
+Aleaddin Özer is Chief System Engineer of E2E Solutions,
+which develops the Sezar reference implementation described
+in this work. Sezar is released under the MIT License, and
+E2E Solutions derives no direct revenue from its
+publication. Murat Aydos declares no competing interests.
+The authors have no other competing financial or
+non-financial interests.
 
 ---
 

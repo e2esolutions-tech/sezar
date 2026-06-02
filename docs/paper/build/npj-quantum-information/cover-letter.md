@@ -72,12 +72,16 @@ with *npj Quantum Information* either way.
 
 The usual declarations: the manuscript is original and not
 under consideration elsewhere; both authors approved it and
-their CRediT contributions are stated in the back matter;
-we declare no competing interests; the work was self-funded;
-and the data and code availability statement points to the
-open repository above. We suggest five reviewers in the
-accompanying file, three of them first authors on work we
-cite, none with any co-author or advisory tie to us. On
+their contributions are stated in the back matter; we
+disclose one competing interest — the corresponding author
+is Chief System Engineer of E2E Solutions, which develops
+the open-source Sezar implementation described here, though
+the company earns no direct revenue from publication; the
+work was self-funded; and the data and code availability
+statement points to the open repository above. We suggest
+five reviewers in the accompanying file, three of them
+first authors on work we cite, none with any co-author or
+advisory tie to us. On
 acceptance we would publish under CC-BY 4.0.
 
 Thank you for your time and for considering the manuscript.

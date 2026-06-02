@@ -4,7 +4,7 @@ subtitle: "Unified Observability for Post-Quantum Cryptography, Quantum Key Dist
 author:
   - name: "Aleaddin Özer"
     affiliation: "E2E Solutions"
-    role: "Chief Information Officer"
+    role: "Chief System Engineer"
     email: "ozer@e2esolutions.tech"
     orcid: "0000-0001-9389-5357"
   - name: "Murat Aydos"
@@ -771,7 +771,7 @@ rubrics, and better measurements than ours should follow.
 
 # Author Bios
 
-**Aleaddin Özer** is Chief Information Officer at E2E
+**Aleaddin Özer** is Chief System Engineer at E2E
 Solutions, where he leads enterprise cryptographic
 infrastructure and post-quantum migration programs across
 critical-sector clients. His operational work informs the

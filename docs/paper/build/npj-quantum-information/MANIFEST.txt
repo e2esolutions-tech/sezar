@@ -1,9 +1,9 @@
 # Submission bundle — npj Quantum Information (Nature Portfolio)
-# Generated: 2026-06-02T05:58:50Z
-# Source commit: b3a0c96
+# Generated: 2026-06-02T06:29:38Z
+# Source commit: b76a9d8
 
-2bf668276cde393b0969740b05a6959cbb109fa2d424da8ed46130ecb9526f9b  ./cover-letter.md
-963fd8302403ecc0f3e81ab796824c3a56104aed2d08481a4967ef86bb80faed  ./cover-letter.pdf
+7f37e27d00525dcd0571936756728aec1c0a2963b2682c754f8b0f12d833dc46  ./cover-letter.md
+6c43b38e72523244100748eba411098270cfc0e8ac765e241c11ddbb80e8f6b6  ./cover-letter.pdf
 ce6ec4865f366e1e1dc25711ffaa3c6b5a243d198271faad14343e7d48ffda88  ./figures/q-trajectory.pdf
 8db48c26794a77ba7abcf76ec194849a20cfb29d807cf650ec622dc7790c681c  ./figures/q-trajectory.png
 42487a1e09172766a373c6dd88e980e48fd4599275b37d8e243646eb7f442d59  ./figures/r3-hard-failure-timeline.pdf
@@ -18,10 +18,10 @@ a32058043769adaaa9fe8d16bdca076c67ce49c097048de3267a13f69fce42e8  ./figures/stud
 f7d89f4ed90cf9b2bb80c2ec329db8fb2369c77c6993cf9b3c07b61c6694147d  ./figures/study3-agreement-matrix.png
 1ced6c73377cb1fd561c489c7da88c30828cba4d48c24ba563724fa29916cc5f  ./figures/three-axis-cube.pdf
 f6d38cef815c4e7f48b5bec83ce23fb0404009f136d6abe6e552d27779020044  ./figures/three-axis-cube.png
-1633194a534b7212777a56e8ee6dc49ee3edc5190991f5e87b8de0ba5003046a  ./manuscript-latex-preview.pdf
-405f92f5f23376d25e68f976369110f3ce5e22198d4b76e4a67a46518aa582b1  ./manuscript-latex.zip
-9d37bfc9dfe9a326269024dcacc3cffc42387c8ed60066a2b276bba3580f7cc6  ./manuscript.md
-6f205a514a7aa8ef0cbd83d73ae88b2f6cea9694a1f9d157671d86ec47b03852  ./manuscript.pdf
+ab83058e8ee4efa46fec81827c7ac31c1fc4f4103cace7753196c2704e1886bc  ./manuscript-latex-preview.pdf
+65a2ae6abff7ef4282300e1901db4565ff8b9f13c6d71b727933d281df106293  ./manuscript-latex.zip
+107a276e7e8a0ab7698833acd71327f96f98781c584280205ed585b89bfcda62  ./manuscript.md
+88f75f00ad84167135f2e818fa1c9ef352bc98578c5514353a67a2caa4faf406  ./manuscript.pdf
 95639f53ee638f49a0a861dc4f9bee85f175edcb6b6084b79ae24ef5ca467f5c  ./references.bib
 efebe082ab2795d58411d9a34fb0db33f14bd6b01b7ac65c7becf13a39d5c8a9  ./submission-checklist.md
 58070a16901ef30458693d7ccfe48c2126ecc66150aa2901bc0d7e07e2a850ce  ./suggested-reviewers.md
