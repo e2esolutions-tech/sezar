@@ -489,6 +489,8 @@ its observed primitive is identical to the agile case.
 
 We define three independent axes — *A*, *C*, *G* — and a unified
 deadline-adjusted quantum-risk score $q(\mathit{asset}, t)$.
+Figure 1 plots the space these axes span, with the four
+worked-example assets at their observed coordinates.
 
 ![**Figure 1.** The three-axis quantum-risk space. Each
 cryptographic asset occupies a point in $(A, C, G)$; colour
@@ -613,7 +615,9 @@ high agility but classical algorithms looks safe today (because
 $\gamma$ is large) and looks increasingly unsafe as the deadline
 approaches (because $\gamma$ shrinks toward zero). This is the
 intended behavior: agility is forgiving *now*, not *at the
-deadline*.
+deadline*. Figure 2 traces $q(t)$ for the four worked-example
+assets from today to the deadline, holding the observables
+fixed.
 
 ![**Figure 2.** Trajectory of $q(t)$ for the four worked-example
 assets from 2026 to the deadline at 2030-01-01, holding
@@ -784,7 +788,9 @@ The schema extension is strictly additive:
 Sezar is an open-source observability platform implementing the
 three-axis posture model. The implementation is a single Rust
 workspace containing seven crates: five agents emitting events,
-one shared rollup library, and one collector/server.
+one shared rollup library, and one collector/server. Figure 3
+shows how the agents, the shared rollup library, the collector,
+and the dashboard fit together.
 
 ![**Figure 3.** Sezar reference architecture. Five agents
 (`sezar-net`, `sezar-qkd`, `sezar-agility`, plus `sezar-cert`
@@ -1002,7 +1008,9 @@ The 27.6% non-response rate is in the range reported by
 prior large-scale TLS scans of the open web
 [@durumeric-tls]. All headline percentages in this section
 use the $n = 724$ responsive denominator unless stated
-otherwise.
+otherwise. Figure 4 shows the classical-probe baseline
+(negotiated ciphersuite and certificate signature algorithm),
+and Figure 5 shows the PQ-capable probe result.
 
 ![**Figure 4.** Study 1 — classical-probe baseline on the
 Tranco-top-1k (n_ok = 724): negotiated TLS 1.3 ciphersuite
