@@ -128,6 +128,14 @@ for bad, good in {
 }.items():
     src = src.replace(bad, good)
 
+# Figure captions: the markdown carries a literal "**Figure N.**"
+# prefix (so the WeasyPrint render is numbered), but LaTeX's
+# \caption already auto-numbers as "Figure N:". Strip the literal
+# prefix here so the LaTeX render is not double-numbered
+# ("Figure 1: Figure 1. ...").
+import re as _re
+src = _re.sub(r'\\caption\{\\textbf\{Figure \d+\.\}\s*', r'\\caption{', src)
+
 # Title-page layout: print the keyword list under the abstract and
 # force the body to start on a fresh page, so page 1 is title +
 # abstract + keywords only. Matches what a research-journal review

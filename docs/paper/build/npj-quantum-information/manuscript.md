@@ -43,9 +43,10 @@ abstract: |
   -Entity emulator, and a static crypto-agility scanner, and
   evaluate the result against three reproducible studies: a
   Tranco-top-1k TLS handshake survey, a controlled
-  emulator-based study of 13 induced QKD link failure modes,
-  and an 11-project pilot against a hand-graded
-  crypto-agility ground-truth corpus.
+  emulator-based study of 13 induced QKD link/KME state
+  transitions across five failure scenarios, and an
+  11-project pilot against a hand-graded crypto-agility
+  ground-truth corpus.
 
   The contributions are the model itself, the schema
   extension, the open emulator and replay corpus, a published
@@ -238,7 +239,7 @@ standardized to diversify mathematical assumptions
 Algorithm Suite 2.0* (CNSA 2.0) identifies ML-KEM-1024, ML-DSA-87,
 SLH-DSA-SHA2-256s, AES-256-GCM, and SHA-384 / SHA-512 as the
 required suite for national-security systems by milestones falling
-between 2025 and 2035 depending on equipment class [@nsa-cnsa2].
+between 2025 and 2033 depending on equipment class [@nsa-cnsa2].
 The German BSI, French ANSSI, and U.K. NCSC have published
 equivalent guidance with broadly similar timelines and a shared
 recommendation to deploy *hybrid* (classical + PQC) key exchange
@@ -509,7 +510,7 @@ standard NIST hardness assumptions.
 
 Following the existing Sezar V1 rollup (defined in
 `docs/posture-rollup.md` in the Sezar repository), we classify
-each primitive into one of five categories:
+each primitive into one of five categories (Table 1):
 
 | Category | $a$ value | Examples |
 |--------------|-----------|----------|
@@ -518,6 +519,8 @@ each primitive into one of five categories:
 | `classical` | 0.3 | X25519, Ed25519, RSA-2048, ECDSA-P256, AES-128-GCM |
 | `unknown` | 0.4 | Anything not in the classification table |
 | `deprecated` | 0.0 | SHA-1, MD5, RSA-1024, RC4, 3DES, DH-1024 |
+
+: Axis A — primitive categories and their $a$ values.
 
 For an asset with observed primitives $\{p_i\}$ at roles $\{r_i\}$
 with role weights $w_{r_i}$ summing to 1, the axis-A score is
@@ -543,13 +546,15 @@ Axis $C$ scores the channel through which key material reaches the
 endpoint, on the scale $[0, 1]$, where 0 corresponds to a channel
 with no quantum-secure key delivery and 1 corresponds to a channel
 deriving its session key entirely from QKD-delivered material.
-Three categorical states cover the realistic deployment options:
+Three categorical states cover the realistic deployment options (Table 2):
 
 | State | $c$ value | Description |
 |------------------|-----------|-------------|
 | `classical` | 0.0 | Session key derived solely from the negotiated KEM. |
 | `qkd_hybrid_psk` | 0.7 | Session key derived from QKD-PSK XOR negotiated KEM (NIST SP 1800-38A pattern, ETSI 014 SAE). |
 | `qkd_only` | 1.0 | Session key derived from QKD material alone (rare; MACsec-style transport). |
+
+: Axis C — channel-protection states and their $c$ values.
 
 Sub-states allow partial credit when telemetry indicates a QKD
 link is *degraded* — high QBER, sustained KME unavailability, low
@@ -570,7 +575,7 @@ Axis $G$ scores the asset's ability to migrate its primitives on
 the scale $[0, 1]$, where 0 corresponds to an asset whose
 primitives can be changed only by physical replacement and 1
 corresponds to an asset that negotiates primitives on every
-session. We define five ordinal levels:
+session. We define five ordinal levels (Table 3):
 
 | Level | $g$ value | Definition (observable signature) |
 |----------------|-----------|------------------------------------|
@@ -579,6 +584,8 @@ session. We define five ordinal levels:
 | `pinned` | 0.50 | Algorithm fixed in code; changeable by software upgrade. (Hard-coded algorithm name in application source.) |
 | `locked` | 0.20 | Algorithm fixed in firmware or by FIPS/compliance binding; changeable only by vendor update or revalidation cycle. (Embedded firmware crypto, FIPS 140-3 validated module under tested-configuration constraint.) |
 | `frozen` | 0.0 | Algorithm fixed in silicon, ROM, or otherwise unchangeable without hardware replacement. (TPM 1.2 with hard-coded RSA-2048; smart-card hard-wired ECDSA-P256.) |
+
+: Axis G — migration-agility levels and their observable signatures.
 
 The classification is derived from static analysis of the asset's
 implementation surface plus, where available, vendor declarations
@@ -646,10 +653,12 @@ non-QKD-protected channel scores $q = 1 - (0.5 \cdot 1 + 0.2 \cdot
 asset and 0.5 for a fully frozen asset, both before deadline
 tension. This is intentional: QKD is a *bonus* on PQ-protected
 sessions, not a requirement. Second, a fully classical asset on
-a QKD-protected channel scores approximately 0.35 even with no
-agility — QKD partially compensates for classical algorithms,
-reflecting the real-world deployment of QKD on high-assurance
-links.
+a QKD-protected channel ($A=0.3$, $C=0.7$, $g=0$) scores
+$q = 1 - (0.5 \cdot 0.3 + 0.2 \cdot 0.7 + 0.3 \cdot 0)
+\approx 0.71$, down from 0.85 on the same asset over a
+classical channel — QKD partially compensates for classical
+algorithms, reflecting the real-world deployment of QKD on
+high-assurance links.
 
 ---
 
@@ -697,6 +706,8 @@ value and treat unknown top-level fields as opaque.
 }
 ```
 
+Table 4 lists these fields.
+
 | Field | Type | Notes |
 |----------------------|--------|-------|
 | `state` | enum | `classical` / `qkd_hybrid_psk` / `qkd_only`. |
@@ -707,6 +718,8 @@ value and treat unknown top-level fields as opaque.
 | `link_key_rate_bps` | int | Average key generation rate over the prior minute. |
 | `link_health` | enum | `ok` / `degraded` / `failed`. |
 | `degraded_reason` | string | One-sentence reason when degraded; `null` otherwise. |
+
+: Fields of the `channel_protection` block.
 
 The fields are populated by `sezar-qkd`, which polls the ETSI 014
 `/status` endpoint at configurable intervals. SAE-side fields
@@ -736,6 +749,8 @@ instrumentation in the SAE; when absent they are `null`.
 }
 ```
 
+Table 5 lists these fields.
+
 | Field | Type | Notes |
 |-------------------|--------|-------|
 | `level` | enum | `negotiated` / `configurable` / `pinned` / `locked` / `frozen`. |
@@ -743,6 +758,8 @@ instrumentation in the SAE; when absent they are `null`.
 | `evidence` | array | One or more evidentiary findings supporting the level. |
 | `scanner_version` | string | Sezar-agility version that produced the score. |
 | `rubric_version` | string | Version of the public scoring rubric (§8.3). |
+
+: Fields of the `agility` block.
 
 Evidence types in V1: `protocol_negotiation` (observed wire-level
 algorithm negotiation), `config_pattern` (configuration file
@@ -875,12 +892,16 @@ The `sezar-agility` crate implements the agility-axis scoring per
 
 ### 7.3.1 Target types
 
+Table 6 maps each target type to the evidence the scanner draws on.
+
 | Target | Evidence sources |
 |-------------------|------------------|
 | Source repository | Semgrep ruleset over the language-specific config and source files; file-path heuristics for build-time pinning. |
 | Installed package | Package manifest (rpm, dpkg, pip, npm) + binary string-extraction over the installed artifacts. |
 | Running host | TLS handshake observation against the host (server algorithm support → `negotiated` evidence); plus optional auth into the host's config files. |
 | Vendor appliance | Vendor-declared algorithm scope + observed handshake behavior. |
+
+: Crypto-agility scanner target types and their evidence sources.
 
 ### 7.3.2 Ruleset
 
@@ -1027,7 +1048,7 @@ probe cannot observe.](studies/study1/plots/study1-tranco-pq-kex.pdf){#fig:study
 For sample-selection contrast we also report results from a
 30-host curated pilot — major CDN, browser-vendor, distro,
 IETF/IEEE/NIST/ETSI, and AI-vendor properties — that ran
-the same probe pair before the Tranco-1k scan.
+the same probe pair before the Tranco-1k scan. Table 7 reports both.
 
 | Observable | Tranco-1k (n=724) | Curated pilot (n=30) |
 |-------------------------------------|---------------------:|---------------------:|
@@ -1041,6 +1062,8 @@ the same probe pair before the Tranco-1k scan.
 | ML-DSA / SLH-DSA cert | 0/724 | 0/30 |
 | Deprecated primitive (SHA-1, RC4) | 0/724 | 0/30 |
 | **`X25519MLKEM768` negotiated** | **317/724 (43.8%)** | **17/30 (57%)** |
+
+: Study 1 — primitive distribution on the Tranco-top-1k versus the curated pilot.
 
 **The headline PQ-adoption result is 317/724 (43.8%) on the
 Tranco-top-1k.** This is close to the 39% of top-100k sites
@@ -1138,7 +1161,7 @@ and the analysis script are at `studies/study2/`.
 
 **Classification correctness: 13/13.** Every operator-induced
 state change produced a downstream `link_health` reading
-matching the expected post-op state.
+matching the expected post-op state. Table 8 gives the per-scenario counts.
 
 | Scenario | Events captured | Induced transitions | Matched |
 |-------------------|----------------:|--------------------:|--------:|
@@ -1147,6 +1170,8 @@ matching the expected post-op state.
 | R3 — hard-failure | 48 | 3 | 3/3 |
 | R4 — stale-PSK | 33 | 1 | 1/1 |
 | R5 — bifurcated | 48 | 3 | 3/3 |
+
+: Study 2 — events captured and induced link-health transitions per scenario.
 
 **Observation latency: p50 = 0.71s, range 0.70–0.71s** across
 all 13 transitions, against a configured 1-second poll
@@ -1226,7 +1251,7 @@ The full OSS-50 corpus is committed at
 ground truth. A pilot run over an 11-project subset spanning
 nine categories (HTTP, mail, DB, message-broker, DNS,
 VPN/secure-shell, messaging, certificate-authority, time)
-exercises the full pipeline:
+exercises the full pipeline (Table 9):
 
 | Project | Category | Hand-grade | Scanner | Match |
 |----------------|-----------------------|--------------|--------------|------|
@@ -1242,6 +1267,8 @@ exercises the full pipeline:
 | prosody | messaging | configurable | configurable | yes |
 | wireguard-tools| vpn_secure_shell | pinned | pinned | yes |
 | chrony | time | configurable | **pinned** | no |
+
+: Study 3 — per-project hand-grade versus scanner classification (n = 11 pilot).
 
 **Agreement: 10/11 (91%); Cohen's $\kappa = 0.62$**
 (substantial agreement on the Landis–Koch scale). The single
@@ -1475,7 +1502,7 @@ exactly why we made it additive — an operator with no QKD
 links pays no modelling cost for the axis existing. What we
 do claim is narrow and, we think, hard to argue with: one
 bit per asset is fewer bits than an operator facing a
-2030–2035 deadline actually needs, and surfacing all three
+deadline in the early 2030s actually needs, and surfacing all three
 axes is a strict improvement over surfacing one.
 
 The schema, the reference implementation, the ETSI 014
