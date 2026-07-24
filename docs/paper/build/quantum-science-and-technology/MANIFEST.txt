@@ -1,6 +1,6 @@
 # Submission bundle — Quantum Science and Technology (IOP)
-# Generated: 2026-07-24T14:06:13Z
-# Source commit: 1a4e0a2
+# Generated: 2026-07-24T14:06:55Z
+# Source commit: 0e3e093
 
 ec3a1531c0b79e0ae6d31a37999e74d07eedb4f9f5689c2c07b91847b9c098fe  ./cover-letter.md
 710243df295b2d5717c075faaf731116d7b9774aa70441d3cab1147fd37ad4c4  ./cover-letter.pdf
@@ -8,8 +8,8 @@ ce6ec4865f366e1e1dc25711ffaa3c6b5a243d198271faad14343e7d48ffda88  ./figures/q-tr
 8db48c26794a77ba7abcf76ec194849a20cfb29d807cf650ec622dc7790c681c  ./figures/q-trajectory.png
 42487a1e09172766a373c6dd88e980e48fd4599275b37d8e243646eb7f442d59  ./figures/r3-hard-failure-timeline.pdf
 4bd034e75831a97b5b77a82977c1bbfbed2a582b4c67653aa7a0d17dafa34eb3  ./figures/r3-hard-failure-timeline.png
-5f2ed93eaff407e9d635b539614660282bcce49428ef9a1dd1bcdd6a3c4eedd4  ./figures/sezar-architecture.pdf
-f5a01d7f1bc86a37d8c7ae4cf813178fff7c8d8803cd03cf9cbf0a6e63a4cdf2  ./figures/sezar-architecture.png
+b33b5909a1ac6767e933b1a55f59ad816596fd6d5cd27c1443a229f7b879c388  ./figures/sezar-architecture.pdf
+70c498cc14b3c38ca265012658b208f0e855db23d19c34b85291aca734f03696  ./figures/sezar-architecture.png
 36bc9a0ba6fb0982f8ac757c5323980aae2ad4830fb26a431c5114663805f346  ./figures/study1-tranco-distribution.pdf
 656bdcc1c3cdd1d215892c2c76093a475a315865b1df1eb21a0971858ae71681  ./figures/study1-tranco-distribution.png
 88ec565397698e142495fe4e4ce907010bb23a224c30ac095714d4039182ced7  ./figures/study1-tranco-pq-kex.pdf
