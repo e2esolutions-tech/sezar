@@ -88,21 +88,27 @@ def main():
         agent_positions.append((x + agent_w / 2, agent_y))
 
     # ---------- Event bus ----------
+    # A visible horizontal rail: every agent arrow terminates ON this line,
+    # and the line itself feeds the collector below. Drawn with ax.plot so
+    # it renders reliably (the earlier annotate-based line was invisible in
+    # some backends, leaving the agent arrows dangling in whitespace).
     bus_y = 7.0
-    bus_xs = [agent_positions[0][0], agent_positions[-1][0] + agent_w]
-    ax.annotate("", xy=(bus_xs[1] + 0.4, bus_y), xytext=(bus_xs[0] - 0.4, bus_y),
-                arrowprops=dict(arrowstyle="-", color="#3C4043", lw=2))
-    ax.text((bus_xs[0] + bus_xs[1]) / 2, bus_y + 0.22,
+    bus_xs = [agent_positions[0][0] - 0.4, agent_positions[-1][0] + 0.4]
+    ax.plot(bus_xs, [bus_y, bus_y], color="#3C4043", lw=2.5,
+            solid_capstyle="round", zorder=1)
+    # Label sits under the right half of the rail, clear of the vertical
+    # drop to the collector and of the agent arrows above the rail.
+    ax.text(12.3, bus_y - 0.30,
             "crypto_inventory_event v1.1   (JSON over HTTP)",
-            ha="center", va="bottom", fontsize=10, fontweight="bold",
+            ha="center", va="top", fontsize=10, fontweight="bold",
             color="#3C4043",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
                       edgecolor="#3C4043", linewidth=1))
 
-    # connect agents to bus (vertical arrows)
+    # connect agents to bus (vertical arrows, terminating on the rail)
     for ax_x, ay in agent_positions:
-        arrow(ax, (ax_x, ay), (ax_x, bus_y + 0.05),
-              color=AGENT_EDGE, lw=1.0)
+        arrow(ax, (ax_x, ay), (ax_x, bus_y + 0.02),
+              color=AGENT_EDGE, lw=1.2)
 
     # ---------- Shared library (left side) ----------
     core_x, core_y = 0.3, 5.0
@@ -131,10 +137,11 @@ def main():
         subtitle="axum collector  •  REST API  •  schema validator",
         face=SERVER_FACE, edge=SERVER_EDGE, lw=1.8, fontsize=11)
 
-    # bus → server
-    arrow(ax, ((bus_xs[0] + bus_xs[1]) / 2, bus_y - 0.05),
+    # bus → server: a single vertical drop from the rail into the collector,
+    # aligned with the server's centre so the flow reads top-to-bottom.
+    arrow(ax, (server_x + server_w / 2, bus_y - 0.02),
           (server_x + server_w / 2, server_y + server_h),
-          color="#3C4043", lw=1.5)
+          color="#3C4043", lw=1.8)
 
     # ---------- Storage ----------
     db_y = 2.0
