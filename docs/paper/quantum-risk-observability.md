@@ -739,7 +739,7 @@ dashboards, but we are explicit that they are choices.
 The schema, the reference implementation, the ETSI 014 KME
 emulator, the Semgrep agility ruleset, and the hand-graded
 OSS corpus are released under MIT at
-\url{https://github.com/e2esolutions-tech/sezar}. Each of
+\url{https://github.com/e2esolutions-tech/ree0xQ}. Each of
 the three studies can be replicated on commodity hardware
 without proprietary tooling. Better weights, better
 rubrics, and better measurements than ours should follow.

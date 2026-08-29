@@ -62,7 +62,7 @@ they run on one Linux host. Everything — the schema, the
 implementation, the emulator and its replay corpus, the
 agility rule pack, the hand-graded data, and the Tranco
 snapshot identifier — is released under the MIT License at
-<https://github.com/e2esolutions-tech/sezar>.
+<https://github.com/e2esolutions-tech/ree0xQ>.
 
 On open-access fees: both authors are self-funding this
 work, with no grant or industrial sponsor behind it. We

@@ -156,7 +156,7 @@ three reproducible empirical studies:
 All artefacts described — schema, reference implementation,
 ETSI 014 KME emulator, Semgrep agility ruleset, and the
 hand-graded OSS corpus — are released under MIT at
-<https://github.com/e2esolutions-tech/sezar> and run on a
+<https://github.com/e2esolutions-tech/ree0xQ> and run on a
 single Linux host with no QKD hardware and no commercial
 scanner.
 

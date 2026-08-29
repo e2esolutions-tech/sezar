@@ -23,7 +23,7 @@ risk score $q$. We also release the reference implementation
 end to end: eBPF-based TLS observation, a working ETSI
 GS QKD 014 collector with a KME emulator, and a static
 crypto-agility scanner. Every artifact is open at
-<https://github.com/e2esolutions-tech/sezar> under MIT.
+<https://github.com/e2esolutions-tech/ree0xQ> under MIT.
 
 Why QST specifically. The QKD axis treats channel-level
 quantum-secure key delivery as a measured property of an

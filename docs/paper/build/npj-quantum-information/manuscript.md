@@ -1553,7 +1553,7 @@ research presented here.
 
 # Data and Code Availability
 
-Everything is at <https://github.com/e2esolutions-tech/sezar>
+Everything is at <https://github.com/e2esolutions-tech/ree0xQ>
 under MIT. The repository carries the schema (v1.1), the
 five-agent reference implementation, the ETSI GS QKD 014
 emulator with its replay corpus, the Semgrep agility rule
