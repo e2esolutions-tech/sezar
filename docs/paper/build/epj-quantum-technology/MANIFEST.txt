@@ -1,0 +1,20 @@
+# Submission bundle — EPJ Quantum Technology (SpringerOpen)
+# Generated: 2026-08-29T11:25:15Z
+# Source commit: 519e4cf
+
+3b71b5f7c013bd1dc4d1e656e0194172a4e27a75c0edfb5aa4de8fae3e4b3b4a  ./cover-letter.md
+3f40286f7d28c5eaaf42fe69930ec7b8e9822802459780075df9a508303613ab  ./cover-letter.pdf
+ce6ec4865f366e1e1dc25711ffaa3c6b5a243d198271faad14343e7d48ffda88  ./figures/q-trajectory.pdf
+42487a1e09172766a373c6dd88e980e48fd4599275b37d8e243646eb7f442d59  ./figures/r3-hard-failure-timeline.pdf
+b33b5909a1ac6767e933b1a55f59ad816596fd6d5cd27c1443a229f7b879c388  ./figures/sezar-architecture.pdf
+36bc9a0ba6fb0982f8ac757c5323980aae2ad4830fb26a431c5114663805f346  ./figures/study1-tranco-distribution.pdf
+88ec565397698e142495fe4e4ce907010bb23a224c30ac095714d4039182ced7  ./figures/study1-tranco-pq-kex.pdf
+a32058043769adaaa9fe8d16bdca076c67ce49c097048de3267a13f69fce42e8  ./figures/study3-agreement-matrix.pdf
+1ced6c73377cb1fd561c489c7da88c30828cba4d48c24ba563724fa29916cc5f  ./figures/three-axis-cube.pdf
+9129fd47956670c02c9dd46cae50d67ba669d06b70238229f084a2c5cd943963  ./manuscript-latex-preview.pdf
+dda3ecbbb5ca3396c86fe9be67250e455044da0ce30a72dd6f72838d90b04082  ./manuscript-latex.zip
+a08ffc9faf8de6f71ff9092fe4cbc46012aca4e5319b5a4db6b366cd53ae662f  ./manuscript.md
+dd3114e4f53bf5b11be141a5784934abfa5093817f8fe25fe832344082f6e417  ./manuscript.pdf
+95639f53ee638f49a0a861dc4f9bee85f175edcb6b6084b79ae24ef5ca467f5c  ./references.bib
+411e36924d3b462148a33b18af2d11c633bebe126f9216b0b97343536de93e0b  ./submission-checklist.md
+58070a16901ef30458693d7ccfe48c2126ecc66150aa2901bc0d7e07e2a850ce  ./suggested-reviewers.md
