@@ -1,9 +1,9 @@
 # Submission bundle — EPJ Quantum Technology (SpringerOpen)
-# Generated: 2026-08-29T11:25:15Z
-# Source commit: 519e4cf
+# Generated: 2026-09-04T08:31:58Z
+# Source commit: ff02c96
 
-3b71b5f7c013bd1dc4d1e656e0194172a4e27a75c0edfb5aa4de8fae3e4b3b4a  ./cover-letter.md
-3f40286f7d28c5eaaf42fe69930ec7b8e9822802459780075df9a508303613ab  ./cover-letter.pdf
+bcf17554cb7f3116ffda0599166766f90824b41a2162b1038f9eee60e05922e5  ./cover-letter.md
+4154ba08256db2504892469e707169e115b798e08c2621c4439abe3273830a8e  ./cover-letter.pdf
 ce6ec4865f366e1e1dc25711ffaa3c6b5a243d198271faad14343e7d48ffda88  ./figures/q-trajectory.pdf
 42487a1e09172766a373c6dd88e980e48fd4599275b37d8e243646eb7f442d59  ./figures/r3-hard-failure-timeline.pdf
 b33b5909a1ac6767e933b1a55f59ad816596fd6d5cd27c1443a229f7b879c388  ./figures/sezar-architecture.pdf

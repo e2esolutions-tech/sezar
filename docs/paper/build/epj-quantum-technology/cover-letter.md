@@ -1,8 +1,8 @@
 # Cover Letter
 
-**To:** Editorial Office, *EPJ Quantum Technology* (SpringerOpen)
-**From:** Aleaddin Özer (Corresponding Author) · ORCID 0000-0001-9389-5357
-**E-mail:** ozer@e2esolutions.tech
+**To:** Editorial Office, *EPJ Quantum Technology* (SpringerOpen)\
+**From:** Aleaddin Özer (Corresponding Author) · ORCID 0000-0001-9389-5357\
+**E-mail:** ozer@e2esolutions.tech\
 **Date:** 29 August 2026
 
 Dear Editors,
@@ -56,5 +56,5 @@ Submission disclosures
 - The work was self-funded by E2E Solutions and Hacettepe
   University; no external grants.
 
-Aleaddin Özer · Hacettepe University · E2E Solutions
+Aleaddin Özer · Hacettepe University · E2E Solutions\
 Murat Aydos · Associate Professor, Hacettepe University · ORCID 0000-0002-7570-9204
