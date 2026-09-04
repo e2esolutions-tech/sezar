@@ -1,26 +1,20 @@
 # Submission bundle — Quantum Science and Technology (IOP)
-# Generated: 2026-07-24T14:06:55Z
-# Source commit: 0e3e093
+# Generated: 2026-09-04T09:43:00Z
+# Source commit: 304e1b5
 
-ec3a1531c0b79e0ae6d31a37999e74d07eedb4f9f5689c2c07b91847b9c098fe  ./cover-letter.md
-710243df295b2d5717c075faaf731116d7b9774aa70441d3cab1147fd37ad4c4  ./cover-letter.pdf
+116bd0bab03bc63e38ba4c2d891ada22cca08849ed76e55e51e7e5bcce657aad  ./cover-letter.md
+0ba13278058da3de533c8725f38e4db64ca27d811b69a6f4ed507e0aed5a15f9  ./cover-letter.pdf
 ce6ec4865f366e1e1dc25711ffaa3c6b5a243d198271faad14343e7d48ffda88  ./figures/q-trajectory.pdf
-8db48c26794a77ba7abcf76ec194849a20cfb29d807cf650ec622dc7790c681c  ./figures/q-trajectory.png
 42487a1e09172766a373c6dd88e980e48fd4599275b37d8e243646eb7f442d59  ./figures/r3-hard-failure-timeline.pdf
-4bd034e75831a97b5b77a82977c1bbfbed2a582b4c67653aa7a0d17dafa34eb3  ./figures/r3-hard-failure-timeline.png
-b33b5909a1ac6767e933b1a55f59ad816596fd6d5cd27c1443a229f7b879c388  ./figures/sezar-architecture.pdf
-70c498cc14b3c38ca265012658b208f0e855db23d19c34b85291aca734f03696  ./figures/sezar-architecture.png
+fb2d0ab2b98ff4c6f3d0dab2f8132a58be20324efb9c72adbff05e7eabcdd65c  ./figures/ree0xq-architecture.pdf
 36bc9a0ba6fb0982f8ac757c5323980aae2ad4830fb26a431c5114663805f346  ./figures/study1-tranco-distribution.pdf
-656bdcc1c3cdd1d215892c2c76093a475a315865b1df1eb21a0971858ae71681  ./figures/study1-tranco-distribution.png
 88ec565397698e142495fe4e4ce907010bb23a224c30ac095714d4039182ced7  ./figures/study1-tranco-pq-kex.pdf
-87d3e8c9473792b846f959b541b6f5eacf070fce10b2dad5cc0fb15efee1bcac  ./figures/study1-tranco-pq-kex.png
 a32058043769adaaa9fe8d16bdca076c67ce49c097048de3267a13f69fce42e8  ./figures/study3-agreement-matrix.pdf
-f7d89f4ed90cf9b2bb80c2ec329db8fb2369c77c6993cf9b3c07b61c6694147d  ./figures/study3-agreement-matrix.png
 1ced6c73377cb1fd561c489c7da88c30828cba4d48c24ba563724fa29916cc5f  ./figures/three-axis-cube.pdf
-f6d38cef815c4e7f48b5bec83ce23fb0404009f136d6abe6e552d27779020044  ./figures/three-axis-cube.png
-a9f95baaf7c142cdfe2aeeb34db8cfc2690313234fa0b7e7ec017d922fc2c4fc  ./manuscript-latex-preview.pdf
-09929c75e0e34d5f4cf3be6ccd10ebd9a0f9774023739abfc2cfaebcefcc95a9  ./manuscript-latex.zip
-20723445ad2094c25b161d7141974b7e653a1c7ec00e1f6e0fca06224963a51c  ./manuscript.md
-d6c9ff32acd57842cfe1c79fc332014af09d6eae6f58d693c3a8d0ea0e35e3db  ./manuscript.pdf
-95639f53ee638f49a0a861dc4f9bee85f175edcb6b6084b79ae24ef5ca467f5c  ./references.bib
-6637512f29716cba2a552f941aa52ae54a4ad5f59461bf8d94a5c4f087bef651  ./submission-checklist.md
+35b3ee00d3b4704f04511fed71771453cf39c8aabceb9227fb94eb43dcc65e15  ./manuscript-latex-preview.pdf
+4c91314e39e502fb6fd1f51831afef98f9a623069fcd6c014db959bef7980af8  ./manuscript-latex.zip
+70022c90112ec651bb45cf49fcaefd318e22b5ded816bb571fe06e338bba58dd  ./manuscript.md
+edb4b023feb69adc047498ec66cb3e2cce9ca7329d11cd9308c71f9c787c6514  ./manuscript.pdf
+8d6848190ad4e8d3d63fbb6cd9b3990e091ce32b9f1859455343343a4a8ac468  ./references.bib
+8221970637603ec06a0f0920b5940000d4e8d42d2d2322a57ccbd173e38a6a17  ./submission-checklist.md
+58070a16901ef30458693d7ccfe48c2126ecc66150aa2901bc0d7e07e2a850ce  ./suggested-reviewers.md

@@ -10,7 +10,7 @@ author:
     affiliation: "Hacettepe University"
     role: "Associate Professor"
     orcid: "0000-0002-7570-9204"
-date: 2026-05-18
+date: 2026-08-29
 keywords:
   - post-quantum cryptography
   - quantum key distribution
@@ -38,7 +38,7 @@ abstract: |
   operator's deadline approaches. To make the model
   observable, we extend the open `crypto_inventory_event` v1
   schema with two new fields, build a reference
-  implementation (Sezar) covering eBPF-based TLS observation,
+  implementation (ree0xQ, formerly *Sezar*) covering eBPF-based TLS observation,
   an ETSI GS QKD 014 collector with a working Key-Management
   -Entity emulator, and a static crypto-agility scanner, and
   evaluate the result against three reproducible studies: a
@@ -138,7 +138,7 @@ We argue for, and implement, a **three-axis posture model**:
 We collapse the three into a single deadline-adjusted quantum-risk
 score $q(\mathit{asset}, t)$ suitable for dashboard display, alert
 thresholds, and inter-organization comparison. We extend the open
-Sezar `crypto_inventory_event v1` schema with the additional axes,
+ree0xQ `crypto_inventory_event v1` schema with the additional axes,
 implement five agents that emit the same event shape, and
 evaluate the system through three empirical studies any
 practitioner can replicate on a Linux host with a public Internet
@@ -158,7 +158,7 @@ top-level fields (`channel_protection`, `agility`) and two
 new asset kinds (`qkd_link`, `qkd_kme`). The extensions are
 strictly additive; v1.0 consumers ignore them safely. §6.
 
-The implementation side. Sezar ships as five cooperating
+The implementation side. ree0xQ ships as five cooperating
 agents (network, certificate, blockchain, key-management,
 QKD), a shared rollup library, and a collector / dashboard.
 A single Rust workspace hosts wire-level eBPF observation,
@@ -167,7 +167,7 @@ crypto-agility analysis under one event shape. §7 walks
 through the implementation choices that made the unified
 shape possible.
 
-A working QKD test rig. `sezar-qkd-kme-emulator` is an open
+A working QKD test rig. `ree0xq-qkd-kme-emulator` is an open
 ETSI GS QKD 014 v1.1.1 Key Delivery implementation backed by
 a synthetic key generator, configurable QBER, link
 state-change replay scenarios, and a documented capture
@@ -206,7 +206,7 @@ beyond accepting the harvest-now/decrypt-later assumption.
 level required to make the paper self-contained. §3 surveys related
 observability work and identifies the gap. §4 states the threat
 model and operator assumptions. §5 defines the three-axis posture
-model. §6 specifies the event schema. §7 presents the Sezar
+model. §6 specifies the event schema. §7 presents the ree0xQ
 reference implementation. §8 reports the empirical evaluation. §9
 discusses limitations, ethics, and deployment guidance. §10
 concludes.
@@ -427,7 +427,7 @@ input feeding a cryptographic-posture dashboard.
 ## 3.4 Gap statement
 
 Each thread is mature in isolation. What is missing — and
-what Sezar fills — is a tool that treats algorithmic
+what ree0xQ fills — is a tool that treats algorithmic
 resistance, channel protection, and migration agility as
 three independent telemetry axes, rolls them into a single
 deadline-adjusted score from a shared event schema, and is
@@ -508,8 +508,8 @@ quantum-trivial (a deprecated or known-broken algorithm) and 1
 corresponds to a primitive that is quantum-resistant under the
 standard NIST hardness assumptions.
 
-Following the existing Sezar V1 rollup (defined in
-`docs/posture-rollup.md` in the Sezar repository), we classify
+Following the existing ree0xQ V1 rollup (defined in
+`docs/posture-rollup.md` in the ree0xQ repository), we classify
 each primitive into one of five categories (Table 1):
 
 | Category | $a$ value | Examples |
@@ -565,7 +565,7 @@ section (§7.2).
 
 A subtle but important observation: the SAE may *think* it is
 operating in QKD-hybrid mode while the underlying KME is failing
-gracefully to a classical fallback. Sezar's role is to observe
+gracefully to a classical fallback. ree0xQ's role is to observe
 both layers and surface the discrepancy. We define $c$ on observed
 ETSI 014 status, not on SAE-reported intent.
 
@@ -664,8 +664,8 @@ high-assurance links.
 
 # 6. Event schema extensions
 
-We extend the Sezar `crypto_inventory_event v1` schema (defined
-in `docs/crypto-event-schema.md` in the Sezar repository) with
+We extend the ree0xQ `crypto_inventory_event v1` schema (defined
+in `docs/crypto-event-schema.md` in the ree0xQ repository) with
 additive, non-breaking fields. Existing consumers that ignore
 unknown top-level fields continue to function; consumers that
 opt in to v1.1 gain access to channel-protection and agility
@@ -677,7 +677,7 @@ observables.
 {
   "schema_version": 1,
   "schema_minor": 1,
-  "source_module": "sezar-net",
+  "source_module": "ree0xq-net",
   "observed_at": "2026-08-15T11:42:03.421Z",
   "asset": { ... },
   "primitives": [ ... ],
@@ -721,7 +721,7 @@ Table 4 lists these fields.
 
 : Fields of the `channel_protection` block.
 
-The fields are populated by `sezar-qkd`, which polls the ETSI 014
+The fields are populated by `ree0xq-qkd`, which polls the ETSI 014
 `/status` endpoint at configurable intervals. SAE-side fields
 (`key_id_observed`, `psk_age_seconds`) require cooperating
 instrumentation in the SAE; when absent they are `null`.
@@ -744,7 +744,7 @@ instrumentation in the SAE; when absent they are `null`.
       "detected": false
     }
   ],
-  "scanner_version": "sezar-agility/0.3.1",
+  "scanner_version": "ree0xq-agility/0.3.1",
   "rubric_version": "qra-rubric/v1.0"
 }
 ```
@@ -756,7 +756,7 @@ Table 5 lists these fields.
 | `level` | enum | `negotiated` / `configurable` / `pinned` / `locked` / `frozen`. |
 | `level_score` | float | Numeric value per §5.3. |
 | `evidence` | array | One or more evidentiary findings supporting the level. |
-| `scanner_version` | string | Sezar-agility version that produced the score. |
+| `scanner_version` | string | ree0xQ-agility version that produced the score. |
 | `rubric_version` | string | Version of the public scoring rubric (§8.3). |
 
 : Fields of the `agility` block.
@@ -775,7 +775,7 @@ qkd_link          // identity = KME endpoint URL hash
 qkd_kme           // identity = KME ID per ETSI 014 status
 ```
 
-These are emitted by `sezar-qkd` independently of the session
+These are emitted by `ree0xq-qkd` independently of the session
 events that consume their keys. They allow the dashboard to render
 a QKD link health view distinct from the SAE-side session view.
 
@@ -790,7 +790,7 @@ The schema extension is strictly additive:
   `null` (per the V1 module emission contract).
 - The posture engine treats `channel_protection: null` as
   `state: classical` and `agility: null` as the
-  `UNKNOWN_LEVEL_FALLBACK` constant defined in `sezar-agility`,
+  `UNKNOWN_LEVEL_FALLBACK` constant defined in `ree0xq-agility`,
   which evaluates to `level: pinned` (`level_score: 0.50`).
   This is deliberately more conservative than Axis A's
   `unknown = 0.4`: an asset whose agility we cannot evidence
@@ -800,49 +800,49 @@ The schema extension is strictly additive:
 
 ---
 
-# 7. Sezar: reference architecture and implementation
+# 7. ree0xQ: reference architecture and implementation
 
-Sezar is an open-source observability platform implementing the
+ree0xQ is an open-source observability platform implementing the
 three-axis posture model. The implementation is a single Rust
 workspace containing seven crates: five agents emitting events,
 one shared rollup library, and one collector/server. Figure 3
 shows how the agents, the shared rollup library, the collector,
 and the dashboard fit together.
 
-![**Figure 3.** Sezar reference architecture. Five agents
-(`sezar-net`, `sezar-qkd`, `sezar-agility`, plus `sezar-cert`
-and `sezar-chain`/`sezar-id` in later phases) emit
-`crypto_inventory_event` records into `sezar-server`. The
-shared `sezar-core` library hosts the schema, the
+![**Figure 3.** ree0xQ reference architecture. Five agents
+(`ree0xq-net`, `ree0xq-qkd`, `ree0xq-agility`, plus `ree0xq-cert`
+and `ree0xq-chain`/`ree0xq-id` in later phases) emit
+`crypto_inventory_event` records into `ree0xq-server`. The
+shared `ree0xq-core` library hosts the schema, the
 classification table, and the deadline-adjusted rollup. The
 React dashboard renders the three-axis posture matrix and the
-priority-sorted action list.](figures/sezar-architecture.pdf){#fig:arch width=90%}
+priority-sorted action list.](figures/ree0xq-architecture.pdf){#fig:arch width=90%}
 
 ## 7.1 Workspace layout
 
 ```
-sezar/
+ree0xq/
 ├── crates/
-│   ├── sezar-core/       # event schema, rollup engine (no I/O)
-│   ├── sezar-server/     # axum collector + REST API
-│   ├── sezar-net/        # eBPF agent: TLS, SSH, IPsec
-│   ├── sezar-qkd/        # ETSI GS QKD 014 collector + emulator
-│   ├── sezar-cert/       # X.509 inventory (CT, host scan)
-│   ├── sezar-chain/      # public-chain crypto observation
-│   ├── sezar-id/         # HSM/KMS/smart-card inventory
-│   └── sezar-agility/    # static crypto-agility scanner
+│   ├── ree0xq-core/       # event schema, rollup engine (no I/O)
+│   ├── ree0xq-server/     # axum collector + REST API
+│   ├── ree0xq-net/        # eBPF agent: TLS, SSH, IPsec
+│   ├── ree0xq-qkd/        # ETSI GS QKD 014 collector + emulator
+│   ├── ree0xq-cert/       # X.509 inventory (CT, host scan)
+│   ├── ree0xq-chain/      # public-chain crypto observation
+│   ├── ree0xq-id/         # HSM/KMS/smart-card inventory
+│   └── ree0xq-agility/    # static crypto-agility scanner
 ├── docs/
 └── web/                  # React + Vite dashboard
 ```
 
 The architectural invariant — every agent emits one and only one
-event shape, computed locally via `sezar-core::rollup` — is what
+event shape, computed locally via `ree0xq-core::rollup` — is what
 keeps the platform composable across surfaces as different as
 eBPF TLS sniffing and Solidity source code analysis.
 
-## 7.2 sezar-qkd: ETSI 014 collector and emulator
+## 7.2 ree0xq-qkd: ETSI 014 collector and emulator
 
-The `sezar-qkd` crate fulfils two roles. Operationally, it is a
+The `ree0xq-qkd` crate fulfils two roles. Operationally, it is a
 collector that polls one or more ETSI GS QKD 014 KMEs, emits
 `qkd_link` and `qkd_kme` events, and serves as the data source
 for the `channel_protection` block on session events emitted by
@@ -868,7 +868,7 @@ guidance: mutual TLS with the SAE certificate.
 ### 7.2.2 Emulator
 
 Hardware QKD is expensive and rare, so we ship
-`sezar-qkd-kme-emulator` — an ETSI 014 v1.1.1 implementation
+`ree0xq-qkd-kme-emulator` — an ETSI 014 v1.1.1 implementation
 backed by a synthetic key generator. The emulator:
 
 - Implements `/status`, `/enc_keys`, and `/dec_keys` exactly per
@@ -882,11 +882,11 @@ backed by a synthetic key generator. The emulator:
   enabling head-to-head A/B testing of SAE implementations.
 
 The emulator is the foundation of the §8.2 empirical study and
-is released alongside Sezar as a standalone tool.
+is released alongside ree0xQ as a standalone tool.
 
-## 7.3 sezar-agility: static crypto-agility scanner
+## 7.3 ree0xq-agility: static crypto-agility scanner
 
-The `sezar-agility` crate implements the agility-axis scoring per
+The `ree0xq-agility` crate implements the agility-axis scoring per
 §5.3. It accepts as input one or more *targets* and produces
 `agility` blocks attached to the corresponding assets.
 
@@ -905,7 +905,7 @@ Table 6 maps each target type to the evidence the scanner draws on.
 
 ### 7.3.2 Ruleset
 
-The published ruleset (`sezar-agility/rules/v1`) consists of
+The published ruleset (`ree0xq-agility/rules/v1`) consists of
 several hundred Semgrep patterns covering common cryptographic
 libraries and protocols across C, Go, Rust, Python, Java, and
 configuration formats (nginx, Apache, OpenSSL config, sshd_config,
@@ -939,21 +939,21 @@ projections through a dashboard toggle.
 
 Where evidence is absent, the scanner produces `level: pinned`
 (the documented `UNKNOWN_LEVEL_FALLBACK` constant in
-`sezar-agility`) and surfaces the issue for operator review.
+`ree0xq-agility`) and surfaces the issue for operator review.
 
 We discuss limitations of static-only agility scoring in §9.
 
-## 7.4 sezar-core unified rollup
+## 7.4 ree0xq-core unified rollup
 
 The rollup engine extends the V1 implementation (see
-`docs/posture-rollup.md` in the Sezar repository) with the
+`docs/posture-rollup.md` in the ree0xQ repository) with the
 deadline-adjusted three-axis formula of §5.4. The
 implementation remains a pure function with no I/O; the operator
 configures $D$, $H$, and asset-class weights via the dashboard,
 and the engine recomputes on every event ingest. Fuzz testing
 covers all axis combinations.
 
-## 7.5 sezar-server and dashboard
+## 7.5 ree0xq-server and dashboard
 
 The collector is an Axum HTTP service accepting v1.0 and v1.1
 events, validating against a generated JSON schema, persisting to
@@ -981,7 +981,7 @@ purpose-built probes — general-purpose scanners such as
 `zgrab2` [@zgrab2] do not yet advertise X25519MLKEM768 in the
 ClientHello, so we built dedicated baseline and PQ-capable
 probes to keep the ClientHello surface deterministic and the
-output schema aligned with Sezar's collector:
+output schema aligned with ree0xQ's collector:
 
 1. **Classical baseline probe** — Python `ssl` with the
    system OpenSSL defaults. Establishes a TLS handshake
@@ -998,8 +998,8 @@ TLS version, negotiated cipher suite, negotiated key-exchange
 group, leaf certificate signature algorithm, and the leaf
 certificate Subject. The scan is constrained to one TCP
 connection per host, identifies itself in the ClientHello SNI
-extension as `sezar-survey/1.0
-+https://e2esolutions.tech/sezar`, and uses a 5-second
+extension as `ree0xq-survey/1.0
++https://e2esolutions.tech/ree0xq`, and uses a 5-second
 connect+handshake timeout with a 1 Hz rate cap.
 
 The scan source code, target list, raw probe outputs, and
@@ -1122,7 +1122,7 @@ KMEs, and three cooperating SAEs (a strongSwan IPsec endpoint
 operating in PSK mode with QKD-PSK rotation, a Wireguard endpoint
 with manual PSK rotation, and a custom TLS endpoint using the
 NIST SP 1800-38A hybrid-PSK pattern). The KMEs are
-`sezar-qkd-kme-emulator` instances; we drive them through a
+`ree0xq-qkd-kme-emulator` instances; we drive them through a
 documented sequence of replay scenarios:
 
 - **R1 — Steady-state.** Constant QBER 1.8%, key rate 12 kbps,
@@ -1130,23 +1130,23 @@ documented sequence of replay scenarios:
 - **R2 — Gradual degradation.** QBER ramps from 1.8% to 8.5% over
   4 hours; the SAE policy should fail over to classical at the
   configured threshold. We observe whether each SAE detects the
-  degradation and whether Sezar's `link_health` reflects the
+  degradation and whether ree0xQ's `link_health` reflects the
   transition.
 - **R3 — Hard failure.** KME unreachable for 30 minutes. SAE
   behavior should be: continue with cached PSK until lifetime
   expires, then fail closed or fall back to classical per policy.
 - **R4 — Stale PSK.** PSK rotation is suppressed at the SAE while
-  the KME continues to produce keys. Sezar should observe
+  the KME continues to produce keys. ree0xQ should observe
   `psk_age_seconds` rising past policy.
 - **R5 — Bifurcated SAE.** The strongSwan endpoint sees a healthy
   KME while the Wireguard endpoint sees a failed KME (simulating
-  partial KME outage). Sezar should report inconsistent
+  partial KME outage). ree0xQ should report inconsistent
   per-session `channel_protection` while the `qkd_link` aggregate
   is `degraded`.
 
 ### 8.2.2 Metrics
 
-We measure: SAE failover correctness, Sezar observation latency
+We measure: SAE failover correctness, ree0xQ observation latency
 (emulator change → emitted event), event-ordering correctness
 under concurrent KME polls, and posture-rollup correctness
 (particularly that the unified $q$ score reflects the
@@ -1199,17 +1199,17 @@ a separately healthy paired KME continues to deliver keys.
 KME-only telemetry cannot distinguish this from a full outage;
 the channel-protection block on per-session events does.
 
-R4 surfaces a gap we left in by design. Sezar's
+R4 surfaces a gap we left in by design. ree0xQ's
 KME-side polling alone cannot distinguish a fresh PSK from
 one the SAE has held for hours; the `psk_age_seconds` field
 on `channel_protection` is populated only when the SAE
 co-operates. Closed-source SAEs without that instrumentation
-are visible to Sezar only at the link layer. We open-source
+are visible to ree0xQ only at the link layer. We open-source
 patches for strongSwan, Wireguard, and a sample TLS endpoint
 to populate the field.
 
 The emulator, replay scripts, and analysis notebooks ship
-under MIT alongside Sezar.
+under MIT alongside ree0xQ.
 
 ## 8.3 Study 3 — Axis G on fifty open-source server projects
 
@@ -1222,14 +1222,14 @@ OpenSSH server, Postfix, Dovecot, Exim, PostgreSQL, MySQL, Redis,
 MongoDB, RabbitMQ, Kafka, OpenVPN, strongSwan, Wireguard,
 PowerDNS, BIND, Unbound, CoreDNS, and others. The full list,
 with hand-graded ground-truth levels and reviewer notes, ships
-as `crates/sezar-agility/corpus/oss-50-v1.csv` in the Sezar
+as `crates/ree0xq-agility/corpus/oss-50-v1.csv` in the ree0xQ
 repository.
 
 For each project we:
 
-1. Run `sezar-agility` against the source repository at a
+1. Run `ree0xq-agility` against the source repository at a
    pinned commit.
-2. Run `sezar-agility` against the installed binary on Rocky
+2. Run `ree0xq-agility` against the installed binary on Rocky
    Linux 10 with default package configuration.
 3. Hand-grade the project against the §5.3 rubric, using two
    reviewers and reporting inter-rater agreement.
@@ -1247,7 +1247,7 @@ category.
 ### 8.3.3 Results (n = 11 pilot subset)
 
 The full OSS-50 corpus is committed at
-`crates/sezar-agility/corpus/oss-50-v1.csv` with hand-graded
+`crates/ree0xq-agility/corpus/oss-50-v1.csv` with hand-graded
 ground truth. A pilot run over an 11-project subset spanning
 nine categories (HTTP, mail, DB, message-broker, DNS,
 VPN/secure-shell, messaging, certificate-authority, time)
@@ -1318,7 +1318,7 @@ runner already iterates over the corpus CSV.
 ## 8.4 End-to-end pipeline
 
 `scripts/demo.sh` exercises the full V1 pipeline end-to-end:
-boot the KME emulator, the QKD collector, sezar-server, and
+boot the KME emulator, the QKD collector, ree0xq-server, and
 seed events from both the bundled zgrab2 fixture and a
 synthetic FIPS-locked asset. The collector's `/v1/posture`
 endpoint returns:
@@ -1348,7 +1348,7 @@ the nominally-agile modern host; the deadline-tension term
 leaves the legacy host at the top of the queue.
 
 The implementation's pure-Rust rollup (in
-`crates/sezar-server/src/posture.rs`) was verified against
+`crates/ree0xq-server/src/posture.rs`) was verified against
 the magazine companion's four-asset worked example: the unit
 tests `worked_example_alpha_q_matches_paper` and
 `worked_example_delta_q_matches_paper` assert that the
@@ -1378,7 +1378,7 @@ false negatives by reporting per-evidence detail; we cannot
 fully address the second class without operator input.
 
 Our channel-protection axis depends on cooperating SAE
-instrumentation for per-session attribution. Sezar can observe
+instrumentation for per-session attribution. ree0xQ can observe
 the KME state independently, but linking a specific TLS or IPsec
 session to a specific consumed key requires the SAE to emit
 the `key_id_observed` field. We expect adoption in cooperating
@@ -1424,18 +1424,18 @@ mutual TLS authentication of the SAE.
 
 ## 9.3 Deployment guidance
 
-For operators planning to deploy Sezar against a real
+For operators planning to deploy ree0xQ against a real
 environment, we recommend a phased rollout:
 
-1. **Phase 1: Inventory only.** Run `sezar-net` and
-   `sezar-agility` in observe-only mode. Establish a baseline.
+1. **Phase 1: Inventory only.** Run `ree0xq-net` and
+   `ree0xq-agility` in observe-only mode. Establish a baseline.
 2. **Phase 2: Add deadline.** Configure $D$ per applicable
    regulatory regime. Observe how $q$ evolves with no other
    change.
 3. **Phase 3: Prioritize.** Sort assets by $q$ descending,
    migrate the top $N$ by quarter.
 4. **Phase 4: Integrate QKD telemetry where it exists.** Add
-   `sezar-qkd` only when a real KME is present and the SAE
+   `ree0xq-qkd` only when a real KME is present and the SAE
    instrumentation is in place; the channel-protection axis is
    *additive* and never required.
 
@@ -1520,7 +1520,7 @@ the contribution; the numbers are an invitation.
 # Author Contributions
 
 Aleaddin Özer conceived the study, designed the three-axis
-posture model, implemented the Sezar reference platform,
+posture model, implemented the ree0xQ reference platform,
 conducted all three empirical studies, and wrote the
 manuscript. Murat Aydos supervised the work as doctoral
 advisor, providing continuous critical review, methodological
@@ -1533,8 +1533,8 @@ manuscript.
 # Competing Interests
 
 Aleaddin Özer is Chief System Engineer of E2E Solutions,
-which develops the Sezar reference implementation described
-in this work. Sezar is released under the MIT License, and
+which develops the ree0xQ reference implementation described
+in this work. ree0xQ is released under the MIT License, and
 E2E Solutions derives no direct revenue from its
 publication. Murat Aydos declares no competing interests.
 The authors have no other competing financial or
@@ -1558,8 +1558,11 @@ under MIT. The repository carries the schema (v1.1), the
 five-agent reference implementation, the ETSI GS QKD 014
 emulator with its replay corpus, the Semgrep agility rule
 pack, and the hand-graded ground-truth corpus
-(`crates/sezar-agility/corpus/oss-50-v1.csv`). Runner
+(`crates/ree0xq-agility/corpus/oss-50-v1.csv`). Runner
 scripts reproduce all three studies.
+
+The platform was renamed from *Sezar* to *ree0xQ* in August 2026. The public preprint and the archived study artifacts under `studies/` predate the rename and retain the former name and module identifiers; the released code is otherwise identical.
+
 
 Study 1 used Tranco snapshot `6G8PX` (2026-05-13) as its
 sample frame. Raw NDJSON captures and the analysis plots
