@@ -1,6 +1,6 @@
 # Submission bundle — EPJ Quantum Technology (SpringerOpen)
-# Generated: 2026-09-04T09:33:52Z
-# Source commit: 9e02043
+# Generated: 2026-09-04T09:35:08Z
+# Source commit: 021a056
 
 4214f81ce6cf405b49d0dba2c9b85e3983941062ae48c3f01bfad1e29df6899a  ./cover-letter.md
 adf00b51f463c7218f23ef3b42d67274a1fa204d918126a5d80d41de0e583fd4  ./cover-letter.pdf
@@ -11,10 +11,10 @@ fb2d0ab2b98ff4c6f3d0dab2f8132a58be20324efb9c72adbff05e7eabcdd65c  ./figures/ree0
 88ec565397698e142495fe4e4ce907010bb23a224c30ac095714d4039182ced7  ./figures/study1-tranco-pq-kex.pdf
 a32058043769adaaa9fe8d16bdca076c67ce49c097048de3267a13f69fce42e8  ./figures/study3-agreement-matrix.pdf
 1ced6c73377cb1fd561c489c7da88c30828cba4d48c24ba563724fa29916cc5f  ./figures/three-axis-cube.pdf
-9c8bde91f6612df9718a72091bd4e8f92804c5cb77d171d37b269ad6979c14ef  ./manuscript-latex-preview.pdf
-7b2c647862c59073c3a6ab49a4c381b97c0a59959265967541e61fceca872013  ./manuscript-latex.zip
-c771bbfd8992e8cb006c23cfd84b371b9cb3148344f342470a3f430960ed4bea  ./manuscript.md
-b3c56b787c7a00a0654a1b82e05952c2ca781a7f99d5f5237ed54f68ba7377da  ./manuscript.pdf
+1bf72a338f9ec1e88519f94ab18c428335eebc7d0e0fa9b8b5c7118c4ed4f535  ./manuscript-latex-preview.pdf
+0af6006248db51b2bc6507dd6660707a3234409828861c5fa33a00fc627c53b7  ./manuscript-latex.zip
+70022c90112ec651bb45cf49fcaefd318e22b5ded816bb571fe06e338bba58dd  ./manuscript.md
+edb4b023feb69adc047498ec66cb3e2cce9ca7329d11cd9308c71f9c787c6514  ./manuscript.pdf
 95639f53ee638f49a0a861dc4f9bee85f175edcb6b6084b79ae24ef5ca467f5c  ./references.bib
 411e36924d3b462148a33b18af2d11c633bebe126f9216b0b97343536de93e0b  ./submission-checklist.md
 58070a16901ef30458693d7ccfe48c2126ecc66150aa2901bc0d7e07e2a850ce  ./suggested-reviewers.md

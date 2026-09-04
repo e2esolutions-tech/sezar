@@ -38,7 +38,7 @@ abstract: |
   operator's deadline approaches. To make the model
   observable, we extend the open `crypto_inventory_event` v1
   schema with two new fields, build a reference
-  implementation (ree0xQ (formerly *Sezar*)) covering eBPF-based TLS observation,
+  implementation (ree0xQ, formerly *Sezar*) covering eBPF-based TLS observation,
   an ETSI GS QKD 014 collector with a working Key-Management
   -Entity emulator, and a static crypto-agility scanner, and
   evaluate the result against three reproducible studies: a
