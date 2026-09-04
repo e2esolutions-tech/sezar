@@ -11,7 +11,7 @@ The three studies map one-to-one to the paper's three axes:
 
 | Study | Axis | What it measures                                          | What it produces                                |
 |-------|------|-----------------------------------------------------------|-------------------------------------------------|
-| 1     | A    | TLS algorithm distribution on Tranco-top-1k               | TLS scan corpus + `sezar-net`-emitted events    |
+| 1     | A    | TLS algorithm distribution on Tranco-top-1k               | TLS scan corpus + `ree0xq-net`-emitted events    |
 | 2     | C    | ETSI GS QKD 014 collector + SAE behavior under fault     | KME emulator + replay scripts + capture corpus  |
 | 3     | G    | Crypto-agility of 50 widely deployed OSS server projects  | Semgrep ruleset + hand-graded ground truth      |
 
@@ -60,28 +60,28 @@ outputs**, **runtime envelope**, and **ethical considerations**.
    ```bash
    zgrab2 --senders 10 --output-file results/tranco-1k-baseline-${TRANCO_ID}.json \
      tls --port 443 \
-     --custom-name "sezar-survey/1.0 (+https://e2esolutions.tech/sezar)" \
+     --custom-name "ree0xq-survey/1.0 (+https://e2esolutions.tech/ree0xq)" \
      --next-protos h2,http/1.1 \
      < targets/tranco-1k-${TRANCO_ID}.txt
    ```
 
 4. **Run PQ-capable scan (X25519MLKEM768 offered alongside classical).**
    ```bash
-   # Uses a sezar-net wrapper that issues a ClientHello with the
+   # Uses a ree0xq-net wrapper that issues a ClientHello with the
    # X25519MLKEM768 key share group code (0x11EC).
-   ./bin/sezar-net-tls-probe \
+   ./bin/ree0xq-net-tls-probe \
      --groups x25519,x25519mlkem768 \
      --in targets/tranco-1k-${TRANCO_ID}.txt \
      --out results/tranco-1k-pq-${TRANCO_ID}.ndjson \
      --rate 10 \
-     --identifier "sezar-survey/1.0 (+https://e2esolutions.tech/sezar)"
+     --identifier "ree0xq-survey/1.0 (+https://e2esolutions.tech/ree0xq)"
    ```
 
 5. **Convert scan outputs to `crypto_inventory_event v1.1` and ingest.**
    ```bash
-   ./bin/sezar-scan-to-events \
+   ./bin/ree0xq-scan-to-events \
      --input results/tranco-1k-pq-${TRANCO_ID}.ndjson \
-     --source-module sezar-net \
+     --source-module ree0xq-net \
      --output-collector https://collector.local/v1/events
    ```
 
@@ -126,7 +126,7 @@ Network egress ≈30 MB total.
 
 ### Inputs
 
-- `sezar-qkd-kme-emulator` (released with this paper). Pure Rust;
+- `ree0xq-qkd-kme-emulator` (released with this paper). Pure Rust;
   no external dependencies beyond Tokio.
 - Three SAEs configured against the emulators:
   - **strongSwan** 5.9+ with PSK rotation via a small shell
@@ -142,14 +142,14 @@ Network egress ≈30 MB total.
 
 1. **Bring up the emulator topology.**
    ```bash
-   ./bin/sezar-qkd-kme-emulator \
+   ./bin/ree0xq-qkd-kme-emulator \
      --listen 127.0.0.1:11071 --kme-id KME-A --role master \
      --paired-kme KME-B,KME-C \
      --key-rate-bps 12000 --qber 0.018 &
-   ./bin/sezar-qkd-kme-emulator \
+   ./bin/ree0xq-qkd-kme-emulator \
      --listen 127.0.0.1:11072 --kme-id KME-B --role slave \
      --paired-kme KME-A &
-   ./bin/sezar-qkd-kme-emulator \
+   ./bin/ree0xq-qkd-kme-emulator \
      --listen 127.0.0.1:11073 --kme-id KME-C --role slave \
      --paired-kme KME-A &
    ```
@@ -157,16 +157,16 @@ Network egress ≈30 MB total.
 2. **Configure SAEs against KME endpoints.** Example for the
    custom TLS endpoint:
    ```bash
-   ./bin/sezar-test-sae-tls \
+   ./bin/ree0xq-test-sae-tls \
      --master-kme http://127.0.0.1:11071/api/v1 \
      --slave-sae SAE-TLS-B \
      --rotate-every 60s \
      --listen 0.0.0.0:8443 &
    ```
 
-3. **Run the Sezar QKD collector.**
+3. **Run the ree0xQ QKD collector.**
    ```bash
-   ./bin/sezar-qkd \
+   ./bin/ree0xq-qkd \
      --kme http://127.0.0.1:11071/api/v1 \
      --kme http://127.0.0.1:11072/api/v1 \
      --kme http://127.0.0.1:11073/api/v1 \
@@ -181,15 +181,15 @@ Network egress ≈30 MB total.
 
    ```bash
    for replay in r1-steady r2-degradation r3-hard-failure r4-stale-psk r5-bifurcated; do
-     ./bin/sezar-qkd-replay \
+     ./bin/ree0xq-qkd-replay \
        --emulator-control http://127.0.0.1:11071/control \
        --replay scenarios/${replay}.yaml \
        --capture-out captures/${replay}.ndjson
    done
    ```
 
-5. **Cross-correlate emitted Sezar events with replay timeline.**
-   The `sezar-scenario-eval` tool ingests both the emulator
+5. **Cross-correlate emitted ree0xQ events with replay timeline.**
+   The `ree0xq-scenario-eval` tool ingests both the emulator
    replay log and the collector's event log, and computes for
    each scenario:
    - Time-to-observation (replay event → emitted event).
@@ -228,7 +228,7 @@ and the security of the KME network.
 
 ### Inputs
 
-- `sezar-agility` v0.3+ with the published ruleset `rules/v1`.
+- `ree0xq-agility` v0.3+ with the published ruleset `rules/v1`.
 - Source repositories for the corpus (pinned to specific
   commits). Full corpus listed in
   `corpus/oss-50-v1.csv`.
@@ -240,7 +240,7 @@ and the security of the KME network.
 
 1. **Clone corpus at pinned commits.**
    ```bash
-   ./bin/sezar-corpus-fetch \
+   ./bin/ree0xq-corpus-fetch \
      --list corpus/oss-50-v1.csv \
      --out corpus/sources/
    # Produces corpus/sources/<project>/ each at a recorded SHA.
@@ -249,7 +249,7 @@ and the security of the KME network.
 2. **Run agility scan on each repository.**
    ```bash
    for proj in corpus/sources/*; do
-     ./bin/sezar-agility scan \
+     ./bin/ree0xq-agility scan \
        --target "$proj" \
        --rules rules/v1 \
        --output-events corpus/results/$(basename $proj).events.json
@@ -258,7 +258,7 @@ and the security of the KME network.
 
 3. **Run agility scan on each installed package on the host.**
    ```bash
-   ./bin/sezar-agility scan-host \
+   ./bin/ree0xq-agility scan-host \
      --packages corpus/oss-50-v1.csv \
      --rules rules/v1 \
      --output-events corpus/results-host/
@@ -316,8 +316,8 @@ Procedure:
 1. Identify hosts in `tranco-1k` whose server header or TLS ALPN
    identifies a project from `oss-50-v1.csv`. (Conservative
    identification; ambiguous matches dropped.)
-2. For each match, combine the Study-1 `sezar-net` event with
-   the Study-3 `sezar-agility` event into a single asset record
+2. For each match, combine the Study-1 `ree0xq-net` event with
+   the Study-3 `ree0xq-agility` event into a single asset record
    via the collector's deduplication on
    `(asset.kind, asset.identity)` plus the additional
    `agility` block attribution by host.
@@ -335,7 +335,7 @@ Procedure:
 
 To replicate the studies exactly, an external party needs:
 
-- The Sezar source repository at the paper's release tag.
+- The ree0xQ source repository at the paper's release tag.
 - The `corpus/oss-50-v1.csv` corpus list with pinned commits.
 - The `rules/v1` Semgrep ruleset (in the repository).
 - The `scenarios/` ETSI 014 emulator replay files (in the
@@ -356,7 +356,7 @@ CSV and the Tranco list snapshot in an academic archive
    PQ adoption on the open web is rising. We pin the list ID
    used; subsequent re-runs by external parties will produce
    different headline numbers but the *methodology* and the
-   *Sezar-side* metrics remain identical.
+   *ree0xQ-side* metrics remain identical.
 2. **OSS corpus drift.** We pin to commit SHAs; reviewers
    re-running the agility scan on the same SHAs will see the
    same scanner output. Re-runs on `main` may differ as
@@ -376,21 +376,21 @@ CSV and the Tranco list snapshot in an academic archive
 
 ## Phase 2 — Live Observation
 
-Beyond the active-probe path used by Study 1, `sezar-net` also
+Beyond the active-probe path used by Study 1, `ree0xq-net` also
 ships a *passive* observation path so an operator can watch their
 own outbound TLS without scanning. Three modes share the same
 frame-handling code:
 
-- **Phase 2.0 — pcap-file replay** (default build). `sezar-net live
+- **Phase 2.0 — pcap-file replay** (default build). `ree0xq-net live
   --pcap <file>` reads a `.pcap` or `.pcapng` capture (e.g. from
   `tcpdump -w port-443.pcap port 443`), parses Ethernet / IPv4 /
   TCP, looks for TLS record-layer handshake messages, and emits one
   `crypto_inventory_event` per ClientHello / ServerHello. Pure-Rust,
   no system dependencies, no privileges required — the integration
-  test in `crates/sezar-net/tests/live_pcap.rs` synthesises a tiny
+  test in `crates/ree0xq-net/tests/live_pcap.rs` synthesises a tiny
   ClientHello pcap end-to-end as a sanity check.
 - **Phase 2.2 — libpcap live interface** (`--features live-pcap`).
-  `sezar-net live --iface lo` opens a network interface via libpcap
+  `ree0xq-net live --iface lo` opens a network interface via libpcap
   and feeds the same frame-handling path. Sensible defaults: 1 Hz
   read timeout for Ctrl-C responsiveness, snaplen 1500, BPF filter
   `tcp port 443`. Build needs `libpcap-devel` (Fedora) or
@@ -398,10 +398,10 @@ frame-handling code:
   intended audience is operators who want a low-friction `lo`
   smoke test or small-scale capture without the eBPF toolchain.
 - **Phase 2.1 — eBPF TC classifier** (`--features live-interface`).
-  A kernel-side classifier (`crates/sezar-net-ebpf/`, written
+  A kernel-side classifier (`crates/ree0xq-net-ebpf/`, written
   against `aya-ebpf` 0.1) attaches to a network interface's
   ingress hook, captures TLS handshake bytes into a ring buffer,
-  and a userspace loader (`crates/sezar-net/src/live_iface.rs`)
+  and a userspace loader (`crates/ree0xq-net/src/live_iface.rs`)
   consumes them and emits identical events. Build requires a
   nightly toolchain, `bpf-linker`, and the `bpfel-unknown-none`
   target; runtime requires `CAP_BPF` + `CAP_NET_ADMIN`. The
@@ -420,7 +420,7 @@ frame-handling code:
   scan corpus and the published data.
 - **No claims about closed-source enterprise environments.**
   The studies measure observability surfaces we can publish.
-  Sezar is deployable into closed environments, but we make
+  ree0xQ is deployable into closed environments, but we make
   no headline claims about those environments in this paper.
 
 ---
@@ -429,9 +429,9 @@ frame-handling code:
 
 | Activity                                        | Effort        |
 |-------------------------------------------------|---------------|
-| Implement `sezar-qkd-kme-emulator` + replay     | 2 weeks       |
-| Implement `sezar-net-tls-probe` + ingest tools  | 1 week        |
-| Implement `sezar-agility` MVP + `rules/v1`      | 3 weeks       |
+| Implement `ree0xq-qkd-kme-emulator` + replay     | 2 weeks       |
+| Implement `ree0xq-net-tls-probe` + ingest tools  | 1 week        |
+| Implement `ree0xq-agility` MVP + `rules/v1`      | 3 weeks       |
 | Bring up SAEs and run Study 2 scenarios         | 1 week        |
 | Run Study 1 scan + analysis                     | 2 days        |
 | Run Study 3 source + host scans                 | 2 days        |

@@ -51,7 +51,7 @@ Submission disclosures
 - Both authors approved the manuscript and the CRediT
   contributions stated in §10.
 - We declare no competing interests. E2E Solutions develops
-  and releases the platform under MIT but derives no direct
+  and releases the ree0xQ platform (formerly *Sezar*) under MIT but derives no direct
   commercial revenue from the publication.
 - The work was self-funded by E2E Solutions and Hacettepe
   University; no external grants.

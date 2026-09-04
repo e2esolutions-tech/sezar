@@ -81,7 +81,7 @@ bundle_one() {
   install -m 0644 "$PAPER_DIR/ieee.csl" "$stage/" 2>/dev/null || true
 
   # Conceptual figures 1-3 (paper/figures/).
-  for fig in three-axis-cube q-trajectory sezar-architecture; do
+  for fig in three-axis-cube q-trajectory ree0xq-architecture; do
     for ext in pdf png; do
       [ -f "$PAPER_DIR/figures/$fig.$ext" ] && \
         install -m 0644 "$PAPER_DIR/figures/$fig.$ext" "$stage/figures/"
@@ -185,7 +185,7 @@ Generated $DATE by scripts/paper-submission-package.sh.
 | ieee.csl | IEEE numeric CSL style (used by citeproc for the PDF render) |
 | figures/three-axis-cube.{pdf,png} | Figure 1 — three-axis cube |
 | figures/q-trajectory.{pdf,png} | Figure 2 — q(t) trajectory |
-| figures/sezar-architecture.{pdf,png} | Figure 3 — reference architecture |
+| figures/ree0xq-architecture.{pdf,png} | Figure 3 — reference architecture |
 | figures/study1-tranco-distribution.{pdf,png} | Figure 4 — Study 1 baseline distribution |
 | figures/study1-tranco-pq-kex.{pdf,png} | Figure 5 — Study 1 PQ adoption |
 | figures/r3-hard-failure-timeline.{pdf,png} | Figure 6 — Study 2 R3 timeline |

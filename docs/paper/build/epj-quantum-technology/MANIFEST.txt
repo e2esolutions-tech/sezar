@@ -1,20 +1,20 @@
 # Submission bundle — EPJ Quantum Technology (SpringerOpen)
-# Generated: 2026-09-04T08:31:58Z
-# Source commit: ff02c96
+# Generated: 2026-09-04T09:33:52Z
+# Source commit: 9e02043
 
-bcf17554cb7f3116ffda0599166766f90824b41a2162b1038f9eee60e05922e5  ./cover-letter.md
-4154ba08256db2504892469e707169e115b798e08c2621c4439abe3273830a8e  ./cover-letter.pdf
+4214f81ce6cf405b49d0dba2c9b85e3983941062ae48c3f01bfad1e29df6899a  ./cover-letter.md
+adf00b51f463c7218f23ef3b42d67274a1fa204d918126a5d80d41de0e583fd4  ./cover-letter.pdf
 ce6ec4865f366e1e1dc25711ffaa3c6b5a243d198271faad14343e7d48ffda88  ./figures/q-trajectory.pdf
 42487a1e09172766a373c6dd88e980e48fd4599275b37d8e243646eb7f442d59  ./figures/r3-hard-failure-timeline.pdf
-b33b5909a1ac6767e933b1a55f59ad816596fd6d5cd27c1443a229f7b879c388  ./figures/sezar-architecture.pdf
+fb2d0ab2b98ff4c6f3d0dab2f8132a58be20324efb9c72adbff05e7eabcdd65c  ./figures/ree0xq-architecture.pdf
 36bc9a0ba6fb0982f8ac757c5323980aae2ad4830fb26a431c5114663805f346  ./figures/study1-tranco-distribution.pdf
 88ec565397698e142495fe4e4ce907010bb23a224c30ac095714d4039182ced7  ./figures/study1-tranco-pq-kex.pdf
 a32058043769adaaa9fe8d16bdca076c67ce49c097048de3267a13f69fce42e8  ./figures/study3-agreement-matrix.pdf
 1ced6c73377cb1fd561c489c7da88c30828cba4d48c24ba563724fa29916cc5f  ./figures/three-axis-cube.pdf
-9129fd47956670c02c9dd46cae50d67ba669d06b70238229f084a2c5cd943963  ./manuscript-latex-preview.pdf
-dda3ecbbb5ca3396c86fe9be67250e455044da0ce30a72dd6f72838d90b04082  ./manuscript-latex.zip
-a08ffc9faf8de6f71ff9092fe4cbc46012aca4e5319b5a4db6b366cd53ae662f  ./manuscript.md
-dd3114e4f53bf5b11be141a5784934abfa5093817f8fe25fe832344082f6e417  ./manuscript.pdf
+9c8bde91f6612df9718a72091bd4e8f92804c5cb77d171d37b269ad6979c14ef  ./manuscript-latex-preview.pdf
+7b2c647862c59073c3a6ab49a4c381b97c0a59959265967541e61fceca872013  ./manuscript-latex.zip
+c771bbfd8992e8cb006c23cfd84b371b9cb3148344f342470a3f430960ed4bea  ./manuscript.md
+b3c56b787c7a00a0654a1b82e05952c2ca781a7f99d5f5237ed54f68ba7377da  ./manuscript.pdf
 95639f53ee638f49a0a861dc4f9bee85f175edcb6b6084b79ae24ef5ca467f5c  ./references.bib
 411e36924d3b462148a33b18af2d11c633bebe126f9216b0b97343536de93e0b  ./submission-checklist.md
 58070a16901ef30458693d7ccfe48c2126ecc66150aa2901bc0d7e07e2a850ce  ./suggested-reviewers.md

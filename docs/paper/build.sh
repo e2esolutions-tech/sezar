@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # docs/paper/build.sh
 #
-# Render the Sezar paper to PDF via the LaTeX-free pipeline:
+# Render the ree0xQ paper to PDF via the LaTeX-free pipeline:
 #
 #   .md  --pandoc--->  .html  --weasyprint-->  .pdf
 #

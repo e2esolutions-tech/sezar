@@ -44,7 +44,7 @@ mkdir -p "$WORK/figures"
 
 echo "[latex-zip] staging figures..."
 # Three conceptual figures live in docs/paper/figures/.
-for f in three-axis-cube q-trajectory sezar-architecture; do
+for f in three-axis-cube q-trajectory ree0xq-architecture; do
   cp "$ROOT/figures/$f.pdf" "$WORK/figures/"
 done
 # Four empirical figures live under studies/.

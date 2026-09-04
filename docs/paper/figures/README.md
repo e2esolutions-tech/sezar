@@ -12,7 +12,7 @@ Recommended toolchain:
   on every reviewer's machine.
 - **Matplotlib** (Python) for `q-trajectory.pdf` — the math is
   already in `scripts/q-trajectory.py` (see below).
-- **draw.io / Excalidraw → PDF** for `sezar-architecture.pdf`
+- **draw.io / Excalidraw → PDF** for `ree0xq-architecture.pdf`
   — fastest path; export to vector.
 
 Style guidance for IEEE S&P Magazine:
@@ -133,13 +133,13 @@ plt.savefig("q-trajectory.pdf")
 
 ---
 
-## Figure 3 — `sezar-architecture.pdf`
+## Figure 3 — `ree0xq-architecture.pdf`
 
-**Caption** (final): "Sezar reference architecture. Five agents
-(sezar-net, sezar-qkd, sezar-agility, plus sezar-cert and
-sezar-chain/sezar-id in later phases) emit
-crypto_inventory_event records into sezar-server. The shared
-sezar-core library hosts the schema, the classification table,
+**Caption** (final): "ree0xQ reference architecture. Five agents
+(ree0xq-net, ree0xq-qkd, ree0xq-agility, plus ree0xq-cert and
+ree0xq-chain/ree0xq-id in later phases) emit
+crypto_inventory_event records into ree0xq-server. The shared
+ree0xq-core library hosts the schema, the classification table,
 and the deadline-adjusted rollup. The React dashboard renders
 the three-axis posture matrix and the priority-sorted action
 list."
@@ -147,22 +147,22 @@ list."
 **Content**:
 - Five agent boxes at the top of the figure, labelled with the
   primary data source for each:
-  - `sezar-net` — eBPF (TLS / SSH / IPsec wire)
-  - `sezar-qkd` — ETSI GS QKD 014 (KME REST API)
-  - `sezar-agility` — Semgrep over source / installed packages
-  - `sezar-cert` (V2) — CT logs + host scan
-  - `sezar-chain` (V3) / `sezar-id` (V4) — chain RPC + KMS APIs
+  - `ree0xq-net` — eBPF (TLS / SSH / IPsec wire)
+  - `ree0xq-qkd` — ETSI GS QKD 014 (KME REST API)
+  - `ree0xq-agility` — Semgrep over source / installed packages
+  - `ree0xq-cert` (V2) — CT logs + host scan
+  - `ree0xq-chain` (V3) / `ree0xq-id` (V4) — chain RPC + KMS APIs
 - A single arrow from each agent merging into a labelled bus
-  `crypto_inventory_event v1.1` flowing down to a `sezar-server`
+  `crypto_inventory_event v1.1` flowing down to a `ree0xq-server`
   box (axum collector + REST API + DB).
-- An adjacent box `sezar-core` (shared library) connected to all
+- An adjacent box `ree0xq-core` (shared library) connected to all
   agents (showing it computes posture client-side and is
   re-used).
-- Below `sezar-server`: a Postgres + columnar DB pair.
-- Right of `sezar-server`: a React dashboard box, with three
+- Below `ree0xq-server`: a Postgres + columnar DB pair.
+- Right of `ree0xq-server`: a React dashboard box, with three
   small sub-panel labels: "three-axis matrix", "priority queue",
   "BLOCKED inventory".
-- Dashed arrows from `sezar-server` to dashboard.
+- Dashed arrows from `ree0xq-server` to dashboard.
 
 **Suggested implementation**: draw.io or Excalidraw, export as
 vector PDF. Keep boxes rectangular, monospace labels inside

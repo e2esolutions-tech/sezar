@@ -1,6 +1,6 @@
 # Paper: Three Axes of Quantum Risk
 
-Working draft of the Sezar reference paper plus its build pipeline.
+Working draft of the ree0xQ reference paper plus its build pipeline.
 
 ## Versions
 
@@ -35,7 +35,7 @@ The paper carries seven figures in the magazine version:
 |---|---|---|
 | 1 | Three-axis cube (matplotlib mpl_toolkits.mplot3d) | `figures/three-axis-cube.{pdf,png}` |
 | 2 | $q(t)$ trajectory (matplotlib) | `figures/q-trajectory.{pdf,png}` |
-| 3 | Sezar reference architecture (matplotlib FancyBboxPatch) | `figures/sezar-architecture.{pdf,png}` |
+| 3 | ree0xQ reference architecture (matplotlib FancyBboxPatch) | `figures/ree0xq-architecture.{pdf,png}` |
 | 4 | Study 1 classical-probe distribution (Tranco-1k) | `studies/study1/plots/study1-tranco-distribution.{pdf,png}` |
 | 5 | Study 1 PQ-capable probe results (Tranco-1k) | `studies/study1/plots/study1-tranco-pq-kex.{pdf,png}` |
 | 6 | Study 2 R3 link-health timeline | `studies/study2/plots/r3-hard-failure-timeline.{pdf,png}` |
@@ -127,7 +127,7 @@ $D=$ 2030-01-01, $H=5$ years:
 | γ legacy-pinned        | 0.12 | 0.00 | 0.50 | 0.816           | 0.897           |
 | δ modern + QKD-PSK     | 0.51 | 0.70 | 0.75 | 0.392           | 0.428           |
 
-`crates/sezar-server` runs unit tests
+`crates/ree0xq-server` runs unit tests
 (`worked_example_alpha_q_matches_paper`,
 `worked_example_delta_q_matches_paper`) that assert the
 implementation reproduces α and δ to within 0.01.
